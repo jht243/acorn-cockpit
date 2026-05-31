@@ -131,7 +131,7 @@ function Kpi({ label, value, hint }: { label: string; value: string; hint?: stri
   );
 }
 
-function Th({ children }: { children: React.ReactNode }) {
+function Th({ children }: { children?: React.ReactNode }) {
   return <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">{children}</th>;
 }
 
