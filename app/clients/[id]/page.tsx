@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Sidebar from "../../../components/Sidebar";
 import TopBar from "../../../components/TopBar";
-import { clients, fmtUSD, netWorth, assetsByCategory } from "../../../lib/data";
+import { getClientById } from "../../../utils/supabase/queries";
 
 const categoryColor: Record<string, string> = {
   Cash: "#7fb88a",
@@ -13,15 +13,35 @@ const categoryColor: Record<string, string> = {
   Business: "#4a544f",
 };
 
+export const fmtUSD = (n: number) =>
+  n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+export function netWorth(c: any) {
+  const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
+  const l = c.liabilities?.reduce((s: number, x: any) => s + Number(x.balance), 0) || 0;
+  return { assets: a, liabilities: l, net: a - l };
+}
+
+export function assetsByCategory(c: any) {
+  const map = new Map<string, number>();
+  c.assets?.forEach((a: any) => map.set(a.category, (map.get(a.category) ?? 0) + Number(a.value)));
+  const total = Array.from(map.values()).reduce((s: number, x: number) => s + x, 0);
+  return Array.from(map.entries()).map(([category, value]) => ({
+    category,
+    value,
+    pct: total ? (value / total) * 100 : 0,
+  }));
+}
+
 export default async function ClientDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const client = clients.find((c) => c.id === id);
+  const client = await getClientById(id);
   if (!client) return notFound();
 
   const nw = netWorth(client);
   const breakdown = assetsByCategory(client);
-  const monthlyExp = client.expenses.reduce((s, x) => s + x.monthly, 0);
-  const annualInc = client.income.reduce((s, x) => s + x.annual, 0);
+  const monthlyExp = client.expenses?.reduce((s: number, x: any) => s + Number(x.monthly), 0) || 0;
+  const annualInc = client.income?.reduce((s: number, x: any) => s + Number(x.annual), 0) || 0;
 
   return (
     <div className="flex min-h-screen">
@@ -67,14 +87,14 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                 </div>
                 <div>
                   <div className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: "var(--ink-soft)" }}>Last contact</div>
-                  <div className="kpi-num" style={{ fontSize: 18 }}>{client.lastContact}</div>
-                  {client.lastContactSignal && (
+                  <div className="kpi-num" style={{ fontSize: 18 }}>{client.last_contact ? new Date(client.last_contact).toLocaleDateString() : '—'}</div>
+                  {client.last_contact_signal && (
                     <div className="text-xs mt-1 flex items-center gap-1" style={{ color: "var(--ink-soft)" }}>
-                      <SourceBadge source={client.lastContactSignal.source} />
-                      <span>{client.lastContactSignal.label}</span>
+                      <SourceBadge source={client.last_contact_signal.source} />
+                      <span>{client.last_contact_signal.label}</span>
                     </div>
                   )}
-                  {client.nextMeeting && <div className="text-xs mt-1" style={{ color: "var(--ink-soft)" }}>Next: {client.nextMeeting} <span className="opacity-70">· via Calendly</span></div>}
+                  {client.next_meeting && <div className="text-xs mt-1" style={{ color: "var(--ink-soft)" }}>Next: {new Date(client.next_meeting).toLocaleDateString()} <span className="opacity-70">· via Calendly</span></div>}
                 </div>
               </div>
             </div>
@@ -128,7 +148,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
             <div className="col-span-12 lg:col-span-5 card">
               <div className="card-head"><span>Goals</span></div>
               <ul className="card-pad space-y-2">
-                {client.goals.map((g, i) => (
+                {(client.goals || []).map((g: any, i: number) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2.5" className="mt-0.5 shrink-0"><path d="M5 13l4 4L19 7"/></svg>
                     {g}
@@ -137,7 +157,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
               </ul>
               <div className="card-head" style={{ borderTop: "1px solid var(--line)" }}><span>Professional team</span><button className="btn-ghost btn text-xs normal-case">+ Add</button></div>
               <ul>
-                {client.team.map((t, i) => (
+                {(client.team || []).map((t: any, i: number) => (
                   <li key={i} className="px-5 py-2.5 border-t flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
                     <div>
                       <div className="text-sm font-medium">{t.name}</div>
@@ -146,7 +166,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     {t.email && <a href={`mailto:${t.email}`} className="text-xs" style={{ color: "var(--brand)" }}>email</a>}
                   </li>
                 ))}
-                {client.team.length === 0 && <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No team contacts yet.</li>}
+                {(!client.team || client.team.length === 0) && <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No team contacts yet.</li>}
               </ul>
             </div>
 
@@ -161,7 +181,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                 <button className="btn">+ New action</button>
               </div>
               <ul>
-                {client.actions.map((a) => (
+                {(client.action_items || []).map((a: any) => (
                   <li key={a.id} className="px-5 py-3 border-t flex items-center justify-between gap-3" style={{ borderColor: "var(--line)" }}>
                     <label className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer">
                       <input type="checkbox" defaultChecked={a.status === "done"} className="mt-1" />
@@ -169,8 +189,8 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                         <div className={`text-sm ${a.status === "done" ? "line-through opacity-60" : ""}`}>{a.title}</div>
                         <div className="text-xs flex flex-wrap items-center gap-x-2" style={{ color: "var(--ink-soft)" }}>
                           <span>{a.owner === "Karli" ? "Owner: Karli" : "Owner: Client"}</span>
-                          {a.due && <span>· due {a.due}</span>}
-                          {a.sourceMeeting && <span className="inline-flex items-center gap-1">· <span className="pill pill-gray" style={{ fontSize: 10, padding: "1px 6px" }}>Fathom</span> {a.sourceMeeting}</span>}
+                          {a.due_date && <span>· due {a.due_date}</span>}
+                          {a.source_meeting && <span className="inline-flex items-center gap-1">· <span className="pill pill-gray" style={{ fontSize: 10, padding: "1px 6px" }}>Fathom</span> {a.source_meeting}</span>}
                         </div>
                       </div>
                     </label>
@@ -193,7 +213,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                 <button className="btn-ghost btn text-xs normal-case">Upload</button>
               </div>
               <ul>
-                {client.documents.map((d, i) => (
+                {(client.documents || []).map((d: any, i: number) => (
                   <li key={i} className="px-5 py-3 border-t flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-8 h-8 rounded bg-[var(--brand-soft)] text-[var(--brand-dark)] flex items-center justify-center text-xs font-semibold shrink-0">{d.tag.slice(0,2).toUpperCase()}</div>
@@ -202,7 +222,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                         <div className="text-xs flex items-center gap-1.5 flex-wrap" style={{ color: "var(--ink-soft)" }}>
                           <span>{d.tag}</span>
                           <span>·</span>
-                          <span>{d.uploaded}</span>
+                          <span>{d.uploaded_at}</span>
                           <span>·</span>
                           <span className="pill pill-gray" style={{ fontSize: 10, padding: "1px 6px" }}>{d.source}</span>
                         </div>
@@ -211,7 +231,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     <button className="text-xs shrink-0" style={{ color: "var(--brand)" }}>view</button>
                   </li>
                 ))}
-                {client.documents.length === 0 && <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No documents yet — they'll appear here as the client uploads via the intake form.</li>}
+                {(!client.documents || client.documents.length === 0) && <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No documents yet — they'll appear here as the client uploads via the intake form.</li>}
               </ul>
             </div>
 
@@ -255,7 +275,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                   <button className="btn-ghost btn text-xs normal-case">View full intake</button>
                 </div>
                 <ul>
-                  {client.intakeResponses.map((r, i) => (
+                  {(client.intakeResponses || client.intake_responses || []).map((r: any, i: number) => (
                     <li key={i} className="px-5 py-2.5 border-t" style={{ borderColor: "var(--line)" }}>
                       <div className="text-xs font-medium" style={{ color: "var(--ink-soft)" }}>{r.question}</div>
                       <div className="text-sm mt-0.5">{r.answer}</div>
@@ -308,9 +328,9 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                 </div>
               </div>
               <ul>
-                {client.meetings.map((m, i) => (
+                {(client.meetings || []).map((m: any, i: number) => (
                   <li key={i} className="px-5 py-3 border-t flex gap-4" style={{ borderColor: "var(--line)" }}>
-                    <div className="w-28 text-xs font-medium shrink-0">{m.date}</div>
+                    <div className="w-28 text-xs font-medium shrink-0">{m.meeting_date || m.date}</div>
                     <div className="flex-1">
                       <div className="text-sm font-medium flex items-center gap-2">{m.title} <SourceBadge source="Google Cal" /></div>
                       <div className="text-sm" style={{ color: "var(--ink-soft)" }}>{m.summary}</div>
@@ -377,7 +397,7 @@ function PlaidGlyph() {
   );
 }
 
-function buildCadence(c: { id: string; plan: string; lastContact: string; meetings: { date: string; title: string }[] }) {
+function buildCadence(c: any) {
   const today = new Date("2025-02-08");
   const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   const rel = (d: Date) => {
@@ -387,7 +407,7 @@ function buildCadence(c: { id: string; plan: string; lastContact: string; meetin
     if (days < 31) return `in ${days}d`;
     return `in ${Math.round(days / 30)}mo`;
   };
-  const lastMeeting = new Date(c.lastContact);
+  const lastMeeting = c.last_contact ? new Date(c.last_contact) : new Date();
   const add = (base: Date, days: number) => { const x = new Date(base); x.setDate(x.getDate() + days); return x; };
   const d30 = add(lastMeeting, 30);
   const d180 = add(lastMeeting, 180);

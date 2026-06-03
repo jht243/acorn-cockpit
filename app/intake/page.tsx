@@ -229,7 +229,20 @@ export default function Intake() {
                 {step < steps.length - 1 ? (
                   <button className="btn" onClick={() => setStep(step + 1)}>Continue →</button>
                 ) : (
-                  <Link href="/intake/thanks" className="btn">Submit intake →</Link>
+                  <button 
+                    className="btn" 
+                    onClick={async () => {
+                      const { submitIntake } = await import('./actions');
+                      const res = await submitIntake(data);
+                      if (res.success) {
+                        window.location.href = '/intake/thanks';
+                      } else {
+                        alert('There was an error submitting your intake. Please try again.');
+                      }
+                    }}
+                  >
+                    Submit intake →
+                  </button>
                 )}
               </div>
             </div>

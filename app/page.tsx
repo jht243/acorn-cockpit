@@ -1,18 +1,28 @@
 import Sidebar from "../components/Sidebar";
 import TopBar from "../components/TopBar";
 import Link from "next/link";
-import { clients, fmtUSD, netWorth } from "../lib/data";
+import { fmtUSD } from "../lib/data";
+import { getClients } from "../utils/supabase/queries";
 
-export default function Dashboard() {
-  const totalAUM = clients.reduce((s, c) => s + netWorth(c).net, 0);
-  const followups = clients.filter((c) => c.status === "Follow-Up").length;
-  const intakes = clients.filter((c) => c.plan === "Intake").length;
-  const openActions = clients.flatMap((c) => c.actions.filter((a) => a.status !== "done"));
+function netWorth(c: any) {
+  const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
+  const l = c.liabilities?.reduce((s: number, x: any) => s + Number(x.balance), 0) || 0;
+  return { assets: a, liabilities: l, net: a - l };
+}
+
+export const revalidate = 0;
+
+export default async function Dashboard() {
+  const clients = await getClients();
+  const totalAUM = clients.reduce((s: number, c: any) => s + netWorth(c).net, 0);
+  const followups = clients.filter((c: any) => c.status === "Follow-Up").length;
+  const intakes = clients.filter((c: any) => c.plan === "Intake").length;
+  const openActions = clients.flatMap((c: any) => (c.action_items || []).filter((a: any) => a.status !== "done"));
 
   const upcoming = clients
-    .filter((c) => c.nextMeeting)
-    .map((c) => ({ name: c.name, id: c.id, date: c.nextMeeting!, plan: c.plan }))
-    .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+    .filter((c: any) => c.next_meeting)
+    .map((c: any) => ({ name: c.name, id: c.id, date: c.next_meeting!, plan: c.plan }))
+    .sort((a: any, b: any) => +new Date(a.date) - +new Date(b.date));
 
   return (
     <div className="flex min-h-screen">
@@ -54,10 +64,10 @@ export default function Dashboard() {
                         <td className="px-5 py-3"><StatusPill status={c.status} /></td>
                         <td className="px-5 py-3 font-medium tabular-nums">{fmtUSD(nw.net)}<div className="text-[10px] font-normal" style={{ color: "var(--ink-soft)" }}>via Plaid</div></td>
                         <td className="px-5 py-3" style={{ color: "var(--ink-soft)" }}>
-                          <div>{c.lastContact}</div>
-                          {c.lastContactSignal && (
+                          <div>{c.last_contact ? new Date(c.last_contact).toLocaleDateString() : '—'}</div>
+                          {c.last_contact_signal && (
                             <div className="text-[10px] mt-0.5 flex items-center gap-1">
-                              <SourceBadge source={c.lastContactSignal.source} /> <span className="truncate">{c.lastContactSignal.label}</span>
+                              <SourceBadge source={c.last_contact_signal.source} /> <span className="truncate">{c.last_contact_signal.label}</span>
                             </div>
                           )}
                         </td>
@@ -83,7 +93,7 @@ export default function Dashboard() {
                       <div className="text-xs" style={{ color: "var(--ink-soft)" }}>{u.plan} plan</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium">{u.date}</div>
+                      <div className="text-sm font-medium">{new Date(u.date).toLocaleDateString()}</div>
                       <div className="text-xs" style={{ color: "var(--ink-soft)" }}>2-hour review</div>
                     </div>
                   </li>
@@ -99,13 +109,13 @@ export default function Dashboard() {
                 </div>
               </div>
               <ul>
-                {clients.flatMap((c) => c.actions.filter((a) => a.status !== "done" && a.owner === "Karli").map((a) => ({ ...a, client: c }))).map((a) => (
+                {clients.flatMap((c: any) => (c.action_items || []).filter((a: any) => a.status !== "done" && a.owner === "Karli").map((a: any) => ({ ...a, client: c }))).map((a: any) => (
                   <li key={a.id} className="px-5 py-3 border-t flex items-center justify-between gap-4" style={{ borderColor: "var(--line)" }}>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{a.title}</div>
                       <div className="text-xs" style={{ color: "var(--ink-soft)" }}>
                         <Link href={`/clients/${a.client.id}`} className="hover:underline">{a.client.name}</Link>
-                        {a.due && <> · due {a.due}</>}
+                        {a.due_date && <> · due {a.due_date}</>}
                       </div>
                     </div>
                     <span className={`pill ${a.status === "in_progress" ? "pill-amber" : "pill-gray"}`}>
