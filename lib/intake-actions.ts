@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 export async function inviteClient(formData: FormData) {
   const name = String(formData.get('name') || '').trim()
   const email = String(formData.get('email') || '').trim().toLowerCase()
+  const phone = String(formData.get('phone') || '').trim()
   const plan = String(formData.get('plan') || 'Intake').trim() as
     | 'Royal Oak'
     | 'Sycamore'
@@ -34,19 +35,45 @@ export async function inviteClient(formData: FormData) {
     clientId = existing.id
     token = existing.intake_token
     clientName = existing.name
+    const updates: any = { intake_invited_at: new Date().toISOString() }
+    if (phone) updates.phone = phone
     await supabase
       .from('clients')
-      .update({ intake_invited_at: new Date().toISOString() })
+      .update(updates)
       .eq('id', clientId)
   } else {
+    // Seed the intake form data so the form is prefilled when the client opens it
+    const seedFormData = {
+      clientName: name,
+      email,
+      phone,
+      dob: '',
+      address: '',
+      children: '',
+      spouseName: '',
+      spouseDob: '',
+      assets: [{ label: '', value: '', category: 'Cash' }],
+      liabilities: [{ label: '', balance: '', rate: '' }],
+      annualIncome: '',
+      monthlyExpenses: '',
+      risk: 'Moderate',
+      hasWill: '',
+      hasTrust: '',
+      hasLifeIns: '',
+      estatePlanNotes: '',
+      goals: '',
+      largestObstacle: '',
+    }
     const { data: created, error } = await supabase
       .from('clients')
       .insert({
         name,
         email,
+        phone: phone || null,
         plan,
         status: 'Onboarding',
         intake_invited_at: new Date().toISOString(),
+        intake_form_data: seedFormData,
       })
       .select('id, intake_token')
       .single()

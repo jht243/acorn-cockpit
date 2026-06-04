@@ -3,7 +3,14 @@
 import { useState, useTransition } from 'react'
 import { inviteClient } from '@/lib/intake-actions'
 
-export default function InviteClientButton({ label = '+ Send intake link', className = 'btn' }: { label?: string; className?: string }) {
+type Props = {
+  label?: string
+  className?: string
+  iconOnly?: boolean
+  trigger?: React.ReactNode
+}
+
+export default function InviteClientButton({ label = '+ Send intake link', className = 'btn', trigger }: Props) {
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
   const [status, setStatus] = useState<{ kind: 'idle' | 'success' | 'error'; msg?: string }>({ kind: 'idle' })
@@ -29,9 +36,13 @@ export default function InviteClientButton({ label = '+ Send intake link', class
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className={className}>
-        {label}
-      </button>
+      {trigger ? (
+        <span onClick={() => setOpen(true)} className="contents">{trigger}</span>
+      ) : (
+        <button onClick={() => setOpen(true)} className={className}>
+          {label}
+        </button>
+      )}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !pending && setOpen(false)}>
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
@@ -53,6 +64,10 @@ export default function InviteClientButton({ label = '+ Send intake link', class
               <div>
                 <label className="label">Client email</label>
                 <input name="email" type="email" required placeholder="jane@example.com" className="input w-full" />
+              </div>
+              <div>
+                <label className="label">Phone (optional)</label>
+                <input name="phone" type="tel" placeholder="305-555-1234" className="input w-full" />
               </div>
               <div>
                 <label className="label">Plan tier (you can change later)</label>
