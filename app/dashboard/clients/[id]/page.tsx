@@ -6,6 +6,7 @@ import SendReminderButton from "../../../../components/SendReminderButton";
 import CopyIntakeLinkButton from "../../../../components/CopyIntakeLinkButton";
 import { getClientById } from "../../../../utils/supabase/queries";
 import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
+import { deriveClientStatus } from "../../../../lib/client-status";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -68,14 +69,10 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                       <div className="text-sm" style={{ color: "var(--ink-soft)" }}>{client.family}</div>
                     </div>
                     <span className={`pill ${client.plan === "Mahogany" ? "pill-amber" : client.plan === "Sycamore" ? "pill-green" : "pill-gray"}`}>{client.plan}</span>
-                    {client.status === "Onboarding" ? (
-                      (() => {
-                        const ip = intakeProgress(client);
-                        return <span className={`pill ${intakeProgressPillClass(ip.kind)}`}>Onboarding · {ip.pct}%</span>;
-                      })()
-                    ) : (
-                      <span className="pill pill-green">{client.status}</span>
-                    )}
+                    {(() => {
+                      const s = deriveClientStatus(client);
+                      return <span className={`pill ${s.pillClass}`} title={s.tooltip}>{s.label}</span>;
+                    })()}
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">

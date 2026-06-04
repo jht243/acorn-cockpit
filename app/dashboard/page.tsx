@@ -3,6 +3,7 @@ import TopBar from "../../components/TopBar";
 import Link from "next/link";
 import { fmtUSD } from "../../lib/data";
 import { getClients, intakeProgress } from "../../utils/supabase/queries";
+import { deriveClientStatus } from "../../lib/client-status";
 import InviteClientButton from "../../components/InviteClientButton";
 import SendReminderButton from "../../components/SendReminderButton";
 
@@ -225,10 +226,9 @@ function PlanPill({ plan }: { plan: string }) {
 }
 
 function StatusPill({ status, client }: { status: string; client?: any }) {
-  if (status === "Onboarding" && client) {
-    const ip = intakeProgress(client);
-    const cls = ip.kind === "done" ? "pill-green" : ip.kind === "in_progress" ? "pill-amber" : "pill-gray";
-    return <span className={`pill ${cls}`}>Onboarding · {ip.pct}%</span>;
+  if (client) {
+    const s = deriveClientStatus(client);
+    return <span className={`pill ${s.pillClass}`} title={s.tooltip}>{s.label}</span>;
   }
   const cls =
     status === "Follow-Up" ? "pill-red"

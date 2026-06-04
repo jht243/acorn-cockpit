@@ -7,6 +7,7 @@ import { fmtUSD } from "../../../lib/data";
 import InviteClientButton from "../../../components/InviteClientButton";
 import SendReminderButton from "../../../components/SendReminderButton";
 import { intakeProgress, intakeProgressPillClass } from "../../../lib/intake-progress";
+import { deriveClientStatus, STATUS_LEGEND } from "../../../lib/client-status";
 
 function netWorth(c: any) {
   const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
@@ -46,6 +47,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
               />
               <FilterGroup label="Plan" value={plan} setValue={setPlan} options={["All", "Royal Oak", "Sycamore", "Mahogany", "Intake"]} />
               <FilterGroup label="Status" value={status} setValue={setStatus} options={["All", "Active", "Onboarding", "Review", "Follow-Up"]} />
+              <StatusLegend />
               <div className="text-xs ml-auto" style={{ color: "var(--ink-soft)" }}>
                 Showing <span className="font-semibold text-[var(--ink)]">{rows.length}</span> of {initialClients.length} · {fmtUSD(totalNW)} net worth
               </div>
@@ -122,6 +124,44 @@ function Th({ children }: { children: React.ReactNode }) {
   return <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">{children}</th>;
 }
 
+function StatusLegend() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md hover:bg-[var(--brand-soft)]"
+        style={{ color: "var(--ink-soft)" }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        What do these statuses mean?
+      </button>
+      {open && (
+        <div className="absolute z-30 mt-1 left-0 w-[420px] bg-white border rounded-lg shadow-lg p-4" style={{ borderColor: "var(--line)" }}>
+          <div className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--ink-soft)" }}>Status meanings</div>
+          <div className="flex flex-col gap-3">
+            {STATUS_LEGEND.map((item) => (
+              <div key={item.kind} className="flex items-start gap-3">
+                <span className={`pill ${item.pillClass} shrink-0 mt-0.5`}>{item.label}</span>
+                <span className="text-xs leading-relaxed" style={{ color: "var(--ink-soft)" }}>{item.meaning}</span>
+              </div>
+            ))}
+          </div>
+          <div className="text-[10px] mt-3 pt-3 border-t" style={{ color: "var(--ink-soft)", borderColor: "var(--line)" }}>
+            Statuses are computed automatically from intake completion, last contact, upcoming meetings, and overdue action items.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function IntakeCell({ client }: { client: any }) {
   const ip = intakeProgress(client);
   const color = ip.kind === "done" ? "#2f7d4f" : ip.kind === "in_progress" ? "#c08a3e" : ip.kind === "invited" ? "#7f8d85" : "#c4cac6";
@@ -171,9 +211,9 @@ function PlanPill({ plan }: { plan: string }) {
 }
 
 function StatusPill({ status, client }: { status: string; client?: any }) {
-  if (status === "Onboarding" && client) {
-    const ip = intakeProgress(client);
-    return <span className={`pill ${intakeProgressPillClass(ip.kind)}`}>Onboarding · {ip.pct}%</span>;
+  if (client) {
+    const s = deriveClientStatus(client);
+    return <span className={`pill ${s.pillClass}`} title={s.tooltip}>{s.label}</span>;
   }
   const cls =
     status === "Follow-Up" ? "pill-red"
