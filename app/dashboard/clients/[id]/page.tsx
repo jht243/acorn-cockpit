@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Sidebar from "../../../../components/Sidebar";
 import TopBar from "../../../../components/TopBar";
 import SendReminderButton from "../../../../components/SendReminderButton";
+import CopyIntakeLinkButton from "../../../../components/CopyIntakeLinkButton";
 import { getClientById } from "../../../../utils/supabase/queries";
 import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
 
@@ -78,14 +79,28 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">
-                  {!client.intake_submitted_at && (
-                    <div className="px-3 py-1.5 rounded-md border" style={{ borderColor: "var(--brand-soft)", background: "var(--brand-soft)" }}>
-                      <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
-                    </div>
+                  {!client.intake_submitted_at ? (
+                    <>
+                      <div className="px-3 py-1.5 rounded-md border" style={{ borderColor: "var(--brand-soft)", background: "var(--brand-soft)" }}>
+                        <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
+                      </div>
+                      <a
+                        href={`/intake?token=${client.intake_token}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-ghost btn"
+                      >
+                        Open intake form
+                      </a>
+                      <CopyIntakeLinkButton token={client.intake_token} />
+                    </>
+                  ) : (
+                    <>
+                      <Link href={`/dashboard/proposal/${client.id}`} className="btn-ghost btn">Generate proposal PDF</Link>
+                      <button className="btn-ghost btn">Generate PFS PDF</button>
+                      <button className="btn">Schedule review</button>
+                    </>
                   )}
-                  <Link href={`/dashboard/proposal/${client.id}`} className="btn-ghost btn">Generate proposal PDF</Link>
-                  <button className="btn-ghost btn">Generate PFS PDF</button>
-                  <button className="btn">Schedule review</button>
                 </div>
               </div>
               <div className="divider" />
