@@ -16,8 +16,8 @@ export default function CopyIntakeLinkButton({ token }: { token: string }) {
   return (
     <button
       onClick={onClick}
-      title={copied ? 'Copied!' : 'Copy intake link'}
-      aria-label="Copy intake link"
+      title={copied ? 'Link copied!' : 'Share Intake Form Link'}
+      aria-label="Share Intake Form Link"
       className="w-9 h-9 inline-flex items-center justify-center rounded-md border hover:bg-[var(--brand-soft)] transition-colors"
       style={{ borderColor: 'var(--line)' }}
     >

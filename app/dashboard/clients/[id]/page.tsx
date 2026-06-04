@@ -90,7 +90,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                         rel="noopener noreferrer"
                         className="btn-ghost btn"
                       >
-                        Open intake form
+                        {`Open ${client.name.split(" ")[0]}'s Form`}
                       </a>
                       <CopyIntakeLinkButton token={client.intake_token} />
                     </>
