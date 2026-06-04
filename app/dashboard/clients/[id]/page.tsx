@@ -93,8 +93,8 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     </>
                   ) : (
                     <>
-                      <Link href={`/dashboard/proposal/${client.id}`} className="btn-ghost btn">Generate proposal PDF</Link>
-                      <button className="btn-ghost btn">Generate PFS PDF</button>
+                      <Link href={`/dashboard/demo-report/${client.id}?type=snapshot`} className="btn-ghost btn">View Financial Snapshot</Link>
+                      <Link href={`/dashboard/demo-report/${client.id}?type=net-worth`} className="btn-ghost btn">View Net Worth Statement</Link>
                       <button className="btn">Schedule review</button>
                     </>
                   )}
