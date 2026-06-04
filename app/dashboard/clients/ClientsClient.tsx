@@ -79,7 +79,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                           <div className="text-xs truncate max-w-[260px]" style={{ color: "var(--ink-soft)" }}>{c.family}</div>
                         </td>
                         <td className="px-5 py-3"><PlanPill plan={c.plan} /></td>
-                        <td className="px-5 py-3"><StatusPill status={c.status} /></td>
+                        <td className="px-5 py-3"><StatusPill status={c.status} client={c} /></td>
                         <td className="px-5 py-3 font-medium tabular-nums">{fmtUSD(nw.net)}<div className="text-[10px] font-normal" style={{ color: "var(--ink-soft)" }}>via Plaid</div></td>
                         <td className="px-5 py-3"><IntakeCell client={c} /></td>
                         <td className="px-5 py-3" style={{ color: "var(--ink-soft)" }}>
@@ -174,7 +174,17 @@ function PlanPill({ plan }: { plan: string }) {
   return <span className={`pill ${cls}`}>{plan}</span>;
 }
 
-function StatusPill({ status }: { status: string }) {
+function StatusPill({ status, client }: { status: string; client?: any }) {
+  if (status === "Onboarding" && client) {
+    const submitted = client.intake_submitted_at;
+    const started = client.intake_started_at;
+    const invited = client.intake_invited_at;
+    let pct = 0, cls = "pill-gray";
+    if (submitted) { pct = 100; cls = "pill-green"; }
+    else if (started) { pct = 50; cls = "pill-amber"; }
+    else if (invited) { pct = 10; cls = "pill-gray"; }
+    return <span className={`pill ${cls}`}>Onboarding · {pct}%</span>;
+  }
   const cls =
     status === "Follow-Up" ? "pill-red"
     : status === "Review" ? "pill-amber"
