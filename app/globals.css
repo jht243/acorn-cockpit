@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-ivory: var(--home-ivory);
+  --color-cream: var(--home-cream);
+  --color-espresso-deep: var(--home-espresso-deep);
+  --color-forest: var(--home-forest);
+  --color-sage: var(--home-sage);
+  --color-sage-soft: var(--home-sage-soft);
+  --color-acorn: var(--home-acorn);
+  --color-gold: var(--home-gold);
+  --color-charcoal: var(--home-charcoal);
+}
+
 :root {
   --bg: #f3f4f3;
   --panel: #ffffff;
@@ -13,6 +25,17 @@
   --danger: #c0432f;
   --sidebar: #1f2a24;
   --sidebar-soft: #2a3530;
+
+  --home-font-serif: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --home-ivory: oklch(0.975 0.008 85);
+  --home-cream: oklch(0.92 0.018 80);
+  --home-espresso-deep: oklch(0.34 0.045 135);
+  --home-forest: oklch(0.55 0.045 132);
+  --home-sage: oklch(0.72 0.035 125);
+  --home-sage-soft: oklch(0.9 0.02 130);
+  --home-acorn: oklch(0.7 0.07 70);
+  --home-gold: oklch(0.74 0.085 75);
+  --home-charcoal: oklch(0.28 0.012 80);
 }
 
 html, body {
@@ -164,3 +187,23 @@ html, body {
 }
 
 .scroll-hide::-webkit-scrollbar { display: none; }
+
+@keyframes acorn-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.home-page {
+  color: var(--home-charcoal);
+}
+
+.home-page .font-serif {
+  font-family: var(--home-font-serif);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.home-reveal {
+  opacity: 0;
+  animation: acorn-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
