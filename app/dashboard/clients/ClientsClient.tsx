@@ -146,16 +146,18 @@ function IntakeCell({ client }: { client: any }) {
 
 function FilterGroup({ label, value, setValue, options }: { label: string; value: string; setValue: (v: string) => void; options: string[] }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-2">
       <span className="text-xs font-semibold" style={{ color: "var(--ink-soft)" }}>{label}:</span>
-      <div className="flex gap-1">
+      <select
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className="text-sm px-2.5 py-1.5 rounded-md border bg-white pr-8 cursor-pointer hover:border-[var(--brand)] transition-colors"
+        style={{ borderColor: value === "All" ? "var(--line)" : "var(--brand)", background: value === "All" ? "white" : "var(--brand-soft)", color: value === "All" ? "var(--ink)" : "var(--brand-dark)", fontWeight: value === "All" ? 400 : 500 }}
+      >
         {options.map((o) => (
-          <button key={o} onClick={() => setValue(o)}
-            className={`text-xs px-2.5 py-1 rounded-md border ${value === o ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-dark)] font-medium" : "border-[var(--line)] bg-white"}`}>
-            {o}
-          </button>
+          <option key={o} value={o}>{o}</option>
         ))}
-      </div>
+      </select>
     </div>
   );
 }
