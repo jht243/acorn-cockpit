@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = 'Acorn Care <onboarding@resend.dev>'; // TODO: switch to karli@acorn-care.com once domain verified
+const FROM = 'Acorn Care <intake@intake.layer3labs.io>'; // TODO: switch to karli@acorn-care.com once her domain is verified in Resend
 const KARLI = process.env.KARLI_EMAIL || 'karli@acorn-care.com';
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://acorn-cockpit.onrender.com';
 

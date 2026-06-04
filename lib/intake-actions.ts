@@ -61,7 +61,9 @@ export async function inviteClient(formData: FormData) {
 
   const result = await sendIntakeInvite(clientName, email, token)
   if (!result.success) {
-    return { success: false, error: 'Client created, but email failed to send' }
+    const errMsg = (result.error as any)?.message || (result.error as any)?.name || JSON.stringify(result.error)
+    console.error('[inviteClient] Resend error:', result.error)
+    return { success: false, error: `Email failed: ${errMsg}` }
   }
 
   revalidatePath('/dashboard')

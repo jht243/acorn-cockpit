@@ -10,6 +10,9 @@ export default function InviteClientButton({ label = '+ Send intake link', class
 
   const submit = (formData: FormData) => {
     setStatus({ kind: 'idle' })
+    const first = String(formData.get('firstName') || '').trim()
+    const last = String(formData.get('lastName') || '').trim()
+    formData.set('name', `${first} ${last}`.trim())
     startTransition(async () => {
       const res = await inviteClient(formData)
       if (res.success) {
@@ -37,9 +40,15 @@ export default function InviteClientButton({ label = '+ Send intake link', class
               They&apos;ll get an email with a secure link to complete their intake form. You&apos;ll see their progress here.
             </p>
             <form action={submit} className="flex flex-col gap-3">
-              <div>
-                <label className="label">Client name</label>
-                <input name="name" required placeholder="Jane Doe" className="input w-full" autoFocus />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label">First name</label>
+                  <input name="firstName" required placeholder="Jane" className="input w-full" autoFocus />
+                </div>
+                <div>
+                  <label className="label">Last name</label>
+                  <input name="lastName" required placeholder="Doe" className="input w-full" />
+                </div>
               </div>
               <div>
                 <label className="label">Client email</label>
@@ -48,7 +57,7 @@ export default function InviteClientButton({ label = '+ Send intake link', class
               <div>
                 <label className="label">Plan tier (you can change later)</label>
                 <select name="plan" defaultValue="Intake" className="select w-full">
-                  <option value="Intake">Intake (TBD)</option>
+                  <option value="Intake">Will determine later</option>
                   <option value="Royal Oak">Royal Oak</option>
                   <option value="Sycamore">Sycamore</option>
                   <option value="Mahogany">Mahogany</option>
