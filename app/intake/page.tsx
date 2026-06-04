@@ -39,7 +39,15 @@ export default function Intake() {
     const t = params.get("token");
     if (t) {
       setToken(t);
-      import("./actions").then(({ markIntakeStarted }) => markIntakeStarted(t));
+      import("./actions").then(async ({ markIntakeStarted, getIntakeFormData }) => {
+        markIntakeStarted(t);
+        const existing = await getIntakeFormData(t);
+        if (existing?.intake_form_data) {
+          setData((d) => ({ ...d, ...existing.intake_form_data }));
+        } else if (existing?.name || existing?.email) {
+          setData((d) => ({ ...d, clientName: d.clientName || existing.name || "", email: d.email || existing.email || "" }));
+        }
+      });
     }
   }, []);
 

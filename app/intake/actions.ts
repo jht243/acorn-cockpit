@@ -5,6 +5,17 @@ import { sendIntakeCompletionEmail } from '@/lib/resend'
 import { computeIntakeCompletionPct } from '@/lib/intake-progress'
 import { revalidatePath } from 'next/cache'
 
+export async function getIntakeFormData(token: string) {
+  if (!token) return null
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('clients')
+    .select('name, email, intake_form_data, intake_submitted_at')
+    .eq('intake_token', token)
+    .maybeSingle()
+  return data
+}
+
 export async function markIntakeStarted(token: string) {
   const supabase = await createClient()
   const { data: existing } = await supabase
