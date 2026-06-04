@@ -8,6 +8,7 @@ type Liability = { label: string; balance: string; rate: string };
 export default function Intake() {
   const [step, setStep] = useState(0);
   const [token, setToken] = useState<string>("");
+  const [hydrated, setHydrated] = useState(false);
   const [data, setData] = useState({
     clientName: "",
     spouseName: "",
@@ -37,23 +38,28 @@ export default function Intake() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const t = params.get("token");
-    if (t) {
-      setToken(t);
-      import("./actions").then(async ({ markIntakeStarted, getIntakeFormData }) => {
-        markIntakeStarted(t);
-        const existing = await getIntakeFormData(t);
-        if (existing?.intake_form_data) {
-          setData((d) => ({ ...d, ...existing.intake_form_data }));
-        } else if (existing?.name || existing?.email) {
-          setData((d) => ({ ...d, clientName: d.clientName || existing.name || "", email: d.email || existing.email || "" }));
-        }
-      });
+    if (!t) {
+      setHydrated(true);
+      return;
     }
+    setToken(t);
+    import("./actions").then(async ({ markIntakeStarted, getIntakeFormData }) => {
+      markIntakeStarted(t);
+      const existing = await getIntakeFormData(t);
+      if (existing?.intake_form_data) {
+        setData((d) => ({ ...d, ...existing.intake_form_data }));
+      } else if (existing?.name || existing?.email) {
+        setData((d) => ({ ...d, clientName: d.clientName || existing.name || "", email: d.email || existing.email || "" }));
+      }
+      setHydrated(true);
+    });
   }, []);
 
   const goToStep = (next: number) => {
     setStep(next);
-    if (token) {
+    // Only autosave once existing data has been hydrated, so we never overwrite
+    // saved progress with the empty initial form state on a fresh page load.
+    if (token && hydrated) {
       import("./actions").then(({ saveIntakeProgress }) => saveIntakeProgress(token, data));
     }
   };

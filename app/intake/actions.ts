@@ -39,10 +39,18 @@ export async function saveIntakeProgress(token: string, formData: any) {
   const pct = computeIntakeCompletionPct(formData)
   const { data: existing } = await supabase
     .from('clients')
-    .select('id, intake_started_at')
+    .select('id, intake_started_at, intake_completion_pct, intake_submitted_at')
     .eq('intake_token', token)
     .maybeSingle()
   if (!existing) return { success: false }
+
+  // Don't clobber a submitted intake or regress a real completion percent
+  // back to 0 (defends against a fresh page load saving the empty initial
+  // form state before the existing data has hydrated).
+  if (existing.intake_submitted_at) return { success: true, pct: 100 }
+  if (pct === 0 && (existing.intake_completion_pct || 0) > 0) {
+    return { success: true, pct: existing.intake_completion_pct || 0 }
+  }
 
   await supabase
     .from('clients')
