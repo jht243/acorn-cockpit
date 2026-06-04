@@ -72,7 +72,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                     return (
                       <tr key={c.id} className="row-hover border-t" style={{ borderColor: "var(--line)" }}>
                         <td className="px-5 py-3">
-                          <Link href={`/clients/${c.id}`} className="font-medium hover:underline">{c.name}</Link>
+                          <Link href={`/dashboard/clients/${c.id}`} className="font-medium hover:underline">{c.name}</Link>
                           <div className="text-xs truncate max-w-[260px]" style={{ color: "var(--ink-soft)" }}>{c.family}</div>
                         </td>
                         <td className="px-5 py-3"><PlanPill plan={c.plan} /></td>

@@ -47,7 +47,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
     <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-        <TopBar title={client.name} breadcrumb={[{ label: "Clients", href: "/" }, { label: client.name }]} />
+        <TopBar title={client.name} breadcrumb={[{ label: "Clients", href: "/dashboard/clients" }, { label: client.name }]} />
         <main className="flex-1 p-6">
           <div className="grid grid-cols-12 gap-5">
             <div className="col-span-12 card card-pad">
@@ -66,7 +66,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Link href={`/proposal/${client.id}`} className="btn-ghost btn">Generate proposal PDF</Link>
+                  <Link href={`/dashboard/proposal/${client.id}`} className="btn-ghost btn">Generate proposal PDF</Link>
                   <button className="btn-ghost btn">Generate PFS PDF</button>
                   <button className="btn">Schedule review</button>
                 </div>
