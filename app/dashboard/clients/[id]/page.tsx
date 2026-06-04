@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Sidebar from "../../../components/Sidebar";
-import TopBar from "../../../components/TopBar";
-import { getClientById } from "../../../utils/supabase/queries";
+import Sidebar from "../../../../components/Sidebar";
+import TopBar from "../../../../components/TopBar";
+import { getClientById } from "../../../../utils/supabase/queries";
 
 const categoryColor: Record<string, string> = {
   Cash: "#7fb88a",
@@ -55,7 +55,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                 <div>
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-12 h-12 rounded-full bg-[var(--brand-soft)] text-[var(--brand-dark)] flex items-center justify-center font-semibold">
-                      {client.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                      {client.name.split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
                     </div>
                     <div>
                       <div className="text-lg font-semibold">{client.name}</div>
@@ -120,18 +120,18 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                   <div className="col-span-12 md:col-span-7">
                     <div className="text-[11px] uppercase tracking-wider font-semibold mb-2" style={{ color: "var(--ink-soft)" }}>Assets</div>
                     <ul className="text-sm divide-y" style={{ borderColor: "var(--line)" }}>
-                      {client.assets.map((a, i) => (
+                      {(client.assets || []).map((a: any, i: number) => (
                         <li key={i} className="flex justify-between py-1.5">
                           <span>{a.label}<span className="text-xs ml-2" style={{ color: "var(--ink-soft)" }}>{a.category}</span></span>
                           <span className="tabular-nums font-medium">{fmtUSD(a.value)}</span>
                         </li>
                       ))}
                     </ul>
-                    {client.liabilities.length > 0 && (
+                    {(client.liabilities || []).length > 0 && (
                       <>
                         <div className="text-[11px] uppercase tracking-wider font-semibold mt-4 mb-2" style={{ color: "var(--ink-soft)" }}>Liabilities</div>
                         <ul className="text-sm divide-y" style={{ borderColor: "var(--line)" }}>
-                          {client.liabilities.map((l, i) => (
+                          {(client.liabilities || []).map((l: any, i: number) => (
                             <li key={i} className="flex justify-between py-1.5">
                               <span>{l.label}{l.rate != null && <span className="text-xs ml-2" style={{ color: "var(--ink-soft)" }}>{l.rate}%</span>}</span>
                               <span className="tabular-nums font-medium" style={{ color: "var(--danger)" }}>−{fmtUSD(l.balance)}</span>
@@ -247,7 +247,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                   <button className="btn-ghost btn text-xs normal-case">+ Link account</button>
                 </div>
                 <ul>
-                  {client.plaidAccounts.map((p, i) => (
+                  {(client.plaidAccounts || []).map((p: any, i: number) => (
                     <li key={i} className="px-5 py-3 border-t flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded bg-[#eef4f8] text-[#155e8a] flex items-center justify-center text-xs font-semibold">{p.institution.slice(0,2).toUpperCase()}</div>
@@ -296,7 +296,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                 <button className="btn-ghost btn text-xs normal-case">+ Custom reminder</button>
               </div>
               <ul>
-                {buildCadence(client).map((c, i) => (
+                {buildCadence(client).map((c: any, i: number) => (
                   <li key={i} className="px-5 py-3 border-t flex items-center gap-4" style={{ borderColor: "var(--line)" }}>
                     <div className="w-32 shrink-0">
                       <div className="text-xs font-semibold">{c.date}</div>

@@ -3,11 +3,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const items = [
-  { href: "/", label: "Cockpit", icon: HomeIcon },
-  { href: "/clients", label: "Clients", icon: UsersIcon },
-  { href: "/calendar", label: "Calendar", icon: CalIcon },
-  { href: "/documents", label: "Documents", icon: DocIcon },
-  { href: "/messages", label: "Messages", icon: MailIcon },
+  { href: "/dashboard", label: "Cockpit", icon: HomeIcon },
+  { href: "/dashboard/clients", label: "Clients", icon: UsersIcon },
+  { href: "/dashboard/calendar", label: "Calendar", icon: CalIcon },
+  { href: "/dashboard/documents", label: "Documents", icon: DocIcon },
+  { href: "/dashboard/messages", label: "Messages", icon: MailIcon },
 ];
 
 export default function Sidebar() {
@@ -20,7 +20,7 @@ export default function Sidebar() {
         </div>
         <nav className="flex flex-col items-center mt-2">
           {items.map((it) => {
-            const Active = path === it.href || (it.href !== "/" && path.startsWith(it.href));
+            const Active = path === it.href || (it.href !== "/dashboard" && path.startsWith(it.href));
             return (
               <Link key={it.href} href={it.href} className={`sidebar-link group ${Active ? "active" : ""}`}>
                 <it.icon />
@@ -31,7 +31,7 @@ export default function Sidebar() {
         </nav>
       </div>
       <div className="flex flex-col items-center pb-4 text-white/40">
-        <Link href="/settings" className="sidebar-link group">
+        <Link href="/dashboard/settings" className="sidebar-link group">
           <GearIcon />
           <span className="sidebar-tooltip">Settings</span>
         </Link>

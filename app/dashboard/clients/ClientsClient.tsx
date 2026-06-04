@@ -1,9 +1,9 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Sidebar from "../../components/Sidebar";
-import TopBar from "../../components/TopBar";
-import { fmtUSD } from "../../lib/data";
+import Sidebar from "../../../components/Sidebar";
+import TopBar from "../../../components/TopBar";
+import { fmtUSD } from "../../../lib/data";
 
 function netWorth(c: any) {
   const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;

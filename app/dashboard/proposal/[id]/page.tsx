@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { clients, fmtUSD, netWorth } from "../../../lib/data";
+import { clients, fmtUSD, netWorth } from "../../../../lib/data";
 
 export default async function Proposal({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

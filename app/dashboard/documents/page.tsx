@@ -1,9 +1,9 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Sidebar from "../../components/Sidebar";
-import TopBar from "../../components/TopBar";
-import { clients } from "../../lib/data";
+import Sidebar from "../../../components/Sidebar";
+import TopBar from "../../../components/TopBar";
+import { clients } from "../../../lib/data";
 
 type Row = {
   client: string;

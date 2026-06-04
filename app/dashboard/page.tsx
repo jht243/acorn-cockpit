@@ -1,8 +1,8 @@
-import Sidebar from "../components/Sidebar";
-import TopBar from "../components/TopBar";
+import Sidebar from "../../components/Sidebar";
+import TopBar from "../../components/TopBar";
 import Link from "next/link";
-import { fmtUSD } from "../lib/data";
-import { getClients } from "../utils/supabase/queries";
+import { fmtUSD } from "../../lib/data";
+import { getClients } from "../../utils/supabase/queries";
 
 function netWorth(c: any) {
   const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
