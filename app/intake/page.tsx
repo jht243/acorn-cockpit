@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 type Asset = { label: string; value: string; category: string };
@@ -7,6 +7,7 @@ type Liability = { label: string; balance: string; rate: string };
 
 export default function Intake() {
   const [step, setStep] = useState(0);
+  const [token, setToken] = useState<string>("");
   const [data, setData] = useState({
     clientName: "",
     spouseName: "",
@@ -32,6 +33,15 @@ export default function Intake() {
   const steps = ["Welcome", "About you", "Family", "Connect accounts", "Assets", "Liabilities", "Income & expenses", "Estate & insurance", "Goals", "Documents", "Review"];
 
   const update = (k: string, v: any) => setData((d) => ({ ...d, [k]: v }));
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get("token");
+    if (t) {
+      setToken(t);
+      import("./actions").then(({ markIntakeStarted }) => markIntakeStarted(t));
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--bg)" }}>
@@ -233,7 +243,7 @@ export default function Intake() {
                     className="btn" 
                     onClick={async () => {
                       const { submitIntake } = await import('./actions');
-                      const res = await submitIntake(data);
+                      const res = await submitIntake({ ...data, token });
                       if (res.success) {
                         window.location.href = '/intake/thanks';
                       } else {

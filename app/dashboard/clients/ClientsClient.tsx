@@ -4,6 +4,8 @@ import Link from "next/link";
 import Sidebar from "../../../components/Sidebar";
 import TopBar from "../../../components/TopBar";
 import { fmtUSD } from "../../../lib/data";
+import InviteClientButton from "../../../components/InviteClientButton";
+import SendReminderButton from "../../../components/SendReminderButton";
 
 function netWorth(c: any) {
   const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
@@ -51,7 +53,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
             <div className="col-span-12 card">
               <div className="card-head">
                 <span>Roster</span>
-                <Link href="/intake" className="btn">+ Send intake link</Link>
+                <InviteClientButton />
               </div>
               <table className="w-full text-sm">
                 <thead>
@@ -60,6 +62,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                     <Th>Plan</Th>
                     <Th>Status</Th>
                     <Th>Net Worth</Th>
+                    <Th>Intake</Th>
                     <Th>Last Contact</Th>
                     <Th>Next Meeting</Th>
                     <Th>Open Actions</Th>
@@ -78,6 +81,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                         <td className="px-5 py-3"><PlanPill plan={c.plan} /></td>
                         <td className="px-5 py-3"><StatusPill status={c.status} /></td>
                         <td className="px-5 py-3 font-medium tabular-nums">{fmtUSD(nw.net)}<div className="text-[10px] font-normal" style={{ color: "var(--ink-soft)" }}>via Plaid</div></td>
+                        <td className="px-5 py-3"><IntakeCell client={c} /></td>
                         <td className="px-5 py-3" style={{ color: "var(--ink-soft)" }}>
                           <div className="text-xs">{c.last_contact ? new Date(c.last_contact).toLocaleDateString() : '—'}</div>
                           {c.last_contact_signal && (
@@ -101,7 +105,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                     );
                   })}
                   {rows.length === 0 && (
-                    <tr><td colSpan={7} className="px-5 py-10 text-center text-sm" style={{ color: "var(--ink-soft)" }}>No clients match these filters.</td></tr>
+                    <tr><td colSpan={8} className="px-5 py-10 text-center text-sm" style={{ color: "var(--ink-soft)" }}>No clients match these filters.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -115,6 +119,35 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
 
 function Th({ children }: { children: React.ReactNode }) {
   return <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">{children}</th>;
+}
+
+function IntakeCell({ client }: { client: any }) {
+  const submitted = client.intake_submitted_at;
+  const started = client.intake_started_at;
+  const invited = client.intake_invited_at;
+  let label = "Not started";
+  let pct = 0;
+  let color = "#c4cac6";
+  if (submitted) { label = "Submitted"; pct = 100; color = "#2f7d4f"; }
+  else if (started) { label = "In progress"; pct = 50; color = "#c08a3e"; }
+  else if (invited) { label = "Invited"; pct = 10; color = "#7f8d85"; }
+  return (
+    <div className="flex flex-col gap-1.5 min-w-[110px]">
+      <div className="flex items-center justify-between text-[11px]" style={{ color: "var(--ink-soft)" }}>
+        <span className="font-medium">{label}</span>
+        {pct > 0 && pct < 100 && <span className="tabular-nums">{pct}%</span>}
+      </div>
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--line)" }}>
+        <div style={{ width: `${pct}%`, background: color, height: "100%" }} />
+      </div>
+      {!submitted && (invited || !invited) && (
+        <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
+      )}
+      {submitted && (
+        <span className="text-[10px]" style={{ color: "var(--ink-soft)" }}>{new Date(submitted).toLocaleDateString()}</span>
+      )}
+    </div>
+  );
 }
 
 function FilterGroup({ label, value, setValue, options }: { label: string; value: string; setValue: (v: string) => void; options: string[] }) {

@@ -1,0 +1,100 @@
+'use server'
+
+import { createClient } from '@/utils/supabase/server'
+import { sendIntakeInvite, sendIntakeReminder } from '@/lib/resend'
+import { revalidatePath } from 'next/cache'
+
+export async function inviteClient(formData: FormData) {
+  const name = String(formData.get('name') || '').trim()
+  const email = String(formData.get('email') || '').trim().toLowerCase()
+  const plan = String(formData.get('plan') || 'Intake').trim() as
+    | 'Royal Oak'
+    | 'Sycamore'
+    | 'Mahogany'
+    | 'Intake'
+
+  if (!name || !email) {
+    return { success: false, error: 'Name and email are required' }
+  }
+
+  const supabase = await createClient()
+
+  // Check for existing client by email
+  const { data: existing } = await supabase
+    .from('clients')
+    .select('id, intake_token, name')
+    .eq('email', email)
+    .maybeSingle()
+
+  let clientId: string
+  let token: string
+  let clientName: string
+
+  if (existing) {
+    clientId = existing.id
+    token = existing.intake_token
+    clientName = existing.name
+    await supabase
+      .from('clients')
+      .update({ intake_invited_at: new Date().toISOString() })
+      .eq('id', clientId)
+  } else {
+    const { data: created, error } = await supabase
+      .from('clients')
+      .insert({
+        name,
+        email,
+        plan,
+        status: 'Onboarding',
+        intake_invited_at: new Date().toISOString(),
+      })
+      .select('id, intake_token')
+      .single()
+
+    if (error || !created) {
+      return { success: false, error: error?.message || 'Failed to create client' }
+    }
+    clientId = created.id
+    token = created.intake_token
+    clientName = name
+  }
+
+  const result = await sendIntakeInvite(clientName, email, token)
+  if (!result.success) {
+    return { success: false, error: 'Client created, but email failed to send' }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/clients')
+  return { success: true, clientId }
+}
+
+export async function sendReminder(clientId: string) {
+  const supabase = await createClient()
+  const { data: client, error } = await supabase
+    .from('clients')
+    .select('id, name, email, intake_token, intake_reminders_sent')
+    .eq('id', clientId)
+    .single()
+
+  if (error || !client) {
+    return { success: false, error: 'Client not found' }
+  }
+
+  const result = await sendIntakeReminder(client.name, client.email, client.intake_token)
+  if (!result.success) {
+    return { success: false, error: 'Email failed to send' }
+  }
+
+  await supabase
+    .from('clients')
+    .update({
+      intake_reminders_sent: (client.intake_reminders_sent || 0) + 1,
+      intake_last_reminder_at: new Date().toISOString(),
+    })
+    .eq('id', clientId)
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/clients')
+  return { success: true }
+}

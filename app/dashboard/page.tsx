@@ -3,6 +3,8 @@ import TopBar from "../../components/TopBar";
 import Link from "next/link";
 import { fmtUSD } from "../../lib/data";
 import { getClients } from "../../utils/supabase/queries";
+import InviteClientButton from "../../components/InviteClientButton";
+import SendReminderButton from "../../components/SendReminderButton";
 
 function netWorth(c: any) {
   const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
@@ -24,6 +26,8 @@ export default async function Dashboard() {
     .map((c: any) => ({ name: c.name, id: c.id, date: c.next_meeting!, plan: c.plan }))
     .sort((a: any, b: any) => +new Date(a.date) - +new Date(b.date));
 
+  const pendingIntakes = clients.filter((c: any) => !c.intake_submitted_at && (c.intake_invited_at || c.status === "Onboarding"));
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -39,7 +43,7 @@ export default async function Dashboard() {
             <div className="col-span-12 lg:col-span-8 card">
               <div className="card-head">
                 <span>Clients</span>
-                <Link href="/intake" className="btn">+ Send intake link</Link>
+                <InviteClientButton />
               </div>
               <table className="w-full text-sm">
                 <thead>
@@ -77,6 +81,47 @@ export default async function Dashboard() {
                 </tbody>
               </table>
             </div>
+
+            {pendingIntakes.length > 0 && (
+              <div className="col-span-12 card">
+                <div className="card-head">
+                  <div className="flex flex-col gap-0.5">
+                    <span>Pending intakes</span>
+                    <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>Clients invited but not yet submitted · {pendingIntakes.length} pending</span>
+                  </div>
+                  <InviteClientButton label="+ Invite client" />
+                </div>
+                <ul>
+                  {pendingIntakes.map((c: any) => {
+                    const submitted = c.intake_submitted_at;
+                    const started = c.intake_started_at;
+                    const invited = c.intake_invited_at;
+                    let label = "Not started", pct = 0, color = "#c4cac6";
+                    if (submitted) { label = "Submitted"; pct = 100; color = "#2f7d4f"; }
+                    else if (started) { label = "In progress"; pct = 50; color = "#c08a3e"; }
+                    else if (invited) { label = "Invited"; pct = 10; color = "#7f8d85"; }
+                    return (
+                      <li key={c.id} className="px-5 py-3 border-t flex items-center gap-4" style={{ borderColor: "var(--line)" }}>
+                        <div className="flex-1 min-w-0">
+                          <Link href={`/dashboard/clients/${c.id}`} className="font-medium text-sm hover:underline">{c.name}</Link>
+                          <div className="text-xs truncate" style={{ color: "var(--ink-soft)" }}>{c.email}{invited && <> · invited {new Date(invited).toLocaleDateString()}</>}{c.intake_reminders_sent > 0 && <> · {c.intake_reminders_sent} reminder{c.intake_reminders_sent > 1 ? 's' : ''} sent</>}</div>
+                        </div>
+                        <div className="w-40 flex flex-col gap-1">
+                          <div className="flex items-center justify-between text-[11px]" style={{ color: "var(--ink-soft)" }}>
+                            <span className="font-medium">{label}</span>
+                            <span className="tabular-nums">{pct}%</span>
+                          </div>
+                          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--line)" }}>
+                            <div style={{ width: `${pct}%`, background: color, height: "100%" }} />
+                          </div>
+                        </div>
+                        <SendReminderButton clientId={c.id} lastReminderAt={c.intake_last_reminder_at} remindersSent={c.intake_reminders_sent} />
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
 
             <div className="col-span-12 lg:col-span-4 card">
               <div className="card-head">
