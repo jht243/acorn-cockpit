@@ -2,7 +2,7 @@ import Sidebar from "../../components/Sidebar";
 import TopBar from "../../components/TopBar";
 import Link from "next/link";
 import { fmtUSD } from "../../lib/data";
-import { getClients } from "../../utils/supabase/queries";
+import { getClients, intakeProgress } from "../../utils/supabase/queries";
 import InviteClientButton from "../../components/InviteClientButton";
 import SendReminderButton from "../../components/SendReminderButton";
 
@@ -12,6 +12,7 @@ function netWorth(c: any) {
   return { assets: a, liabilities: l, net: a - l };
 }
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function Dashboard() {
@@ -225,14 +226,9 @@ function PlanPill({ plan }: { plan: string }) {
 
 function StatusPill({ status, client }: { status: string; client?: any }) {
   if (status === "Onboarding" && client) {
-    const submitted = client.intake_submitted_at;
-    const started = client.intake_started_at;
-    const invited = client.intake_invited_at;
-    let pct = 0, cls = "pill-gray";
-    if (submitted) { pct = 100; cls = "pill-green"; }
-    else if (started) { pct = 50; cls = "pill-amber"; }
-    else if (invited) { pct = 10; cls = "pill-gray"; }
-    return <span className={`pill ${cls}`}>Onboarding · {pct}%</span>;
+    const ip = intakeProgress(client);
+    const cls = ip.kind === "done" ? "pill-green" : ip.kind === "in_progress" ? "pill-amber" : "pill-gray";
+    return <span className={`pill ${cls}`}>Onboarding · {ip.pct}%</span>;
   }
   const cls =
     status === "Follow-Up" ? "pill-red"

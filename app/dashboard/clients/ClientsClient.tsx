@@ -6,6 +6,7 @@ import TopBar from "../../../components/TopBar";
 import { fmtUSD } from "../../../lib/data";
 import InviteClientButton from "../../../components/InviteClientButton";
 import SendReminderButton from "../../../components/SendReminderButton";
+import { intakeProgress, intakeProgressPillClass } from "../../../lib/intake-progress";
 
 function netWorth(c: any) {
   const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
@@ -122,29 +123,22 @@ function Th({ children }: { children: React.ReactNode }) {
 }
 
 function IntakeCell({ client }: { client: any }) {
-  const submitted = client.intake_submitted_at;
-  const started = client.intake_started_at;
-  const invited = client.intake_invited_at;
-  let label = "Not started";
-  let pct = 0;
-  let color = "#c4cac6";
-  if (submitted) { label = "Submitted"; pct = 100; color = "#2f7d4f"; }
-  else if (started) { label = "In progress"; pct = 50; color = "#c08a3e"; }
-  else if (invited) { label = "Invited"; pct = 10; color = "#7f8d85"; }
+  const ip = intakeProgress(client);
+  const color = ip.kind === "done" ? "#2f7d4f" : ip.kind === "in_progress" ? "#c08a3e" : ip.kind === "invited" ? "#7f8d85" : "#c4cac6";
   return (
     <div className="flex flex-col gap-1.5 min-w-[110px]">
       <div className="flex items-center justify-between text-[11px]" style={{ color: "var(--ink-soft)" }}>
-        <span className="font-medium">{label}</span>
-        {pct > 0 && pct < 100 && <span className="tabular-nums">{pct}%</span>}
+        <span className="font-medium">{ip.label}</span>
+        {ip.pct > 0 && ip.pct < 100 && <span className="tabular-nums">{ip.pct}%</span>}
       </div>
       <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--line)" }}>
-        <div style={{ width: `${pct}%`, background: color, height: "100%" }} />
+        <div style={{ width: `${ip.pct}%`, background: color, height: "100%" }} />
       </div>
-      {!submitted && (invited || !invited) && (
+      {ip.kind !== "done" && (
         <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
       )}
-      {submitted && (
-        <span className="text-[10px]" style={{ color: "var(--ink-soft)" }}>{new Date(submitted).toLocaleDateString()}</span>
+      {client.intake_submitted_at && (
+        <span className="text-[10px]" style={{ color: "var(--ink-soft)" }}>{new Date(client.intake_submitted_at).toLocaleDateString()}</span>
       )}
     </div>
   );
@@ -176,14 +170,8 @@ function PlanPill({ plan }: { plan: string }) {
 
 function StatusPill({ status, client }: { status: string; client?: any }) {
   if (status === "Onboarding" && client) {
-    const submitted = client.intake_submitted_at;
-    const started = client.intake_started_at;
-    const invited = client.intake_invited_at;
-    let pct = 0, cls = "pill-gray";
-    if (submitted) { pct = 100; cls = "pill-green"; }
-    else if (started) { pct = 50; cls = "pill-amber"; }
-    else if (invited) { pct = 10; cls = "pill-gray"; }
-    return <span className={`pill ${cls}`}>Onboarding · {pct}%</span>;
+    const ip = intakeProgress(client);
+    return <span className={`pill ${intakeProgressPillClass(ip.kind)}`}>Onboarding · {ip.pct}%</span>;
   }
   const cls =
     status === "Follow-Up" ? "pill-red"

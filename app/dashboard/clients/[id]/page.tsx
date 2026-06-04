@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import Sidebar from "../../../../components/Sidebar";
 import TopBar from "../../../../components/TopBar";
 import SendReminderButton from "../../../../components/SendReminderButton";
-import { getClientById, intakeProgress } from "../../../../utils/supabase/queries";
+import { getClientById } from "../../../../utils/supabase/queries";
+import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const categoryColor: Record<string, string> = {
   Cash: "#7fb88a",
@@ -66,8 +70,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     {client.status === "Onboarding" ? (
                       (() => {
                         const ip = intakeProgress(client);
-                        const cls = ip.kind === "in_progress" ? "pill-amber" : "pill-gray";
-                        return <span className={`pill ${cls}`}>Onboarding · {ip.pct}%</span>;
+                        return <span className={`pill ${intakeProgressPillClass(ip.kind)}`}>Onboarding · {ip.pct}%</span>;
                       })()
                     ) : (
                       <span className="pill pill-green">{client.status}</span>
