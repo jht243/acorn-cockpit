@@ -43,6 +43,13 @@ export default function Intake() {
     }
   }, []);
 
+  const goToStep = (next: number) => {
+    setStep(next);
+    if (token) {
+      import("./actions").then(({ saveIntakeProgress }) => saveIntakeProgress(token, data));
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--bg)" }}>
       <header className="bg-white border-b py-4 px-6 flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
@@ -62,7 +69,7 @@ export default function Intake() {
         <div className="card mt-6">
           <div className="card-pad">
             {step === 0 && (
-              <Welcome onNext={() => setStep(1)} />
+              <Welcome onNext={() => goToStep(1)} />
             )}
 
             {step === 1 && (
@@ -233,11 +240,11 @@ export default function Intake() {
 
           {step > 0 && (
             <div className="card-pad border-t flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
-              <button className="btn-ghost btn" onClick={() => setStep(Math.max(0, step - 1))}>← Back</button>
+              <button className="btn-ghost btn" onClick={() => goToStep(Math.max(0, step - 1))}>← Back</button>
               <div className="flex items-center gap-3">
                 <span className="text-xs" style={{ color: "var(--ink-soft)" }}>Step {step} of {steps.length - 1}</span>
                 {step < steps.length - 1 ? (
-                  <button className="btn" onClick={() => setStep(step + 1)}>Continue →</button>
+                  <button className="btn" onClick={() => goToStep(step + 1)}>Continue →</button>
                 ) : (
                   <button 
                     className="btn" 

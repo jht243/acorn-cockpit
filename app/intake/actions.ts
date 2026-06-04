@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { sendIntakeCompletionEmail } from '@/lib/resend'
+import { computeIntakeCompletionPct } from '@/lib/intake-progress'
 import { revalidatePath } from 'next/cache'
 
 export async function markIntakeStarted(token: string) {
@@ -19,6 +20,32 @@ export async function markIntakeStarted(token: string) {
     revalidatePath('/dashboard')
     revalidatePath('/dashboard/clients')
   }
+}
+
+export async function saveIntakeProgress(token: string, formData: any) {
+  if (!token) return { success: false }
+  const supabase = await createClient()
+  const pct = computeIntakeCompletionPct(formData)
+  const { data: existing } = await supabase
+    .from('clients')
+    .select('id, intake_started_at')
+    .eq('intake_token', token)
+    .maybeSingle()
+  if (!existing) return { success: false }
+
+  await supabase
+    .from('clients')
+    .update({
+      intake_form_data: formData,
+      intake_completion_pct: pct,
+      intake_started_at: existing.intake_started_at || new Date().toISOString(),
+    })
+    .eq('id', existing.id)
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/clients')
+  revalidatePath(`/dashboard/clients/${existing.id}`)
+  return { success: true, pct }
 }
 
 export async function submitIntake(data: any) {
@@ -49,6 +76,7 @@ export async function submitIntake(data: any) {
       { question: 'Largest Obstacle', answer: data.largestObstacle },
     ]),
     intake_submitted_at: new Date().toISOString(),
+    intake_completion_pct: 100,
     status: 'Review',
   }
 
