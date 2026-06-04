@@ -85,7 +85,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                         <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
                       </div>
                       <a
-                        href={`/intake?token=${client.intake_token}`}
+                        href={`/intake?token=${client.intake_token}&from=admin&clientId=${client.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-ghost btn"

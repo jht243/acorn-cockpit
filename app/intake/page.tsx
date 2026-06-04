@@ -9,6 +9,7 @@ export default function Intake() {
   const [step, setStep] = useState(0);
   const [token, setToken] = useState<string>("");
   const [hydrated, setHydrated] = useState(false);
+  const [adminReturnUrl, setAdminReturnUrl] = useState<string>("");
   const [data, setData] = useState({
     clientName: "",
     spouseName: "",
@@ -38,6 +39,9 @@ export default function Intake() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const t = params.get("token");
+    if (params.get("from") === "admin" && params.get("clientId")) {
+      setAdminReturnUrl(`/dashboard/clients/${params.get("clientId")}`);
+    }
     if (!t) {
       setHydrated(true);
       return;
@@ -74,7 +78,18 @@ export default function Intake() {
             <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Planning</div>
           </div>
         </div>
-        <div className="text-sm" style={{ color: "var(--ink-soft)" }}>Secure intake · saves as you go</div>
+        <div className="flex items-center gap-3">
+          {adminReturnUrl && (
+            <Link
+              href={adminReturnUrl}
+              className="text-sm font-medium px-3 py-1.5 rounded-md border hover:bg-[var(--brand-soft)] transition-colors"
+              style={{ borderColor: "var(--line)", color: "var(--brand-dark)" }}
+            >
+              ← Back to client profile
+            </Link>
+          )}
+          <div className="text-sm" style={{ color: "var(--ink-soft)" }}>Secure intake · saves as you go</div>
+        </div>
       </header>
 
       <div className="flex-1 max-w-3xl w-full mx-auto p-6">
