@@ -164,22 +164,34 @@ function StatusLegend() {
 
 function IntakeCell({ client }: { client: any }) {
   const ip = intakeProgress(client);
-  const color = ip.kind === "done" ? "#2f7d4f" : ip.kind === "in_progress" ? "#c08a3e" : ip.kind === "invited" ? "#7f8d85" : "#c4cac6";
+
+  if (ip.kind === "done") {
+    return (
+      <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--brand)" }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        <div className="flex flex-col leading-tight">
+          <span className="font-semibold">Submitted</span>
+          {client.intake_submitted_at && (
+            <span className="text-[10px] font-normal" style={{ color: "var(--ink-soft)" }}>{new Date(client.intake_submitted_at).toLocaleDateString()}</span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  const color = ip.kind === "in_progress" ? "#c08a3e" : ip.kind === "invited" ? "#7f8d85" : "#c4cac6";
   return (
     <div className="flex flex-col gap-1.5 min-w-[110px]">
       <div className="flex items-center justify-between text-[11px]" style={{ color: "var(--ink-soft)" }}>
         <span className="font-medium">{ip.label}</span>
-        {ip.pct > 0 && ip.pct < 100 && <span className="tabular-nums">{ip.pct}%</span>}
+        {ip.pct > 0 && <span className="tabular-nums">{ip.pct}%</span>}
       </div>
       <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--line)" }}>
         <div style={{ width: `${ip.pct}%`, background: color, height: "100%" }} />
       </div>
-      {ip.kind !== "done" && (
-        <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
-      )}
-      {client.intake_submitted_at && (
-        <span className="text-[10px]" style={{ color: "var(--ink-soft)" }}>{new Date(client.intake_submitted_at).toLocaleDateString()}</span>
-      )}
+      <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
     </div>
   );
 }
