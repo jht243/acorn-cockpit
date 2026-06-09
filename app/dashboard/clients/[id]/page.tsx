@@ -128,6 +128,52 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
               </div>
             </div>
 
+            <div className="col-span-12 card">
+              <div className="card-head">
+                <div className="flex flex-col gap-0.5">
+                  <span>Review Readiness</span>
+                  <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>Based on intake responses and uploaded documents</span>
+                </div>
+                {client.intake_submitted_at ? (
+                  <button className="btn">Schedule review</button>
+                ) : (
+                  <span className="pill pill-amber">Intake incomplete</span>
+                )}
+              </div>
+              <div className="card-pad">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                  {[
+                    { label: "Contact info", done: !!(client.email || client.intake_form_data?.email) },
+                    { label: "Family", done: !!(client.intake_form_data?.children) },
+                    { label: "Assets", done: !!(client.assets && client.assets.length > 0) },
+                    { label: "Liabilities", done: !!(client.liabilities && client.liabilities.length > 0) },
+                    { label: "Goals", done: !!(client.goals && client.goals.length > 0) },
+                    { label: "Documents", done: !!(client.documents && client.documents.length > 0) },
+                  ].map(({ label, done }) => (
+                    <div key={label} className="flex flex-col items-center gap-1.5 p-3 rounded-md border text-center" style={{ borderColor: done ? "#c6e0cc" : "var(--line)", background: done ? "#f4faf5" : "#fafafa" }}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${done ? "bg-[var(--brand)] text-white" : "border-2 border-[var(--line)]"}`}>
+                        {done ? (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                        ) : (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        )}
+                      </div>
+                      <div className="text-xs font-medium" style={{ color: done ? "var(--brand-dark)" : "var(--ink-soft)" }}>{label}</div>
+                    </div>
+                  ))}
+                </div>
+                {!client.intake_submitted_at && (
+                  <div className="mt-4 flex items-center gap-3 px-4 py-3 rounded-md border" style={{ borderColor: "var(--line)", background: "#f9fbfa" }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span className="text-sm flex-1" style={{ color: "var(--ink-soft)" }}>Client hasn't submitted their intake yet. You can send a reminder or open their form to fill it together.</span>
+                    <div className="flex gap-2 shrink-0">
+                      <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="col-span-12 lg:col-span-7 card">
               <div className="card-head"><span>Personal Financial Statement</span><span className="text-xs normal-case font-normal">{fmtUSD(nw.assets)} assets · {fmtUSD(nw.liabilities)} liabilities</span></div>
               <div className="card-pad">

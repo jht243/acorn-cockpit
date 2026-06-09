@@ -22,6 +22,10 @@ export default async function Dashboard() {
   const followups = clients.filter((c: any) => c.status === "Follow-Up").length;
   const intakes = clients.filter((c: any) => c.plan === "Intake").length;
   const openActions = clients.flatMap((c: any) => (c.action_items || []).filter((a: any) => a.status !== "done"));
+  const submittedIntakes = clients.filter((c: any) => c.intake_submitted_at).length;
+  const needsIntakeHelp = clients.filter((c: any) =>
+    !c.intake_submitted_at && (c.intake_started_at || c.intake_invited_at)
+  );
 
   const upcoming = clients
     .filter((c: any) => c.next_meeting)
@@ -37,7 +41,7 @@ export default async function Dashboard() {
         <TopBar title="Cockpit" />
         <main className="flex-1 p-6">
           <div className="grid grid-cols-12 gap-5">
-            <Kpi label="Net worth managed" value={fmtUSD(totalAUM)} hint="across 5 clients · via Plaid" tone="up" />
+            <Kpi label="Planning Snapshot" value={String(submittedIntakes)} hint={`from intake · ${submittedIntakes} of ${clients.length} complete`} tone="up" />
             <Kpi label="Active clients" value={String(clients.length)} hint={`${intakes} in onboarding`} />
             <Kpi label="Follow-ups due" value={String(followups)} hint="this week" tone={followups ? "down" : undefined} />
             <Kpi label="Open action items" value={String(openActions.length)} hint={`${openActions.filter(a => a.owner === "Karli").length} owned by you`} />
@@ -68,7 +72,7 @@ export default async function Dashboard() {
                         </td>
                         <td className="px-5 py-3"><PlanPill plan={c.plan} /></td>
                         <td className="px-5 py-3"><StatusPill status={c.status} client={c} /></td>
-                        <td className="px-5 py-3 font-medium tabular-nums">{fmtUSD(nw.net)}<div className="text-[10px] font-normal" style={{ color: "var(--ink-soft)" }}>via Plaid</div></td>
+                        <td className="px-5 py-3 font-medium tabular-nums">{fmtUSD(nw.net)}<div className="text-[10px] font-normal" style={{ color: "var(--ink-soft)" }}>from intake</div></td>
                         <td className="px-5 py-3" style={{ color: "var(--ink-soft)" }}>
                           <div>{c.last_contact ? new Date(c.last_contact).toLocaleDateString() : '—'}</div>
                           {c.last_contact_signal && (
@@ -121,6 +125,31 @@ export default async function Dashboard() {
                       </li>
                     );
                   })}
+                </ul>
+              </div>
+            )}
+
+            {needsIntakeHelp.length > 0 && (
+              <div className="col-span-12 lg:col-span-4 card">
+                <div className="card-head">
+                  <div className="flex flex-col gap-0.5">
+                    <span>Needs Intake Help</span>
+                    <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>Started but not submitted · consider booking a help call</span>
+                  </div>
+                  <span className="pill pill-amber">{needsIntakeHelp.length}</span>
+                </div>
+                <ul>
+                  {needsIntakeHelp.map((c: any) => (
+                    <li key={c.id} className="px-5 py-3 border-t flex items-center justify-between gap-3" style={{ borderColor: "var(--line)" }}>
+                      <div className="flex-1 min-w-0">
+                        <Link href={`/dashboard/clients/${c.id}`} className="font-medium text-sm hover:underline">{c.name}</Link>
+                        <div className="text-xs mt-0.5" style={{ color: "var(--ink-soft)" }}>
+                          {c.intake_started_at ? "Started" : "Invited"} · not submitted
+                        </div>
+                      </div>
+                      <SendReminderButton clientId={c.id} lastReminderAt={c.intake_last_reminder_at} remindersSent={c.intake_reminders_sent} />
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}

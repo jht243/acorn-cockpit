@@ -30,6 +30,8 @@ export default function Intake() {
     estatePlanNotes: "",
     goals: "",
     largestObstacle: "",
+    completingAs: "",
+    whatBringsYou: "",
   });
 
   const steps = ["Welcome", "About you", "Family", "Connect accounts", "Assets", "Liabilities", "Income & expenses", "Estate & insurance", "Goals", "Documents", "Review"];
@@ -104,6 +106,24 @@ export default function Intake() {
             {step === 1 && (
               <Section title="About you" subtitle="The basics — we'll keep this confidential.">
                 <Grid>
+                  <Field label="Who is completing this form?" full>
+                    <div className="flex flex-wrap gap-2">
+                      {["The client", "Spouse / partner", "Advisor on client's behalf", "Someone else"].map((o) => (
+                        <button key={o} type="button"
+                          onClick={() => update("completingAs", o)}
+                          className={`py-2 px-3 rounded-md border text-sm ${data.completingAs === o ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-dark)] font-medium" : "border-[var(--line)] bg-white"}`}>
+                          {o}
+                        </button>
+                      ))}
+                    </div>
+                  </Field>
+                  <Field label="What brings you to Acorn Care?" full>
+                    <textarea className="textarea" rows={3} value={data.whatBringsYou} onChange={(e) => update("whatBringsYou", e.target.value)}
+                      placeholder="e.g., Looking for help with retirement, referred by a friend, want to get our finances organized…" />
+                  </Field>
+                </Grid>
+                <div className="border-t my-5" style={{ borderColor: "var(--line)" }} />
+                <Grid>
                   <Field label="Your full name"><input className="input" value={data.clientName} onChange={(e) => update("clientName", e.target.value)} placeholder="Jane Doe" /></Field>
                   <Field label="Date of birth"><input type="date" className="input" value={data.dob} onChange={(e) => update("dob", e.target.value)} /></Field>
                   <Field label="Email"><input className="input" value={data.email} onChange={(e) => update("email", e.target.value)} placeholder="jane@example.com" /></Field>
@@ -144,7 +164,7 @@ export default function Intake() {
             )}
 
             {step === 4 && (
-              <Section title="Assets (manual entry)" subtitle="Add anything Plaid couldn't pull — real estate, business, private investments. Estimates are fine.">
+              <Section title="Assets (manual entry)" subtitle="Add anything Plaid couldn't pull — real estate, business, private investments. Estimates are fine — we'll refine together.">
                 <ItemList
                   items={data.assets}
                   onChange={(items) => update("assets", items)}
@@ -160,6 +180,7 @@ export default function Intake() {
                   blank={{ label: "", value: "", category: "Real Estate" }}
                   addLabel="+ Add asset"
                 />
+                <NotSurePrompt />
               </Section>
             )}
 
@@ -178,6 +199,7 @@ export default function Intake() {
                   blank={{ label: "", balance: "", rate: "" }}
                   addLabel="+ Add liability"
                 />
+                <NotSurePrompt />
               </Section>
             )}
 
@@ -187,8 +209,8 @@ export default function Intake() {
                   <Field label="Total annual income"><input className="input" placeholder="$ / year" value={data.annualIncome} onChange={(e) => update("annualIncome", e.target.value)} /></Field>
                   <Field label="Total monthly expenses"><input className="input" placeholder="$ / month" value={data.monthlyExpenses} onChange={(e) => update("monthlyExpenses", e.target.value)} /></Field>
                   <Field label="Financial risk tolerance" full>
-                    <div className="flex gap-2">
-                      {["Conservative", "Moderate", "Aggressive"].map((r) => (
+                    <div className="flex flex-wrap gap-2">
+                      {["Conservative", "Moderate", "Aggressive", "I'm not sure"].map((r) => (
                         <button key={r} type="button"
                           onClick={() => update("risk", r)}
                           className={`flex-1 py-2 px-3 rounded-md border text-sm ${data.risk === r ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-dark)] font-medium" : "border-[var(--line)] bg-white"}`}>
@@ -196,6 +218,7 @@ export default function Intake() {
                         </button>
                       ))}
                     </div>
+                    <div className="text-xs mt-2" style={{ color: "var(--ink-soft)" }}>Not sure? We'll walk through this together. <span style={{ color: "var(--brand)" }}>Review with Acorn →</span></div>
                   </Field>
                 </Grid>
               </Section>
@@ -223,27 +246,40 @@ export default function Intake() {
                 <Field label="Your largest obstacle in achieving them" full>
                   <textarea className="textarea" rows={3} value={data.largestObstacle} onChange={(e) => update("largestObstacle", e.target.value)} />
                 </Field>
+                <NotSurePrompt label="Not sure where to start? That's what we're here for." />
               </Section>
             )}
 
             {step === 9 && (
-              <Section title="Documents" subtitle="Drop in anything you have. You can keep adding later.">
+              <Section title="Documents" subtitle="Upload relevant planning documents. You can keep adding later — nothing has to be perfect right now.">
                 <Drop />
-                <ul className="mt-4 space-y-1.5 text-sm">
+                <div className="mt-3 px-3 py-2 rounded-md border text-sm font-medium flex items-center gap-2" style={{ borderColor: "#f5c2c7", background: "#fff5f5", color: "#842029" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Please do not upload medical records.
+                </div>
+                <div className="mt-4 space-y-4 text-sm">
                   {[
-                    "Most recent tax return",
-                    "Account statements (investments, retirement, savings)",
-                    "Insurance policy declarations",
-                    "Will / trust documents",
-                    "Mortgage / loan statements",
-                    "Most recent pay stub",
-                  ].map((s) => (
-                    <li key={s} className="flex items-center gap-2" style={{ color: "var(--ink-soft)" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                      {s}
-                    </li>
+                    { cat: "Tax", items: ["Most recent tax return (Form 1040)", "K-1s, 1099s, W-2s"] },
+                    { cat: "Statements", items: ["Investment & brokerage statements", "Retirement account statements (IRA, 401k, 403b)"] },
+                    { cat: "Estate", items: ["Will / trust documents", "Power of attorney"] },
+                    { cat: "Insurance", items: ["Life insurance declarations", "Long-term care policy"] },
+                    { cat: "Lending", items: ["Mortgage / loan statements", "Other debt statements"] },
+                    { cat: "Income", items: ["Most recent pay stub", "Business financials (P&L, if applicable)"] },
+                  ].map(({ cat, items }) => (
+                    <div key={cat}>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: "var(--brand)" }}>{cat}</div>
+                      <ul className="space-y-1 pl-1">
+                        {items.map((s) => (
+                          <li key={s} className="flex items-center gap-2" style={{ color: "var(--ink-soft)" }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
+                <NotSurePrompt label="Not sure what to upload?" />
               </Section>
             )}
 
@@ -359,13 +395,27 @@ function YN({ label, value, onChange }: { label: string; value: string; onChange
   return (
     <div>
       <label className="label">{label}</label>
-      <div className="flex gap-2">
-        {["yes", "no"].map((o) => (
-          <button key={o} type="button" onClick={() => onChange(o)}
-            className={`flex-1 py-2 rounded-md border text-sm capitalize ${value === o ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-dark)] font-medium" : "border-[var(--line)] bg-white"}`}>
-            {o}
+      <div className="flex gap-2 flex-wrap">
+        {[{ val: "yes", display: "Yes" }, { val: "no", display: "No" }, { val: "not sure", display: "I'm not sure" }].map(({ val, display }) => (
+          <button key={val} type="button" onClick={() => onChange(val)}
+            className={`flex-1 py-2 rounded-md border text-sm ${value === val ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-dark)] font-medium" : "border-[var(--line)] bg-white"}`}>
+            {display}
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function NotSurePrompt({ label = "Not sure about something?" }: { label?: string }) {
+  return (
+    <div className="mt-4 flex items-center gap-3 px-4 py-3 rounded-md border" style={{ borderColor: "var(--line)", background: "#f9fbfa" }}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span className="text-sm flex-1" style={{ color: "var(--ink-soft)" }}>{label}</span>
+      <div className="flex gap-2 shrink-0">
+        <span className="text-sm font-medium cursor-pointer" style={{ color: "var(--brand)" }}>Review with Acorn</span>
+        <span style={{ color: "var(--line)" }}>·</span>
+        <span className="text-sm font-medium cursor-pointer" style={{ color: "var(--brand)" }}>Book help call</span>
       </div>
     </div>
   );
