@@ -71,7 +71,7 @@ export default function Intake() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--bg)" }}>
+    <div className="min-h-screen flex flex-col pb-20" style={{ background: "var(--bg)" }}>
       <header className="bg-white border-b py-4 px-6 flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
         <div className="flex items-center gap-2">
           <Logo />
@@ -180,7 +180,6 @@ export default function Intake() {
                   blank={{ label: "", value: "", category: "Real Estate" }}
                   addLabel="+ Add asset"
                 />
-                <NotSurePrompt />
               </Section>
             )}
 
@@ -199,7 +198,6 @@ export default function Intake() {
                   blank={{ label: "", balance: "", rate: "" }}
                   addLabel="+ Add liability"
                 />
-                <NotSurePrompt />
               </Section>
             )}
 
@@ -218,7 +216,6 @@ export default function Intake() {
                         </button>
                       ))}
                     </div>
-                    <div className="text-xs mt-2" style={{ color: "var(--ink-soft)" }}>Not sure? We'll walk through this together. <span style={{ color: "var(--brand)" }}>Review with Acorn →</span></div>
                   </Field>
                 </Grid>
               </Section>
@@ -246,7 +243,6 @@ export default function Intake() {
                 <Field label="Your largest obstacle in achieving them" full>
                   <textarea className="textarea" rows={3} value={data.largestObstacle} onChange={(e) => update("largestObstacle", e.target.value)} />
                 </Field>
-                <NotSurePrompt label="Not sure where to start? That's what we're here for." />
               </Section>
             )}
 
@@ -279,7 +275,6 @@ export default function Intake() {
                     </div>
                   ))}
                 </div>
-                <NotSurePrompt label="Not sure what to upload?" />
               </Section>
             )}
 
@@ -331,6 +326,20 @@ export default function Intake() {
           )}
         </div>
       </div>
+
+      {/* Floating help bar — visible on all steps */}
+      {step > 0 && (
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50">
+          <div className="flex items-center gap-3 px-5 py-3 rounded-full shadow-lg border text-sm bg-white" style={{ borderColor: "var(--line)" }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span style={{ color: "var(--ink-soft)" }}>Not sure about something?</span>
+            <span className="w-px h-4 inline-block" style={{ background: "var(--line)" }} />
+            <button type="button" className="font-medium" style={{ color: "var(--brand)" }}>Review with Acorn</button>
+            <span style={{ color: "var(--line)" }}>·</span>
+            <button type="button" className="font-medium" style={{ color: "var(--brand)" }}>Book help call</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
