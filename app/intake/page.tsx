@@ -5,6 +5,27 @@ import Link from "next/link";
 type Asset = { label: string; value: string; category: string };
 type Liability = { label: string; balance: string; rate: string };
 
+const GOAL_OPTIONS = [
+  "Setting up an LLC",
+  "Organizing my personal estate",
+  "Making sure I have enough insurance",
+  "Deciding if I can afford to buy a new house",
+  "Figuring out what kind of mortgage I can afford",
+  "Understanding financial documents (balance sheets, income statements)",
+  "Deciding if I can afford to take a trip",
+];
+
+const DEPENDENT_OPTIONS = [
+  "Children",
+  "Pets",
+  "Spouse / partner",
+  "Aging parent(s)",
+  "A sick or ill family member",
+  "A special-needs child or sibling",
+  "Grandchildren",
+  "Another relative I support",
+];
+
 export default function Intake() {
   const [step, setStep] = useState(0);
   const [token, setToken] = useState<string>("");
@@ -29,14 +50,32 @@ export default function Intake() {
     hasLifeIns: "no",
     estatePlanNotes: "",
     goals: "",
+    goalsSelected: [] as string[],
+    dependentsSelected: [] as string[],
     largestObstacle: "",
     completingAs: "",
     whatBringsYou: "",
   });
 
-  const steps = ["Welcome", "About you", "Family", "Connect accounts", "Assets", "Liabilities", "Income & expenses", "Estate & insurance", "Goals", "Documents", "Review"];
+  const steps = ["Welcome", "About you", "Goals", "Dependents", "Connect accounts", "Assets", "Liabilities", "Income & expenses", "Estate & insurance", "Documents", "Review"];
 
   const update = (k: string, v: any) => setData((d) => ({ ...d, [k]: v }));
+
+  const toggleGoal = (g: string) =>
+    setData((d) => ({
+      ...d,
+      goalsSelected: d.goalsSelected.includes(g)
+        ? d.goalsSelected.filter((x) => x !== g)
+        : [...d.goalsSelected, g],
+    }));
+
+  const toggleDependent = (g: string) =>
+    setData((d) => ({
+      ...d,
+      dependentsSelected: d.dependentsSelected.includes(g)
+        ? d.dependentsSelected.filter((x) => x !== g)
+        : [...d.dependentsSelected, g],
+    }));
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -117,10 +156,6 @@ export default function Intake() {
                       ))}
                     </div>
                   </Field>
-                  <Field label="What brings you to Acorn Care?" full>
-                    <textarea className="textarea" rows={3} value={data.whatBringsYou} onChange={(e) => update("whatBringsYou", e.target.value)}
-                      placeholder="e.g., Looking for help with retirement, referred by a friend, want to get our finances organized…" />
-                  </Field>
                 </Grid>
                 <div className="border-t my-5" style={{ borderColor: "var(--line)" }} />
                 <Grid>
@@ -136,15 +171,69 @@ export default function Intake() {
             )}
 
             {step === 2 && (
-              <Section title="Family" subtitle="Who do we need to plan around?">
-                <Field label="Children & other dependents" full>
-                  <textarea className="textarea" rows={4} value={data.children} onChange={(e) => update("children", e.target.value)}
-                    placeholder="e.g., Maya (12), Liam (9), my mother lives with us part-time" />
+              <Section title="Your goals" subtitle="What are you hoping Acorn Care can help you with? Select all that apply.">
+                <div className="grid grid-cols-1 gap-2">
+                  {GOAL_OPTIONS.map((g) => {
+                    const active = data.goalsSelected.includes(g);
+                    return (
+                      <button key={g} type="button" onClick={() => toggleGoal(g)}
+                        className={`flex items-center gap-3 text-left py-2.5 px-3 rounded-md border text-sm ${active ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-dark)] font-medium" : "border-[var(--line)] bg-white"}`}>
+                        <span className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${active ? "border-[var(--brand)] bg-[var(--brand)] text-white" : "border-[var(--line)] bg-white"}`}>
+                          {active && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12l5 5L20 6"/></svg>}
+                        </span>
+                        {g}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-5">
+                  <Field label="Anything else you'd like to accomplish? (optional)" full>
+                    <textarea className="textarea" rows={4} value={data.goals} onChange={(e) => update("goals", e.target.value)}
+                      placeholder="e.g., Retire by 60, set up a 529 for our kids, sell my business in 5 years…" />
+                  </Field>
+                </div>
+                <Field label="What brings you to Acorn Care?" full>
+                  <textarea className="textarea" rows={3} value={data.whatBringsYou} onChange={(e) => update("whatBringsYou", e.target.value)}
+                    placeholder="e.g., Looking for help with retirement, referred by a friend, want to get our finances organized…" />
+                </Field>
+                <Field label="Your largest obstacle in achieving your goals" full>
+                  <textarea className="textarea" rows={3} value={data.largestObstacle} onChange={(e) => update("largestObstacle", e.target.value)} />
                 </Field>
               </Section>
             )}
 
             {step === 3 && (
+              <Section title="Dependents" subtitle="Who do we need to plan around — now and in the years ahead? This isn't just immediate family.">
+                <div className="card card-pad mb-4" style={{ background: "#f9fbfa" }}>
+                  <div className="text-sm font-medium mb-1">Think broadly about who may depend on you:</div>
+                  <ul className="text-sm space-y-1" style={{ color: "var(--ink-soft)" }}>
+                    <li><span className="font-medium text-[var(--ink)]">Current dependents</span> — children, pets, anyone you support today.</li>
+                    <li><span className="font-medium text-[var(--ink)]">Future dependents</span> — aging or sick parents, a special-needs sibling, a relative you expect to care for down the road.</li>
+                  </ul>
+                </div>
+                <Field label="Who depends on you? Select all that apply" full>
+                  <div className="flex flex-wrap gap-2">
+                    {DEPENDENT_OPTIONS.map((g) => {
+                      const active = data.dependentsSelected.includes(g);
+                      return (
+                        <button key={g} type="button" onClick={() => toggleDependent(g)}
+                          className={`py-2 px-3 rounded-md border text-sm ${active ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-dark)] font-medium" : "border-[var(--line)] bg-white"}`}>
+                          {g}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </Field>
+                <div className="mt-5">
+                <Field label="Add any detail — names, ages, what kind of support" full>
+                  <textarea className="textarea" rows={5} value={data.children} onChange={(e) => update("children", e.target.value)}
+                    placeholder="e.g., Maya (12), Liam (9), our dog Cooper; my mother (78) will likely need care within a few years; my brother has special needs and I expect to support him long-term." />
+                </Field>
+                </div>
+              </Section>
+            )}
+
+            {step === 4 && (
               <Section title="Connect your accounts" subtitle="Optional — this is the fastest way to give us an accurate picture. We use Plaid (the same tech your bank uses). Your credentials are never stored by Acorn Care.">
                 <div className="card card-pad" style={{ background: "#f9fbfa" }}>
                   <div className="flex items-center gap-3 mb-4">
@@ -163,7 +252,7 @@ export default function Intake() {
               </Section>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <Section title="Assets (manual entry)" subtitle="Add anything Plaid couldn't pull — real estate, business, private investments. Estimates are fine — we'll refine together.">
                 <ItemList
                   items={data.assets}
@@ -183,7 +272,7 @@ export default function Intake() {
               </Section>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <Section title="Liabilities" subtitle="Mortgages, loans, credit lines.">
                 <ItemList
                   items={data.liabilities}
@@ -201,7 +290,7 @@ export default function Intake() {
               </Section>
             )}
 
-            {step === 6 && (
+            {step === 7 && (
               <Section title="Income & expenses" subtitle="Rough numbers are fine — we'll refine in our meeting.">
                 <Grid>
                   <Field label="Total annual income"><input className="input" placeholder="$ / year" value={data.annualIncome} onChange={(e) => update("annualIncome", e.target.value)} /></Field>
@@ -221,7 +310,7 @@ export default function Intake() {
               </Section>
             )}
 
-            {step === 7 && (
+            {step === 8 && (
               <Section title="Estate & insurance" subtitle="What's already in place?">
                 <Grid>
                   <YN label="Do you have a will?" value={data.hasWill} onChange={(v) => update("hasWill", v)} />
@@ -230,18 +319,6 @@ export default function Intake() {
                 </Grid>
                 <Field label="Anything else we should know about your estate plan?" full>
                   <textarea className="textarea" rows={3} value={data.estatePlanNotes} onChange={(e) => update("estatePlanNotes", e.target.value)} />
-                </Field>
-              </Section>
-            )}
-
-            {step === 8 && (
-              <Section title="Goals" subtitle="What are you trying to accomplish in the next 1–10 years?">
-                <Field label="Your top goals" full>
-                  <textarea className="textarea" rows={5} value={data.goals} onChange={(e) => update("goals", e.target.value)}
-                    placeholder="e.g., Retire by 60, buy a vacation home, set up a 529 for our kids…" />
-                </Field>
-                <Field label="Your largest obstacle in achieving them" full>
-                  <textarea className="textarea" rows={3} value={data.largestObstacle} onChange={(e) => update("largestObstacle", e.target.value)} />
                 </Field>
               </Section>
             )}
@@ -289,7 +366,8 @@ export default function Intake() {
                 <ReviewBlock label="Annual income" value={data.annualIncome ? `$${data.annualIncome}` : "—"} />
                 <ReviewBlock label="Monthly expenses" value={data.monthlyExpenses ? `$${data.monthlyExpenses}` : "—"} />
                 <ReviewBlock label="Risk tolerance" value={data.risk} />
-                <ReviewBlock label="Goals" value={data.goals || "—"} multiline />
+                <ReviewBlock label="Goals" value={[data.goalsSelected.join(", "), data.goals].filter(Boolean).join(" — ") || "—"} multiline />
+                <ReviewBlock label="What brings you" value={data.whatBringsYou || "—"} multiline />
                 <div className="text-xs mt-4" style={{ color: "var(--ink-soft)" }}>
                   By submitting, you agree Acorn Care, LLC may use this information to prepare a financial plan proposal.
                   Acorn Care is not affiliated with any banking institution and this is not investment advice.
@@ -357,7 +435,7 @@ function Welcome({ onNext }: { onNext: () => void }) {
       </p>
       <button className="btn" onClick={onNext}>Begin →</button>
       <div className="mt-8 grid grid-cols-3 gap-3 max-w-lg mx-auto text-xs" style={{ color: "var(--ink-soft)" }}>
-        <div className="card card-pad"><div className="font-semibold text-[var(--ink)] mb-1">10 sections</div>Family, assets, goals, documents.</div>
+        <div className="card card-pad"><div className="font-semibold text-[var(--ink)] mb-1">10 sections</div>Goals, dependents, assets, documents.</div>
         <div className="card card-pad"><div className="font-semibold text-[var(--ink)] mb-1">Encrypted</div>Your data is encrypted at rest.</div>
         <div className="card card-pad"><div className="font-semibold text-[var(--ink)] mb-1">Save & resume</div>Pause anytime; magic link to return.</div>
       </div>

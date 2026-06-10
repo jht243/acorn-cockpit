@@ -4,6 +4,8 @@ import Sidebar from "../../../../components/Sidebar";
 import TopBar from "../../../../components/TopBar";
 import SendReminderButton from "../../../../components/SendReminderButton";
 import CopyIntakeLinkButton from "../../../../components/CopyIntakeLinkButton";
+import ApproveIntakeButton from "../../../../components/ApproveIntakeButton";
+import ClientTasks from "../../../../components/ClientTasks";
 import { getClientById } from "../../../../utils/supabase/queries";
 import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
 import { deriveClientStatus } from "../../../../lib/client-status";
@@ -95,7 +97,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     <>
                       <Link href={`/dashboard/demo-report/${client.id}?type=snapshot`} className="btn-ghost btn">View Financial Snapshot</Link>
                       <Link href={`/dashboard/demo-report/${client.id}?type=net-worth`} className="btn-ghost btn">View Net Worth Statement</Link>
-                      <button className="btn">Schedule review</button>
+                      <ApproveIntakeButton clientId={client.id} approvedAt={client.intake_approved_at} />
                     </>
                   )}
                 </div>
@@ -245,37 +247,12 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
               </ul>
             </div>
 
-            <div className="col-span-12 lg:col-span-7 card">
-              <div className="card-head">
-                <div className="flex flex-col gap-0.5">
-                  <span>Action items — from last meeting notes</span>
-                  <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>
-                    Auto-extracted from your Fathom transcript · review before sending to client
-                  </span>
-                </div>
-                <button className="btn">+ New action</button>
-              </div>
-              <ul>
-                {(client.action_items || []).map((a: any) => (
-                  <li key={a.id} className="px-5 py-3 border-t flex items-center justify-between gap-3" style={{ borderColor: "var(--line)" }}>
-                    <label className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer">
-                      <input type="checkbox" defaultChecked={a.status === "done"} className="mt-1" />
-                      <div className="min-w-0">
-                        <div className={`text-sm ${a.status === "done" ? "line-through opacity-60" : ""}`}>{a.title}</div>
-                        <div className="text-xs flex flex-wrap items-center gap-x-2" style={{ color: "var(--ink-soft)" }}>
-                          <span>{a.owner === "Karli" ? "Owner: Karli" : "Owner: Client"}</span>
-                          {a.due_date && <span>· due {a.due_date}</span>}
-                          {a.source_meeting && <span className="inline-flex items-center gap-1">· <span className="pill pill-gray" style={{ fontSize: 10, padding: "1px 6px" }}>Fathom</span> {a.source_meeting}</span>}
-                        </div>
-                      </div>
-                    </label>
-                    <span className={`pill ${a.status === "done" ? "pill-green" : a.status === "in_progress" ? "pill-amber" : "pill-gray"}`}>
-                      {a.status === "done" ? "Done" : a.status === "in_progress" ? "In progress" : "Open"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ClientTasks
+              clientId={client.id}
+              clientName={client.name}
+              clientEmail={client.email}
+              items={client.action_items || []}
+            />
 
             <div className="col-span-12 lg:col-span-5 card">
               <div className="card-head">

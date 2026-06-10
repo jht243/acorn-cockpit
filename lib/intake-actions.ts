@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { sendIntakeInvite, sendIntakeReminder } from '@/lib/resend'
+import { sendIntakeInvite, sendIntakeReminder, sendBookingInviteEmail } from '@/lib/resend'
 import { revalidatePath } from 'next/cache'
 
 export async function inviteClient(formData: FormData) {
@@ -125,5 +125,39 @@ export async function sendReminder(clientId: string) {
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/clients')
+  return { success: true }
+}
+
+// Admin (Karli) approves a submitted intake → emails the client a Calendly booking link.
+export async function approveIntake(clientId: string) {
+  const supabase = await createClient()
+  const { data: client, error } = await supabase
+    .from('clients')
+    .select('id, name, email, intake_submitted_at')
+    .eq('id', clientId)
+    .single()
+
+  if (error || !client) {
+    return { success: false, error: 'Client not found' }
+  }
+  if (!client.intake_submitted_at) {
+    return { success: false, error: 'Intake has not been submitted yet' }
+  }
+
+  const result = await sendBookingInviteEmail(client.name, client.email)
+  if (!result.success) {
+    const errMsg = (result.error as any)?.message || (result.error as any)?.name || JSON.stringify(result.error)
+    console.error('[approveIntake] Resend error:', result.error)
+    return { success: false, error: `Email failed: ${errMsg}` }
+  }
+
+  await supabase
+    .from('clients')
+    .update({ intake_approved_at: new Date().toISOString() })
+    .eq('id', clientId)
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/clients')
+  revalidatePath(`/dashboard/clients/${clientId}`)
   return { success: true }
 }

@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { sendIntakeCompletionEmail } from '@/lib/resend'
+import { sendIntakeCompletionEmail, sendIntakeConfirmationEmail } from '@/lib/resend'
 import { computeIntakeCompletionPct } from '@/lib/intake-progress'
 import { revalidatePath } from 'next/cache'
 
@@ -164,7 +164,10 @@ export async function submitIntake(data: any) {
   }
 
   if (clientEmail && clientName) {
-    await sendIntakeCompletionEmail(clientName, clientEmail)
+    // Notify Karli (with a direct link to this client's profile)…
+    await sendIntakeCompletionEmail(clientName, clientEmail, clientId || undefined)
+    // …and send the client a thank-you / confirmation.
+    await sendIntakeConfirmationEmail(clientName, clientEmail)
   }
 
   revalidatePath('/dashboard')
