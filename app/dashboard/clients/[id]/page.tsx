@@ -9,6 +9,7 @@ import ClientTasks from "../../../../components/ClientTasks";
 import EditableGoals from "../../../../components/EditableGoals";
 import MeetingNotes from "../../../../components/MeetingNotes";
 import ClientReminders from "../../../../components/ClientReminders";
+import DocumentUploadButton from "../../../../components/DocumentUploadButton";
 import { getClientById } from "../../../../utils/supabase/queries";
 import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
 import { deriveClientStatus } from "../../../../lib/client-status";
@@ -239,7 +240,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     Uploaded via intake form or by Karli
                   </span>
                 </div>
-                <button className="btn-ghost btn text-xs normal-case">Upload</button>
+                <DocumentUploadButton clientId={client.id} />
               </div>
               <ul>
                 {(client.documents || []).map((d: any, i: number) => (
