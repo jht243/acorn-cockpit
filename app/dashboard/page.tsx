@@ -1,24 +1,20 @@
 import Sidebar from "../../components/Sidebar";
 import TopBar from "../../components/TopBar";
 import Link from "next/link";
-import { fmtUSD } from "../../lib/data";
 import { getClients, intakeProgress } from "../../utils/supabase/queries";
 import { deriveClientStatus } from "../../lib/client-status";
 import InviteClientButton from "../../components/InviteClientButton";
 import SendReminderButton from "../../components/SendReminderButton";
 
-function netWorth(c: any) {
-  const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
-  const l = c.liabilities?.reduce((s: number, x: any) => s + Number(x.balance), 0) || 0;
-  return { assets: a, liabilities: l, net: a - l };
-}
-
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default async function Dashboard() {
-  const clients = await getClients();
-  const totalAUM = clients.reduce((s: number, c: any) => s + netWorth(c).net, 0);
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const { q } = await searchParams;
+  const allClients = await getClients();
+  const clients = q
+    ? allClients.filter((c: any) => c.name?.toLowerCase().includes(q.toLowerCase()) || c.email?.toLowerCase().includes(q.toLowerCase()))
+    : allClients;
   const followups = clients.filter((c: any) => c.status === "Follow-Up").length;
   const intakes = clients.filter((c: any) => c.plan === "Intake").length;
   const openActions = clients.flatMap((c: any) => (c.action_items || []).filter((a: any) => a.status !== "done"));
@@ -40,6 +36,13 @@ export default async function Dashboard() {
       <div className="flex-1 flex flex-col">
         <TopBar title="Cockpit" />
         <main className="flex-1 p-6">
+          {q && (
+            <div className="mb-4 flex items-center gap-3 px-4 py-2.5 rounded-md border text-sm" style={{ borderColor: "var(--line)", background: "var(--brand-soft)" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <span>Showing <strong>{clients.length}</strong> result{clients.length !== 1 ? "s" : ""} for <strong>"{q}"</strong></span>
+              <Link href="/dashboard" className="ml-auto text-xs" style={{ color: "var(--brand)" }}>Clear search</Link>
+            </div>
+          )}
           <div className="grid grid-cols-12 gap-5">
             <Kpi label="Planning Snapshot" value={String(submittedIntakes)} hint={`from intake · ${submittedIntakes} of ${clients.length} complete`} tone="up" />
             <Kpi label="Active clients" value={String(clients.length)} hint={`${intakes} in onboarding`} />
@@ -57,13 +60,11 @@ export default async function Dashboard() {
                     <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">Client</th>
                     <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">Plan</th>
                     <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">Status</th>
-                    <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">Net Worth</th>
                     <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">Last Contact</th>
                   </tr>
                 </thead>
                 <tbody>
                   {clients.map((c) => {
-                    const nw = netWorth(c);
                     return (
                       <tr key={c.id} className="row-hover border-t" style={{ borderColor: "var(--line)" }}>
                         <td className="px-5 py-3">
@@ -72,7 +73,6 @@ export default async function Dashboard() {
                         </td>
                         <td className="px-5 py-3"><PlanPill plan={c.plan} /></td>
                         <td className="px-5 py-3"><StatusPill status={c.status} client={c} /></td>
-                        <td className="px-5 py-3 font-medium tabular-nums">{fmtUSD(nw.net)}<div className="text-[10px] font-normal" style={{ color: "var(--ink-soft)" }}>from intake</div></td>
                         <td className="px-5 py-3" style={{ color: "var(--ink-soft)" }}>
                           <div>{c.last_contact ? new Date(c.last_contact).toLocaleDateString() : '—'}</div>
                           {c.last_contact_signal && (
@@ -143,8 +143,11 @@ export default async function Dashboard() {
                     <li key={c.id} className="px-5 py-3 border-t flex items-center justify-between gap-3" style={{ borderColor: "var(--line)" }}>
                       <div className="flex-1 min-w-0">
                         <Link href={`/dashboard/clients/${c.id}`} className="font-medium text-sm hover:underline">{c.name}</Link>
-                        <div className="text-xs mt-0.5" style={{ color: "var(--ink-soft)" }}>
-                          {c.intake_started_at ? "Started" : "Invited"} · not submitted
+                        <div className="text-xs mt-0.5 flex items-center gap-1.5 flex-wrap" style={{ color: "var(--ink-soft)" }}>
+                          <span>{c.intake_started_at ? "Started" : "Invited"} · not submitted</span>
+                          {c.help_requested && (
+                            <span className="pill pill-amber text-[10px]">Help requested</span>
+                          )}
                         </div>
                       </div>
                       <SendReminderButton clientId={c.id} lastReminderAt={c.intake_last_reminder_at} remindersSent={c.intake_reminders_sent} />

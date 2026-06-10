@@ -8,21 +8,84 @@ export interface IntakeFields {
 }
 
 /**
- * 10 weighted checkpoints across the multi-step intake form.
+ * 10 weighted checkpoints matching the revised intake flow.
  * Each filled checkpoint contributes 10% to the completion score.
  * Submitted intakes always read 100%.
  */
 export const INTAKE_CHECKPOINTS: { key: string; label: string; check: (d: any) => boolean }[] = [
-  { key: 'about', label: 'About you', check: (d) => !!(d?.clientName && d?.email && d?.dob) },
-  { key: 'contact', label: 'Contact info', check: (d) => !!(d?.phone && d?.address) },
-  { key: 'family', label: 'Family', check: (d) => !!(d?.children || d?.spouseName) },
-  { key: 'assets', label: 'Assets', check: (d) => Array.isArray(d?.assets) && d.assets.some((a: any) => a?.label && a?.value) },
-  { key: 'liabilities', label: 'Liabilities', check: (d) => Array.isArray(d?.liabilities) && (d.liabilities.some((l: any) => l?.label && l?.balance) || d?.noLiabilities === true) },
-  { key: 'income', label: 'Income', check: (d) => !!d?.annualIncome },
-  { key: 'expenses', label: 'Expenses', check: (d) => !!d?.monthlyExpenses },
-  { key: 'risk', label: 'Risk tolerance', check: (d) => !!d?.risk },
-  { key: 'estate', label: 'Estate & insurance', check: (d) => !!(d?.hasWill && d?.hasTrust && d?.hasLifeIns) },
-  { key: 'goals', label: 'Goals', check: (d) => !!d?.goals },
+  {
+    key: 'about',
+    label: 'About you',
+    check: (d) => !!(d?.clientName && d?.email),
+  },
+  {
+    key: 'contact',
+    label: 'Contact info',
+    check: (d) => !!(d?.phone || d?.address),
+  },
+  {
+    key: 'goals',
+    label: 'Goals',
+    check: (d) =>
+      (Array.isArray(d?.goalsSelected) && d.goalsSelected.length > 0) || !!d?.goals,
+  },
+  {
+    key: 'family',
+    label: 'Family',
+    check: (d) =>
+      !!(
+        d?.children ||
+        d?.spouseName ||
+        (Array.isArray(d?.dependentsSelected) && d.dependentsSelected.length > 0)
+      ),
+  },
+  {
+    key: 'team',
+    label: 'Professional team',
+    check: (d) => {
+      const team = d?.professionalTeam
+      if (!team) return false
+      return Object.values(team).some((v: any) => v?.name || v?.dontHave)
+    },
+  },
+  {
+    key: 'assets',
+    label: 'Assets',
+    check: (d) =>
+      (Array.isArray(d?.assetTypes) && d.assetTypes.length > 0) ||
+      (Array.isArray(d?.assets) && d.assets.some((a: any) => a?.label && a?.value)),
+  },
+  {
+    key: 'liabilities',
+    label: 'Liabilities',
+    check: (d) =>
+      (Array.isArray(d?.liabilityTypes) && d.liabilityTypes.length > 0) ||
+      (Array.isArray(d?.liabilities) && d.liabilities.some((l: any) => l?.label && l?.balance)) ||
+      d?.noLiabilities === true,
+  },
+  {
+    key: 'income',
+    label: 'Income',
+    check: (d) => !!d?.annualIncome,
+  },
+  {
+    key: 'risk',
+    label: 'Risk & clarity',
+    check: (d) => !!(d?.risk || d?.financialClarity),
+  },
+  {
+    key: 'estate',
+    label: 'Estate & insurance',
+    check: (d) =>
+      !!(
+        d?.hasWill ||
+        d?.hasTrust ||
+        d?.hasLifeIns ||
+        d?.hasPOA ||
+        d?.hasHealthcareDirective ||
+        d?.hasBeneficiaryDesignations
+      ),
+  },
 ]
 
 export function computeIntakeCompletionPct(formData: any): number {

@@ -67,6 +67,87 @@ export async function saveIntakeProgress(token: string, formData: any) {
   return { success: true, pct }
 }
 
+/**
+ * Save a "Book help call" flag from the intake form.
+ * Surfaces in Karli's dashboard as a priority item.
+ */
+export async function saveHelpRequest(token: string, section: string) {
+  if (!token) return { success: false }
+  const supabase = await createClient()
+  const { data: existing } = await supabase
+    .from('clients')
+    .select('id, intake_form_data')
+    .eq('intake_token', token)
+    .maybeSingle()
+  if (!existing) return { success: false }
+
+  const updatedFormData = {
+    ...(existing.intake_form_data || {}),
+    helpRequested: true,
+    helpRequestSection: section,
+  }
+
+  await supabase
+    .from('clients')
+    .update({
+      help_requested: true,
+      help_request_section: section,
+      intake_form_data: updatedFormData,
+    })
+    .eq('id', existing.id)
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/clients')
+  revalidatePath(`/dashboard/clients/${existing.id}`)
+  return { success: true }
+}
+
+/**
+ * Save a "Review with Acorn" section-level flag from the intake form.
+ */
+export async function saveReviewFlag(token: string, section: string) {
+  if (!token) return { success: false }
+  const supabase = await createClient()
+  const { data: existing } = await supabase
+    .from('clients')
+    .select('id, intake_form_data')
+    .eq('intake_token', token)
+    .maybeSingle()
+  if (!existing) return { success: false }
+
+  const current: string[] = existing.intake_form_data?.reviewWithAcornSections || []
+  const updated = current.includes(section) ? current : [...current, section]
+
+  const updatedFormData = {
+    ...(existing.intake_form_data || {}),
+    reviewWithAcornSections: updated,
+  }
+
+  await supabase
+    .from('clients')
+    .update({
+      review_with_acorn_sections: updated,
+      intake_form_data: updatedFormData,
+    })
+    .eq('id', existing.id)
+
+  return { success: true }
+}
+
+// Map internal camelCase role keys to readable labels
+function roleLabel(key: string): string {
+  const labels: Record<string, string> = {
+    cpa: 'CPA / Tax Professional',
+    estateAttorney: 'Estate Attorney',
+    financialAdvisor: 'Financial Advisor',
+    insuranceAgent: 'Insurance Agent',
+    banker: 'Banker / Lender',
+    businessAttorney: 'Business Attorney',
+    other: 'Other Professional',
+  }
+  return labels[key] || key
+}
+
 export async function submitIntake(data: any) {
   const supabase = await createClient()
   const token = data.token as string | undefined
@@ -75,49 +156,94 @@ export async function submitIntake(data: any) {
   let clientName = data.clientName || 'Unknown Client'
   let clientEmail = data.email || `unknown-${Date.now()}@example.com`
 
-  // Combine the multi-select goals with any free-text the client added.
+  // Combine multi-select goals with any free-text the client added.
   const goalsSelected: string[] = Array.isArray(data.goalsSelected) ? data.goalsSelected : []
   const goalsCombined = [...goalsSelected, data.goals].filter(Boolean)
 
-  // Dependents: selected chips + free-text detail, plus spouse if provided.
+  // Dependents: selected chips + free-text + planning involvement
   const dependentsSelected: string[] = Array.isArray(data.dependentsSelected) ? data.dependentsSelected : []
+  const planningInvolvement: string[] = Array.isArray(data.planningInvolvement) ? data.planningInvolvement : []
   const dependentsSummary = [dependentsSelected.join(', '), data.children].filter(Boolean).join(' — ')
-  const familySummary = [data.spouseName ? `Spouse: ${data.spouseName}` : '', dependentsSummary]
+  const familySummary = [
+    data.spouseName ? `Spouse: ${data.spouseName}` : '',
+    dependentsSummary,
+    planningInvolvement.length ? `Planning involvement: ${planningInvolvement.join(', ')}` : '',
+  ]
     .filter(Boolean)
     .join('. ')
 
-  // Persist the full structured form payload too, so nothing entered in the
-  // form is lost on submit (autosave only runs for tokenized links).
+  // Professional team: map structured entries to ProTeam[] format for dashboard
+  const teamEntries: any[] = []
+  if (data.professionalTeam) {
+    for (const [key, v] of Object.entries(data.professionalTeam as Record<string, any>)) {
+      if (v?.dontHave) continue
+      if (!v?.name && !v?.firm && !v?.email) continue
+      teamEntries.push({
+        role: key === 'other' ? (v.role || 'Other Professional') : roleLabel(key),
+        name: v.name || '—',
+        firm: v.firm || undefined,
+        email: v.email || undefined,
+        contactPermission: v.contactPermission || undefined,
+      })
+    }
+  }
+
+  // Strip the token from stored form data
   const { token: _token, ...formDataToStore } = data
+
+  const reviewWithAcornSections: string[] = Array.isArray(data.reviewWithAcornSections)
+    ? data.reviewWithAcornSections
+    : []
 
   const clientPayload: any = {
     name: clientName,
     email: clientEmail,
     family: familySummary || data.children,
-    // These are jsonb columns — store real arrays/objects (NOT JSON.stringify'd
-    // strings), otherwise readers like client.expenses.reduce() get a string.
     goals: goalsCombined,
     income: [{ label: 'Annual Income', annual: Number(data.annualIncome) || 0 }],
     expenses: [{ label: 'Monthly Expenses', monthly: Number(data.monthlyExpenses) || 0 }],
+    team: teamEntries.length ? teamEntries : undefined,
     intake_responses: [
       { question: 'What brings you to Acorn Care', answer: data.whatBringsYou },
-      { question: 'Completing as', answer: data.completingAs },
+      { question: 'What brings you (options)', answer: (data.whatBringsYouOptions || []).join(', ') },
+      { question: 'Completing as', answer: [data.completingAs, data.completingAsOther].filter(Boolean).join(' — ') },
+      { question: 'Relationship to client', answer: data.relationshipToClient },
+      { question: 'Who to contact', answer: data.contactWho },
+      { question: 'Goal urgency', answer: data.goalUrgency },
       { question: 'DOB', answer: data.dob },
       { question: 'Spouse DOB', answer: data.spouseDob },
       { question: 'Phone', answer: data.phone },
       { question: 'Address', answer: data.address },
       { question: 'Dependents', answer: dependentsSummary },
-      { question: 'Risk Tolerance', answer: data.risk },
+      { question: 'Planning involvement', answer: planningInvolvement.join(', ') },
+      { question: 'Financial picture method', answer: data.financialPictureMethod },
+      { question: 'Financial clarity', answer: data.financialClarity },
+      { question: 'Risk tolerance', answer: data.risk },
       { question: 'Has Will', answer: data.hasWill },
       { question: 'Has Trust', answer: data.hasTrust },
+      { question: 'Has POA', answer: data.hasPOA },
+      { question: 'Has Healthcare Directive', answer: data.hasHealthcareDirective },
+      { question: 'Has Beneficiary Designations', answer: data.hasBeneficiaryDesignations },
       { question: 'Has Life Insurance', answer: data.hasLifeIns },
+      { question: 'Has LTC Insurance', answer: data.hasLTCIns },
+      { question: 'Has Disability Insurance', answer: data.hasDisabilityIns },
+      { question: 'Has Property Insurance', answer: data.hasPropertyIns },
       { question: 'Estate Plan Notes', answer: data.estatePlanNotes },
-      { question: 'Largest Obstacle', answer: data.largestObstacle },
-    ],
+      { question: 'Document upload preference', answer: data.docUploadPreference },
+      { question: 'Largest obstacle', answer: data.largestObstacle },
+      { question: 'Review with Acorn sections', answer: reviewWithAcornSections.join(', ') },
+      { question: 'Help call requested', answer: data.helpRequested ? `Yes — ${data.helpRequestSection || 'unspecified'}` : 'No' },
+    ].filter((r) => r.answer),
     intake_form_data: formDataToStore,
     intake_submitted_at: new Date().toISOString(),
     intake_completion_pct: 100,
     status: 'Review',
+    review_with_acorn_sections: reviewWithAcornSections,
+  }
+
+  if (data.helpRequested) {
+    clientPayload.help_requested = true
+    clientPayload.help_request_section = data.helpRequestSection || null
   }
 
   if (token) {
@@ -185,9 +311,7 @@ export async function submitIntake(data: any) {
   }
 
   if (clientEmail && clientName) {
-    // Notify Karli (with a direct link to this client's profile)…
     await sendIntakeCompletionEmail(clientName, clientEmail, clientId || undefined)
-    // …and send the client a thank-you / confirmation.
     await sendIntakeConfirmationEmail(clientName, clientEmail)
   }
 

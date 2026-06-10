@@ -6,6 +6,7 @@ import SendReminderButton from "../../../../components/SendReminderButton";
 import CopyIntakeLinkButton from "../../../../components/CopyIntakeLinkButton";
 import ApproveIntakeButton from "../../../../components/ApproveIntakeButton";
 import ClientTasks from "../../../../components/ClientTasks";
+import EditableGoals from "../../../../components/EditableGoals";
 import { getClientById } from "../../../../utils/supabase/queries";
 import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
 import { deriveClientStatus } from "../../../../lib/client-status";
@@ -13,44 +14,18 @@ import { deriveClientStatus } from "../../../../lib/client-status";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const categoryColor: Record<string, string> = {
-  Cash: "#7fb88a",
-  Taxable: "#2f7d4f",
-  Qualified: "#1f5a39",
-  Roth: "#c08a3e",
-  "Real Estate": "#8a5a3b",
-  Business: "#4a544f",
-};
-
-export const fmtUSD = (n: number) =>
-  n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-
-export function netWorth(c: any) {
-  const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
-  const l = c.liabilities?.reduce((s: number, x: any) => s + Number(x.balance), 0) || 0;
-  return { assets: a, liabilities: l, net: a - l };
-}
-
-export function assetsByCategory(c: any) {
-  const map = new Map<string, number>();
-  c.assets?.forEach((a: any) => map.set(a.category, (map.get(a.category) ?? 0) + Number(a.value)));
-  const total = Array.from(map.values()).reduce((s: number, x: number) => s + x, 0);
-  return Array.from(map.entries()).map(([category, value]) => ({
-    category,
-    value,
-    pct: total ? (value / total) * 100 : 0,
-  }));
-}
-
 export default async function ClientDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const client = await getClientById(id);
   if (!client) return notFound();
 
-  const nw = netWorth(client);
-  const breakdown = assetsByCategory(client);
-  const monthlyExp = client.expenses?.reduce((s: number, x: any) => s + Number(x.monthly), 0) || 0;
-  const annualInc = client.income?.reduce((s: number, x: any) => s + Number(x.annual), 0) || 0;
+  const ip = intakeProgress(client);
+  const fd = client.intake_form_data || {};
+
+  // Contact info — prefer direct columns, fall back to intake_form_data
+  const phone = client.phone || fd.phone || null;
+  const address = fd.address || null;
+  const dob = fd.dob || null;
 
   return (
     <div className="flex min-h-screen">
@@ -59,180 +34,176 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
         <TopBar title={client.name} breadcrumb={[{ label: "Clients", href: "/dashboard/clients" }, { label: client.name }]} />
         <main className="flex-1 p-6">
           <div className="grid grid-cols-12 gap-5">
+
+            {/* ── Header card ── */}
             <div className="col-span-12 card card-pad">
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-12 h-12 rounded-full bg-[var(--brand-soft)] text-[var(--brand-dark)] flex items-center justify-center font-semibold">
-                      {client.name.split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-[var(--brand-soft)] text-[var(--brand-dark)] flex items-center justify-center font-semibold text-lg">
+                    {client.name.split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold">{client.name}</div>
+                    {client.family && <div className="text-sm" style={{ color: "var(--ink-soft)" }}>{client.family}</div>}
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`pill ${client.plan === "Mahogany" ? "pill-amber" : client.plan === "Sycamore" ? "pill-green" : "pill-gray"}`}>{client.plan}</span>
+                      {(() => {
+                        const s = deriveClientStatus(client);
+                        return <span className={`pill ${s.pillClass}`} title={s.tooltip}>{s.label}</span>;
+                      })()}
                     </div>
-                    <div>
-                      <div className="text-lg font-semibold">{client.name}</div>
-                      <div className="text-sm" style={{ color: "var(--ink-soft)" }}>{client.family}</div>
-                    </div>
-                    <span className={`pill ${client.plan === "Mahogany" ? "pill-amber" : client.plan === "Sycamore" ? "pill-green" : "pill-gray"}`}>{client.plan}</span>
-                    {(() => {
-                      const s = deriveClientStatus(client);
-                      return <span className={`pill ${s.pillClass}`} title={s.tooltip}>{s.label}</span>;
-                    })()}
                   </div>
                 </div>
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-2 items-center flex-wrap">
                   {!client.intake_submitted_at ? (
                     <>
                       <div className="px-3 py-1.5 rounded-md border" style={{ borderColor: "var(--brand-soft)", background: "var(--brand-soft)" }}>
                         <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
                       </div>
-                      <a
-                        href={`/intake?token=${client.intake_token}&from=admin&clientId=${client.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-ghost btn"
-                      >
+                      <a href={`/intake?token=${client.intake_token}&from=admin&clientId=${client.id}`} target="_blank" rel="noopener noreferrer" className="btn-ghost btn">
                         {`Open ${client.name.split(" ")[0]}'s Form`}
                       </a>
                       <CopyIntakeLinkButton token={client.intake_token} />
                     </>
                   ) : (
-                    <>
-                      <Link href={`/dashboard/demo-report/${client.id}?type=snapshot`} className="btn-ghost btn">View Financial Snapshot</Link>
-                      <Link href={`/dashboard/demo-report/${client.id}?type=net-worth`} className="btn-ghost btn">View Net Worth Statement</Link>
-                      <ApproveIntakeButton clientId={client.id} approvedAt={client.intake_approved_at} />
-                    </>
+                    <ApproveIntakeButton clientId={client.id} approvedAt={client.intake_approved_at} />
                   )}
                 </div>
               </div>
+
               <div className="divider" />
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+              {/* Contact info row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
+                <ContactField label="Email" value={client.email} href={`mailto:${client.email}`} />
+                <ContactField label="Phone" value={phone} href={phone ? `tel:${phone}` : undefined} />
+                <ContactField label="Date of birth" value={dob} />
+                <ContactField label="Address" value={address} />
                 <div>
-                  <div className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: "var(--ink-soft)" }}>Net worth</div>
-                  <div className="kpi-num up">{fmtUSD(nw.net)}</div>
-                </div>
-                <div>
-                  <div className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: "var(--ink-soft)" }}>Annual income</div>
-                  <div className="kpi-num">{fmtUSD(annualInc)}</div>
-                </div>
-                <div>
-                  <div className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: "var(--ink-soft)" }}>Monthly expenses</div>
-                  <div className="kpi-num">{fmtUSD(monthlyExp)}</div>
-                </div>
-                <div>
-                  <div className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: "var(--ink-soft)" }}>Last contact</div>
-                  <div className="kpi-num" style={{ fontSize: 18 }}>{client.last_contact ? new Date(client.last_contact).toLocaleDateString() : '—'}</div>
+                  <div className="text-[11px] uppercase tracking-wider font-semibold mb-1" style={{ color: "var(--ink-soft)" }}>Last contact</div>
+                  <div className="text-sm font-medium">{client.last_contact ? new Date(client.last_contact).toLocaleDateString() : "—"}</div>
                   {client.last_contact_signal && (
-                    <div className="text-xs mt-1 flex items-center gap-1" style={{ color: "var(--ink-soft)" }}>
+                    <div className="text-xs mt-0.5 flex items-center gap-1" style={{ color: "var(--ink-soft)" }}>
                       <SourceBadge source={client.last_contact_signal.source} />
-                      <span>{client.last_contact_signal.label}</span>
+                      <span className="truncate">{client.last_contact_signal.label}</span>
                     </div>
                   )}
-                  {client.next_meeting && <div className="text-xs mt-1" style={{ color: "var(--ink-soft)" }}>Next: {new Date(client.next_meeting).toLocaleDateString()} <span className="opacity-70">· via Calendly</span></div>}
+                </div>
+                <div>
+                  <div className="text-[11px] uppercase tracking-wider font-semibold mb-1" style={{ color: "var(--ink-soft)" }}>Next meeting</div>
+                  <div className="text-sm font-medium">{client.next_meeting ? new Date(client.next_meeting).toLocaleDateString() : "—"}</div>
+                  {client.next_meeting && <div className="text-xs mt-0.5" style={{ color: "var(--ink-soft)" }}>via Calendly</div>}
                 </div>
               </div>
             </div>
 
-            <div className="col-span-12 card">
+            {/* ── Goals (top, editable) ── */}
+            <div className="col-span-12 lg:col-span-7 card">
+              <div className="card-head">
+                <span>Goals</span>
+              </div>
+              <div className="card-pad">
+                <EditableGoals clientId={client.id} goals={client.goals || []} />
+              </div>
+            </div>
+
+            {/* ── Intake status ── */}
+            <div className="col-span-12 lg:col-span-5 card">
               <div className="card-head">
                 <div className="flex flex-col gap-0.5">
-                  <span>Review Readiness</span>
-                  <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>Based on intake responses and uploaded documents</span>
+                  <span>Intake</span>
+                  <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>
+                    {client.intake_submitted_at ? `Submitted ${new Date(client.intake_submitted_at).toLocaleDateString()}` : "Not yet submitted"}
+                  </span>
                 </div>
+                <span className={`pill ${intakeProgressPillClass(ip.kind)}`}>{ip.label}</span>
+              </div>
+              <div className="card-pad space-y-3">
                 {client.intake_submitted_at ? (
-                  <button className="btn">Schedule review</button>
+                  <>
+                    {fd.whatBringsYouOptions?.length > 0 && (
+                      <div>
+                        <div className="text-xs font-medium mb-1" style={{ color: "var(--ink-soft)" }}>What brought them here</div>
+                        <div className="text-sm">{(fd.whatBringsYouOptions as string[]).join(", ")}</div>
+                      </div>
+                    )}
+                    {fd.goalUrgency && (
+                      <div>
+                        <div className="text-xs font-medium mb-1" style={{ color: "var(--ink-soft)" }}>Goal urgency</div>
+                        <div className="text-sm capitalize">{fd.goalUrgency.replace("year", "In the next year").replace("ahead", "Looking ahead").replace("urgent", "Urgent").replace("exploring", "Just exploring")}</div>
+                      </div>
+                    )}
+                    {fd.risk && (
+                      <div>
+                        <div className="text-xs font-medium mb-1" style={{ color: "var(--ink-soft)" }}>Risk tolerance</div>
+                        <div className="text-sm">{fd.risk}</div>
+                      </div>
+                    )}
+                    {fd.largestObstacle && (
+                      <div>
+                        <div className="text-xs font-medium mb-1" style={{ color: "var(--ink-soft)" }}>Largest obstacle</div>
+                        <div className="text-sm">{fd.largestObstacle}</div>
+                      </div>
+                    )}
+                  </>
                 ) : (
-                  <span className="pill pill-amber">Intake incomplete</span>
+                  <div className="flex items-center gap-3">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2" className="shrink-0"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span className="text-sm flex-1" style={{ color: "var(--ink-soft)" }}>
+                      {ip.kind === "invited" ? "Invited but not yet started." : ip.kind === "in_progress" ? `${ip.pct}% complete — not submitted yet.` : "Not started."}
+                    </span>
+                  </div>
+                )}
+                {!client.intake_submitted_at && (
+                  <div className="flex gap-2 pt-1">
+                    <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
+                    <a href={`/intake?token=${client.intake_token}&from=admin&clientId=${client.id}`} target="_blank" rel="noopener noreferrer" className="btn-ghost btn text-xs">
+                      Open form
+                    </a>
+                  </div>
                 )}
               </div>
-              <div className="card-pad">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                  {[
-                    { label: "Contact info", done: !!(client.email || client.intake_form_data?.email) },
-                    { label: "Family", done: !!(client.intake_form_data?.children) },
-                    { label: "Assets", done: !!(client.assets && client.assets.length > 0) },
-                    { label: "Liabilities", done: !!(client.liabilities && client.liabilities.length > 0) },
-                    { label: "Goals", done: !!(client.goals && client.goals.length > 0) },
-                    { label: "Documents", done: !!(client.documents && client.documents.length > 0) },
-                  ].map(({ label, done }) => (
-                    <div key={label} className="flex flex-col items-center gap-1.5 p-3 rounded-md border text-center" style={{ borderColor: done ? "#c6e0cc" : "var(--line)", background: done ? "#f4faf5" : "#fafafa" }}>
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${done ? "bg-[var(--brand)] text-white" : "border-2 border-[var(--line)]"}`}>
-                        {done ? (
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 13l4 4L19 7"/></svg>
-                        ) : (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        )}
-                      </div>
-                      <div className="text-xs font-medium" style={{ color: done ? "var(--brand-dark)" : "var(--ink-soft)" }}>{label}</div>
-                    </div>
+            </div>
+
+            {/* ── Help call banner ── */}
+            {client.help_requested && (
+              <div className="col-span-12 flex items-start gap-3 px-4 py-3 rounded-md border" style={{ borderColor: "#f5c2c7", background: "#fff5f5" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c0392b" strokeWidth="2" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div className="flex-1">
+                  <div className="text-sm font-semibold" style={{ color: "#842029" }}>Client requested a help call</div>
+                  <div className="text-xs mt-0.5" style={{ color: "#842029", opacity: 0.8 }}>
+                    Flagged the <strong>{client.help_request_section || "intake"}</strong> section.
+                  </div>
+                </div>
+                <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-md border" style={{ borderColor: "#c0392b", color: "#842029" }}>
+                  Schedule call →
+                </a>
+              </div>
+            )}
+
+            {/* ── Review flags ── */}
+            {client.review_with_acorn_sections && (client.review_with_acorn_sections as string[]).length > 0 && (
+              <div className="col-span-12 card">
+                <div className="card-head">
+                  <div className="flex flex-col gap-0.5">
+                    <span>Flagged for Review</span>
+                    <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>Client asked to review these sections together</span>
+                  </div>
+                  <span className="pill pill-amber">{(client.review_with_acorn_sections as string[]).length} section{(client.review_with_acorn_sections as string[]).length > 1 ? "s" : ""}</span>
+                </div>
+                <div className="card-pad flex flex-wrap gap-2">
+                  {(client.review_with_acorn_sections as string[]).map((s: string) => (
+                    <span key={s} className="px-3 py-1.5 rounded-md border text-sm font-medium" style={{ borderColor: "var(--brand-soft)", background: "var(--brand-soft)", color: "var(--brand-dark)" }}>
+                      {s}
+                    </span>
                   ))}
                 </div>
-                {!client.intake_submitted_at && (
-                  <div className="mt-4 flex items-center gap-3 px-4 py-3 rounded-md border" style={{ borderColor: "var(--line)", background: "#f9fbfa" }}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span className="text-sm flex-1" style={{ color: "var(--ink-soft)" }}>Client hasn't submitted their intake yet. You can send a reminder or open their form to fill it together.</span>
-                    <div className="flex gap-2 shrink-0">
-                      <SendReminderButton clientId={client.id} lastReminderAt={client.intake_last_reminder_at} remindersSent={client.intake_reminders_sent} />
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
+            )}
 
-            <div className="col-span-12 lg:col-span-7 card">
-              <div className="card-head"><span>Personal Financial Statement</span><span className="text-xs normal-case font-normal">{fmtUSD(nw.assets)} assets · {fmtUSD(nw.liabilities)} liabilities</span></div>
-              <div className="card-pad">
-                <div className="grid grid-cols-12 gap-6">
-                  <div className="col-span-12 md:col-span-5">
-                    <Donut data={breakdown} />
-                    <ul className="mt-3 space-y-1.5">
-                      {breakdown.map((b) => (
-                        <li key={b.category} className="flex items-center justify-between text-sm">
-                          <span className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: categoryColor[b.category] ?? "#ccc" }} />
-                            {b.category}
-                          </span>
-                          <span className="tabular-nums" style={{ color: "var(--ink-soft)" }}>{b.pct.toFixed(1)}%</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="col-span-12 md:col-span-7">
-                    <div className="text-[11px] uppercase tracking-wider font-semibold mb-2" style={{ color: "var(--ink-soft)" }}>Assets</div>
-                    <ul className="text-sm divide-y" style={{ borderColor: "var(--line)" }}>
-                      {(client.assets || []).map((a: any, i: number) => (
-                        <li key={i} className="flex justify-between py-1.5">
-                          <span>{a.label}<span className="text-xs ml-2" style={{ color: "var(--ink-soft)" }}>{a.category}</span></span>
-                          <span className="tabular-nums font-medium">{fmtUSD(a.value)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    {(client.liabilities || []).length > 0 && (
-                      <>
-                        <div className="text-[11px] uppercase tracking-wider font-semibold mt-4 mb-2" style={{ color: "var(--ink-soft)" }}>Liabilities</div>
-                        <ul className="text-sm divide-y" style={{ borderColor: "var(--line)" }}>
-                          {(client.liabilities || []).map((l: any, i: number) => (
-                            <li key={i} className="flex justify-between py-1.5">
-                              <span>{l.label}{l.rate != null && <span className="text-xs ml-2" style={{ color: "var(--ink-soft)" }}>{l.rate}%</span>}</span>
-                              <span className="tabular-nums font-medium" style={{ color: "var(--danger)" }}>−{fmtUSD(l.balance)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
+            {/* ── Professional team ── */}
             <div className="col-span-12 lg:col-span-5 card">
-              <div className="card-head"><span>Goals</span></div>
-              <ul className="card-pad space-y-2">
-                {(client.goals || []).map((g: any, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2.5" className="mt-0.5 shrink-0"><path d="M5 13l4 4L19 7"/></svg>
-                    {g}
-                  </li>
-                ))}
-              </ul>
-              <div className="card-head" style={{ borderTop: "1px solid var(--line)" }}><span>Professional team</span><button className="btn-ghost btn text-xs normal-case">+ Add</button></div>
+              <div className="card-head"><span>Professional team</span><button className="btn-ghost btn text-xs normal-case">+ Add</button></div>
               <ul>
                 {(client.team || []).map((t: any, i: number) => (
                   <li key={i} className="px-5 py-2.5 border-t flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
@@ -243,10 +214,13 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     {t.email && <a href={`mailto:${t.email}`} className="text-xs" style={{ color: "var(--brand)" }}>email</a>}
                   </li>
                 ))}
-                {(!client.team || client.team.length === 0) && <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No team contacts yet.</li>}
+                {(!client.team || client.team.length === 0) && (
+                  <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No team contacts yet.</li>
+                )}
               </ul>
             </div>
 
+            {/* ── Action items ── */}
             <ClientTasks
               clientId={client.id}
               clientName={client.name}
@@ -254,12 +228,13 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
               items={client.action_items || []}
             />
 
-            <div className="col-span-12 lg:col-span-5 card">
+            {/* ── Documents ── */}
+            <div className="col-span-12 card">
               <div className="card-head">
                 <div className="flex flex-col gap-0.5">
                   <span>Documents</span>
                   <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>
-                    Auto-pulled from intake form, Plaid statements, and Karli uploads
+                    Uploaded via intake form or by Karli
                   </span>
                 </div>
                 <button className="btn-ghost btn text-xs normal-case">Upload</button>
@@ -268,13 +243,13 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                 {(client.documents || []).map((d: any, i: number) => (
                   <li key={i} className="px-5 py-3 border-t flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded bg-[var(--brand-soft)] text-[var(--brand-dark)] flex items-center justify-center text-xs font-semibold shrink-0">{d.tag.slice(0,2).toUpperCase()}</div>
+                      <div className="w-8 h-8 rounded bg-[var(--brand-soft)] text-[var(--brand-dark)] flex items-center justify-center text-xs font-semibold shrink-0">{d.tag?.slice(0, 2).toUpperCase()}</div>
                       <div className="min-w-0">
                         <div className="text-sm font-medium truncate">{d.name}</div>
                         <div className="text-xs flex items-center gap-1.5 flex-wrap" style={{ color: "var(--ink-soft)" }}>
                           <span>{d.tag}</span>
                           <span>·</span>
-                          <span>{d.uploaded_at}</span>
+                          <span>{d.uploaded_at || d.uploaded}</span>
                           <span>·</span>
                           <span className="pill pill-gray" style={{ fontSize: 10, padding: "1px 6px" }}>{d.source}</span>
                         </div>
@@ -283,48 +258,22 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     <button className="text-xs shrink-0" style={{ color: "var(--brand)" }}>view</button>
                   </li>
                 ))}
-                {(!client.documents || client.documents.length === 0) && <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No documents yet — they'll appear here as the client uploads via the intake form.</li>}
+                {(!client.documents || client.documents.length === 0) && (
+                  <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No documents yet — they'll appear here once uploaded.</li>
+                )}
               </ul>
             </div>
 
-            {client.plaidAccounts && (
-              <div className="col-span-12 lg:col-span-7 card">
-                <div className="card-head">
-                  <div className="flex flex-col gap-0.5">
-                    <span>Connected accounts</span>
-                    <span className="text-[10px] normal-case font-normal tracking-normal flex items-center gap-1" style={{ color: "var(--ink-soft)" }}>
-                      <PlaidGlyph /> Synced via Plaid · balances refresh nightly
-                    </span>
-                  </div>
-                  <button className="btn-ghost btn text-xs normal-case">+ Link account</button>
-                </div>
-                <ul>
-                  {(client.plaidAccounts || []).map((p: any, i: number) => (
-                    <li key={i} className="px-5 py-3 border-t flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded bg-[#eef4f8] text-[#155e8a] flex items-center justify-center text-xs font-semibold">{p.institution.slice(0,2).toUpperCase()}</div>
-                        <div>
-                          <div className="text-sm font-medium">{p.institution} <span className="text-xs font-normal" style={{ color: "var(--ink-soft)" }}>{p.mask}</span></div>
-                          <div className="text-xs" style={{ color: "var(--ink-soft)" }}>{p.type} · last sync {p.lastSync}</div>
-                        </div>
-                      </div>
-                      <div className="text-sm font-medium tabular-nums">{p.balance.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}</div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {client.intakeResponses && (
-              <div className={`col-span-12 ${client.plaidAccounts ? "lg:col-span-5" : ""} card`}>
+            {/* ── Intake responses ── */}
+            {(client.intakeResponses || client.intake_responses)?.length > 0 && (
+              <div className="col-span-12 card">
                 <div className="card-head">
                   <div className="flex flex-col gap-0.5">
                     <span>Intake form responses</span>
                     <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>
-                      Submitted by client on {client.meetings[client.meetings.length - 1]?.date}
+                      {client.intake_submitted_at ? `Submitted ${new Date(client.intake_submitted_at).toLocaleDateString()}` : ""}
                     </span>
                   </div>
-                  <button className="btn-ghost btn text-xs normal-case">View full intake</button>
                 </div>
                 <ul>
                   {(client.intakeResponses || client.intake_responses || []).map((r: any, i: number) => (
@@ -337,12 +286,13 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
               </div>
             )}
 
+            {/* ── Cadence & timeline ── */}
             <div className="col-span-12 card">
               <div className="card-head">
                 <div className="flex flex-col gap-0.5">
                   <span>Cadence & timeline</span>
                   <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>
-                    Auto-fired reminders driven by your engagement type, intake answers, and policy/renewal dates · emails sent to you and the client
+                    Auto-fired reminders based on engagement type, intake answers, and policy dates
                   </span>
                 </div>
                 <button className="btn-ghost btn text-xs normal-case">+ Custom reminder</button>
@@ -356,11 +306,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium">{c.title}</div>
-                      <div className="text-xs flex items-center gap-1.5 flex-wrap" style={{ color: "var(--ink-soft)" }}>
-                        <span className="pill pill-gray" style={{ fontSize: 10, padding: "1px 6px" }}>Cadence engine</span>
-                        <span>·</span>
-                        <span>{c.basis}</span>
-                      </div>
+                      <div className="text-xs" style={{ color: "var(--ink-soft)" }}>{c.basis}</div>
                     </div>
                     <span className={`pill ${c.status === "fired" ? "pill-green" : c.status === "imminent" ? "pill-amber" : "pill-gray"}`}>
                       {c.status === "fired" ? "Sent" : c.status === "imminent" ? "Upcoming" : "Scheduled"}
@@ -370,6 +316,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
               </ul>
             </div>
 
+            {/* ── Meeting log ── */}
             <div className="col-span-12 card">
               <div className="card-head">
                 <div className="flex flex-col gap-0.5">
@@ -385,12 +332,16 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     <div className="w-28 text-xs font-medium shrink-0">{m.meeting_date || m.date}</div>
                     <div className="flex-1">
                       <div className="text-sm font-medium flex items-center gap-2">{m.title} <SourceBadge source="Google Cal" /></div>
-                      <div className="text-sm" style={{ color: "var(--ink-soft)" }}>{m.summary}</div>
+                      <div className="text-sm mt-1" style={{ color: "var(--ink-soft)" }}>{m.summary}</div>
                     </div>
                   </li>
                 ))}
+                {(!client.meetings || client.meetings.length === 0) && (
+                  <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No meetings logged yet.</li>
+                )}
               </ul>
             </div>
+
           </div>
         </main>
       </div>
@@ -398,53 +349,34 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
   );
 }
 
-function Donut({ data }: { data: { category: string; value: number; pct: number }[] }) {  const r = 60, c = 80, stroke = 22;
-  const circ = 2 * Math.PI * r;
-  let offset = 0;
+function ContactField({ label, value, href }: { label: string; value: string | null | undefined; href?: string }) {
   return (
-    <svg viewBox="0 0 160 160" width="100%" style={{ maxWidth: 220 }}>
-      <circle cx={c} cy={c} r={r} fill="none" stroke="#eef0ee" strokeWidth={stroke} />
-      {data.map((d, i) => {
-        const len = (d.pct / 100) * circ;
-        const dash = `${len} ${circ - len}`;
-        const dashoffset = -offset;
-        offset += len;
-        return (
-          <circle key={i} cx={c} cy={c} r={r} fill="none"
-            stroke={categoryColor[d.category] ?? "#ccc"}
-            strokeWidth={stroke}
-            strokeDasharray={dash}
-            strokeDashoffset={dashoffset}
-            transform={`rotate(-90 ${c} ${c})`}
-          />
-        );
-      })}
-      <text x={c} y={c - 4} textAnchor="middle" fontSize="11" fill="var(--ink-soft)">Allocation</text>
-      <text x={c} y={c + 14} textAnchor="middle" fontSize="14" fontWeight="600" fill="var(--ink)">{data.length} types</text>
-    </svg>
+    <div>
+      <div className="text-[11px] uppercase tracking-wider font-semibold mb-1" style={{ color: "var(--ink-soft)" }}>{label}</div>
+      {value ? (
+        href ? (
+          <a href={href} className="text-sm font-medium hover:underline" style={{ color: "var(--brand)" }}>{value}</a>
+        ) : (
+          <div className="text-sm font-medium">{value}</div>
+        )
+      ) : (
+        <div className="text-sm" style={{ color: "var(--ink-soft)" }}>—</div>
+      )}
+    </div>
   );
 }
 
 function SourceBadge({ source }: { source: string }) {
-  const palette: Record<string, { bg: string; fg: string; label: string }> = {
-    "Google Cal": { bg: "#e8f0fe", fg: "#1a73e8", label: "Google Cal" },
-    "Gmail": { bg: "#fce8e6", fg: "#c5221f", label: "Gmail" },
-    "Calendly": { bg: "#e7f0ff", fg: "#0069ff", label: "Calendly" },
-    "Plaid": { bg: "#eef4f8", fg: "#155e8a", label: "Plaid" },
-    "Fathom": { bg: "#f1ecfe", fg: "#5b3dbe", label: "Fathom" },
+  const palette: Record<string, { bg: string; fg: string }> = {
+    "Google Cal": { bg: "#e8f0fe", fg: "#1a73e8" },
+    "Gmail": { bg: "#fce8e6", fg: "#c5221f" },
+    "Calendly": { bg: "#e7f0ff", fg: "#0069ff" },
+    "Fathom": { bg: "#f1ecfe", fg: "#5b3dbe" },
   };
-  const p = palette[source] ?? { bg: "#eef0ee", fg: "#4a544f", label: source };
+  const p = palette[source] ?? { bg: "#eef0ee", fg: "#4a544f" };
   return (
     <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wide" style={{ background: p.bg, color: p.fg }}>
-      {p.label}
-    </span>
-  );
-}
-
-function PlaidGlyph() {
-  return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wide" style={{ background: "#eef4f8", color: "#155e8a" }}>
-      Plaid
+      {source}
     </span>
   );
 }
@@ -461,32 +393,25 @@ function buildCadence(c: any) {
   };
   const lastMeeting = c.last_contact ? new Date(c.last_contact) : new Date();
   const add = (base: Date, days: number) => { const x = new Date(base); x.setDate(x.getDate() + days); return x; };
-  const d30 = add(lastMeeting, 30);
-  const d180 = add(lastMeeting, 180);
-  const dAnnual = add(lastMeeting, 365);
+  const d30 = add(lastMeeting, 30); const d180 = add(lastMeeting, 180); const dAnnual = add(lastMeeting, 365);
   const status = (d: Date): "fired" | "imminent" | "scheduled" =>
     d < today ? "fired" : (+d - +today) < 14 * 86400000 ? "imminent" : "scheduled";
-
-  const items: { date: string; relative: string; title: string; basis: string; status: "fired" | "imminent" | "scheduled" }[] = [
+  const items: any[] = [
     { date: fmt(d30), relative: rel(d30), title: "30-day post-plan follow-up", basis: "Royal Oak / Sycamore / Mahogany default", status: status(d30) },
     { date: fmt(d180), relative: rel(d180), title: "6-month review reminder", basis: "Brochure cadence", status: status(d180) },
     { date: fmt(dAnnual), relative: rel(dAnnual), title: "Annual estate & beneficiary review", basis: "Triggered by 'has will/trust' = yes", status: status(dAnnual) },
   ];
-
   if (c.id === "anita") {
     const rmd = new Date("2025-12-31");
     items.push({ date: fmt(rmd), relative: rel(rmd), title: "Required Minimum Distribution deadline", basis: "Triggered by IRA + age from intake", status: status(rmd) });
   }
   if (c.id === "dayanara") {
-    const policy = new Date("2025-04-15");
-    const tax = new Date("2025-04-15");
-    items.push({ date: fmt(policy), relative: rel(policy), title: "Term life policy: convertibility check", basis: "Triggered by intake answer", status: status(policy) });
-    items.push({ date: fmt(tax), relative: rel(tax), title: "2024 tax filing deadline check-in", basis: "Triggered by 'taxes incomplete' action item", status: status(tax) });
+    items.push({ date: fmt(new Date("2025-04-15")), relative: rel(new Date("2025-04-15")), title: "Term life policy: convertibility check", basis: "Triggered by intake answer", status: status(new Date("2025-04-15")) });
+    items.push({ date: fmt(new Date("2025-04-15")), relative: rel(new Date("2025-04-15")), title: "2024 tax filing deadline check-in", basis: "Triggered by 'taxes incomplete' action item", status: status(new Date("2025-04-15")) });
   }
   if (c.plan === "Mahogany") {
     const events = new Date("2025-05-15");
     items.push({ date: fmt(events), relative: rel(events), title: "Curated client event invite", basis: "Mahogany tier benefit", status: status(events) });
   }
-
-  return items.sort((a, b) => +new Date(a.date) - +new Date(b.date));
+  return items.sort((a: any, b: any) => +new Date(a.date) - +new Date(b.date));
 }

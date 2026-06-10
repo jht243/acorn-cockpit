@@ -29,6 +29,9 @@ export type Client = {
   lastContactSignal?: ContactSignal;
   family?: string;
   notes?: string;
+  helpRequested?: boolean;
+  help_request_section?: string;
+  review_with_acorn_sections?: string[];
 };
 
 export const clients: Client[] = [
@@ -276,6 +279,9 @@ export const clients: Client[] = [
     meetings: [{ date: "Feb 6, 2025", title: "Free Intro Call", summary: "1-hour intro. Engaged for Royal Oak. Sent intake link." }],
     documents: [],
     lastContactSignal: { source: "Calendly", label: "Booked: Free Intro Call", date: "Feb 6, 2025" },
+    helpRequested: true,
+    help_request_section: 'Goals',
+    review_with_acorn_sections: ['Assets', 'Estate & insurance'],
   },
 ];
 

@@ -44,25 +44,74 @@ export async function inviteClient(formData: FormData) {
   } else {
     // Seed the intake form data so the form is prefilled when the client opens it
     const seedFormData = {
+      // About you
       clientName: name,
       email,
       phone,
       dob: '',
       address: '',
-      children: '',
+      completingAs: '',
+      completingAsOther: '',
+      relationshipToClient: '',
+      contactWho: '',
+      // What brings you
+      whatBringsYou: '',
+      whatBringsYouOptions: [],
+      // Goals
+      goals: '',
+      goalsSelected: [],
+      goalUrgency: '',
+      largestObstacle: '',
+      // Family / dependents
       spouseName: '',
       spouseDob: '',
+      children: '',
+      dependentsSelected: [],
+      planningInvolvement: [],
+      // Professional team
+      professionalTeam: {
+        cpa: { name: '', firm: '', email: '', contactPermission: '', dontHave: false },
+        estateAttorney: { name: '', firm: '', email: '', contactPermission: '', dontHave: false },
+        financialAdvisor: { name: '', firm: '', email: '', contactPermission: '', dontHave: false },
+        insuranceAgent: { name: '', firm: '', email: '', contactPermission: '', dontHave: false },
+        banker: { name: '', firm: '', email: '', contactPermission: '', dontHave: false },
+        businessAttorney: { name: '', firm: '', email: '', contactPermission: '', dontHave: false },
+        other: { role: '', name: '', firm: '', email: '', contactPermission: '', dontHave: false },
+      },
+      // Assets & liabilities
+      assetTypes: [],
       assets: [{ label: '', value: '', category: 'Cash' }],
+      liabilityTypes: [],
       liabilities: [{ label: '', balance: '', rate: '' }],
+      noLiabilities: false,
+      // Income & expenses
       annualIncome: '',
       monthlyExpenses: '',
-      risk: 'Moderate',
+      financialPictureMethod: '',
+      financialClarity: '',
+      // Risk
+      risk: '',
+      // Estate & insurance
       hasWill: '',
       hasTrust: '',
+      hasPOA: '',
+      hasHealthcareDirective: '',
+      hasBeneficiaryDesignations: '',
       hasLifeIns: '',
+      hasLTCIns: '',
+      hasDisabilityIns: '',
+      hasPropertyIns: '',
       estatePlanNotes: '',
-      goals: '',
-      largestObstacle: '',
+      // Documents
+      docUploadPreference: '',
+      docAcknowledged: false,
+      documentStatuses: {},
+      // Help & review flags
+      helpRequested: false,
+      helpRequestSection: '',
+      reviewWithAcornSections: [],
+      // Terms
+      termsAgreed: false,
     }
     const { data: created, error } = await supabase
       .from('clients')
