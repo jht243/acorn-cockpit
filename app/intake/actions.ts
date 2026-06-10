@@ -75,25 +75,46 @@ export async function submitIntake(data: any) {
   let clientName = data.clientName || 'Unknown Client'
   let clientEmail = data.email || `unknown-${Date.now()}@example.com`
 
+  // Combine the multi-select goals with any free-text the client added.
+  const goalsSelected: string[] = Array.isArray(data.goalsSelected) ? data.goalsSelected : []
+  const goalsCombined = [...goalsSelected, data.goals].filter(Boolean)
+
+  // Dependents: selected chips + free-text detail, plus spouse if provided.
+  const dependentsSelected: string[] = Array.isArray(data.dependentsSelected) ? data.dependentsSelected : []
+  const dependentsSummary = [dependentsSelected.join(', '), data.children].filter(Boolean).join(' — ')
+  const familySummary = [data.spouseName ? `Spouse: ${data.spouseName}` : '', dependentsSummary]
+    .filter(Boolean)
+    .join('. ')
+
+  // Persist the full structured form payload too, so nothing entered in the
+  // form is lost on submit (autosave only runs for tokenized links).
+  const { token: _token, ...formDataToStore } = data
+
   const clientPayload: any = {
     name: clientName,
     email: clientEmail,
-    family: data.spouseName ? `Spouse: ${data.spouseName}. Children: ${data.children}` : data.children,
-    goals: JSON.stringify([data.goals]),
-    income: JSON.stringify([{ label: 'Annual Income', annual: Number(data.annualIncome) || 0 }]),
-    expenses: JSON.stringify([{ label: 'Monthly Expenses', monthly: Number(data.monthlyExpenses) || 0 }]),
-    intake_responses: JSON.stringify([
+    family: familySummary || data.children,
+    // These are jsonb columns — store real arrays/objects (NOT JSON.stringify'd
+    // strings), otherwise readers like client.expenses.reduce() get a string.
+    goals: goalsCombined,
+    income: [{ label: 'Annual Income', annual: Number(data.annualIncome) || 0 }],
+    expenses: [{ label: 'Monthly Expenses', monthly: Number(data.monthlyExpenses) || 0 }],
+    intake_responses: [
+      { question: 'What brings you to Acorn Care', answer: data.whatBringsYou },
+      { question: 'Completing as', answer: data.completingAs },
       { question: 'DOB', answer: data.dob },
       { question: 'Spouse DOB', answer: data.spouseDob },
       { question: 'Phone', answer: data.phone },
       { question: 'Address', answer: data.address },
+      { question: 'Dependents', answer: dependentsSummary },
       { question: 'Risk Tolerance', answer: data.risk },
       { question: 'Has Will', answer: data.hasWill },
       { question: 'Has Trust', answer: data.hasTrust },
       { question: 'Has Life Insurance', answer: data.hasLifeIns },
       { question: 'Estate Plan Notes', answer: data.estatePlanNotes },
       { question: 'Largest Obstacle', answer: data.largestObstacle },
-    ]),
+    ],
+    intake_form_data: formDataToStore,
     intake_submitted_at: new Date().toISOString(),
     intake_completion_pct: 100,
     status: 'Review',

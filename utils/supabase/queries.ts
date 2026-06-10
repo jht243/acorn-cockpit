@@ -56,7 +56,25 @@ export async function getClientById(id: string) {
     .single()
 
   if (error) { console.error('Error fetching client:', error); return null }
-  return data
+  return normalizeJsonbArrays(data)
+}
+
+// Defensive: some legacy rows stored jsonb array columns as JSON *strings*.
+// Coerce them back to arrays so consumers (.map/.reduce) don't crash.
+function normalizeJsonbArrays<T extends Record<string, any> | null>(client: T): T {
+  if (!client) return client
+  for (const key of ['goals', 'income', 'expenses', 'intake_responses', 'team'] as const) {
+    const v = (client as any)[key]
+    if (typeof v === 'string') {
+      try {
+        const parsed = JSON.parse(v)
+        ;(client as any)[key] = Array.isArray(parsed) ? parsed : []
+      } catch {
+        ;(client as any)[key] = []
+      }
+    }
+  }
+  return client
 }
 
 export async function getClientByIntakeToken(token: string) {
