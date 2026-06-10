@@ -17,67 +17,69 @@ const STEPS = [
   {
     n: "01",
     title: "Gather",
-    body: "We meet your family where you are. Send what you have - statements, policies, wills, beneficiary forms, professional contacts. Nothing has to be complete to begin.",
+    body: "Send what you have — statements, policies, wills, beneficiary forms, professional contacts. Nothing needs to be complete or organized to begin. We meet your family where you are.",
   },
   {
     n: "02",
     title: "Organize",
-    body: "Acorn assembles a clear picture of accounts, policies, estate documents, and benefits. Missing items are surfaced. Conflicting paperwork is flagged.",
+    body: "Acorn builds a clear picture of your accounts, policies, estate documents, and benefits. Missing items are surfaced. Conflicting paperwork is flagged. You'll know exactly where things stand.",
   },
   {
     n: "03",
     title: "Coordinate",
-    body: "We prepare review-ready packets and coordinate with your attorney, CPA, advisor, broker, and care manager - so decisions move forward without your family chasing every detail.",
+    body: "We prepare review-ready packets and reach out to your attorney, CPA, advisor, broker, and care manager — so every professional has what they need, and decisions stop waiting on information.",
   },
   {
     n: "04",
     title: "Maintain",
-    body: "Acorn keeps the binder current with a regular review cadence, and quietly stands by when something unexpected happens.",
+    body: "Life changes. Acorn keeps the Binder current, tracks follow-ups, and quietly stands by when something unexpected happens — so you're never starting from scratch again.",
   },
 ];
 
 const PROBLEMS: Array<[string, string]> = [
   [
     "An aging parent needs support,",
-    "and a new chapter brings questions no one in the family has prepared for.",
+    "and suddenly someone needs to know where every account, policy, and document lives — often for the first time.",
   ],
   [
     "Estate documents are scattered,",
-    "living in different drawers, inboxes, attorneys' offices, and old folders.",
+    "between old folders, attorneys' offices, filing cabinets, and email threads no one can find.",
   ],
   [
     "Insurance and benefits blur together,",
-    "between Medicare, long-term care, life, disability, and supplemental policies.",
+    "and no one is sure what's covered, what's lapsed, or what's being paid for twice.",
   ],
   [
     "Advisors are not talking to each other,",
-    "and rarely share a single, current picture of the family's financial life.",
+    "so the CPA doesn't know what the attorney drafted, and the advisor doesn't know what either of them said.",
   ],
   [
     "Forms are incomplete,",
-    "with beneficiaries missing, signatures pending, dates quietly out of date.",
+    "beneficiary designations are outdated, signatures are missing, and no one noticed until it was too late.",
   ],
   [
     "No one knows what happens next,",
-    "and decisions stall because no one is responsible for the next step.",
+    "so decisions stall, responsibilities go unassigned, and the family stays in limbo.",
   ],
 ];
 
 const ORGANIZES: Array<[string, string]> = [
-  ["Financial accounts", "Bank, brokerage, retirement, and household cash flow."],
-  ["Assets & liabilities", "Property, debts, business interests, and ownership."],
-  ["Estate documents", "Wills, trusts, POAs, and healthcare directives."],
-  ["Insurance policies", "Life, long-term care, disability, property, supplemental."],
-  ["Medical & benefits paperwork", "Medicare, supplemental coverage, and care planning."],
-  ["Professionals & next steps", "Attorneys, CPAs, advisors, brokers - and who owes what."],
+  ["Financial accounts", "Bank, brokerage, retirement, and household cash flow — mapped and current."],
+  ["Assets & liabilities", "Property, debts, business interests, and ownership — nothing hidden or forgotten."],
+  ["Estate documents", "Wills, trusts, POAs, and healthcare directives — with gaps flagged for your attorney."],
+  ["Insurance policies", "Life, long-term care, disability, property, supplemental — reviewed for lapses and overlaps."],
+  ["Medical & benefits paperwork", "Medicare, supplemental coverage, and care planning — organized before you need it."],
+  ["Professionals & next steps", "Attorneys, CPAs, advisors, brokers — who owes what, and what happens next."],
 ];
 
 const WHO = [
-  "Adult children helping aging parents",
-  "Families preparing for care needs",
-  "Widows, widowers, and families after loss",
-  "Households with scattered documents and advisors",
-  "Individuals who want a trusted financial life organizer",
+  "An adult child coordinating care for an aging parent",
+  "A family preparing for what happens if something goes wrong",
+  "A widow or widower navigating finances alone for the first time",
+  "A couple whose estate documents haven't been touched in a decade",
+  "A real estate investor or small business owner with scattered financial relationships",
+  "Someone who just inherited assets and doesn't know where to start",
+  "Anyone who wants one trusted person watching over the full picture",
 ];
 
 const FAQS = [
@@ -105,6 +107,10 @@ const FAQS = [
     q: "How do engagements begin?",
     a: "Every engagement begins with a private consultation. We listen to where your family is, walk through what we organize, and recommend the package that fits. Pricing is shared once we understand your situation.",
   },
+  {
+    q: "My situation doesn't fit neatly into any of these. Can Acorn still help?",
+    a: "Probably yes. Acorn works with clients across a wide range of situations — from ongoing family coordination to one-time questions about investing, real estate, estate readiness, entity structure, benefits, or insurance. If you're not sure whether it's a fit, a 30-minute consultation costs nothing and answers that question quickly.",
+  },
 ];
 
 const PACKAGES = [
@@ -112,19 +118,29 @@ const PACKAGES = [
     name: "Royal Oak",
     tagline: "Get Organized",
     body: "Financial snapshot, document inventory, accounts, liabilities, cash flow, and a clear set of next steps.",
+    outcome: "At the end, you'll know exactly what you have, what's missing, and what needs attention.",
   },
   {
     name: "Sycamore",
     tagline: "Prepare & Coordinate",
     featured: true,
     body: "Estate readiness, insurance review, tax coordination, professional questions, and review-ready form packet support.",
+    outcome: "You'll be prepared for any meeting with any professional.",
   },
   {
     name: "Mahogany",
     tagline: "Ongoing Family Concierge",
     body: "Continued support, review calendar, family coordination, priority follow-up, and ongoing organization.",
+    outcome: "Nothing falls through the cracks while life keeps moving.",
   },
 ];
+
+const CLARITY_SESSION = {
+  name: "Clarity Session",
+  tagline: "One-Time Consultation",
+  body: "For individuals with a specific question — about investing, real estate, estate readiness, benefits, entity structure, or anything else. A focused 60-minute session with no ongoing commitment.",
+  outcome: "You'll leave with clear next steps and a better understanding of your options.",
+};
 
 const CONSULTATION_HREF = "https://calendly.com/placeholder";
 
@@ -151,10 +167,7 @@ export default function Home() {
             ))}
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/login" className="hidden text-[13px] text-ivory/60 transition hover:text-gold sm:inline">
-              Client login
-            </Link>
-            <Link href="/admin-login" className="hidden text-[13px] text-ivory/60 transition hover:text-gold md:inline">
+<Link href="/admin-login" className="hidden text-[13px] text-ivory/60 transition hover:text-gold md:inline">
               Advisor login
             </Link>
             <a href={CONSULTATION_HREF} className="text-[13px] tracking-wide text-gold transition hover:text-ivory">
@@ -165,6 +178,7 @@ export default function Home() {
       </header>
 
       <main>
+        {/* SECTION 1 — HERO */}
         <section className="relative isolate overflow-hidden">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(201,164,106,0.28),transparent_32%),linear-gradient(135deg,rgba(45,73,53,0.96),rgba(26,49,34,0.92)),linear-gradient(90deg,rgba(250,247,241,0.08)_1px,transparent_1px),linear-gradient(rgba(250,247,241,0.08)_1px,transparent_1px)] bg-[length:auto,auto,64px_64px,64px_64px]" />
           <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-espresso-deep/50 to-transparent" />
@@ -173,28 +187,20 @@ export default function Home() {
             <div className="home-reveal max-w-5xl">
               <div className="h-px w-20 bg-gradient-to-r from-gold/90 via-gold to-gold/50" />
               <h1 className="mt-10 font-serif text-[2.6rem] leading-[1.04] text-ivory sm:text-[3.6rem] lg:text-[5rem]">
-                Financial life coordination
+                Your family&apos;s full financial picture.
                 <br className="hidden sm:block" />
-                <span className="text-ivory/70"> for families navigating aging, caregiving, and major transitions.</span>
+                <span className="text-ivory/70"> Organized and ready before you need it.</span>
               </h1>
             </div>
 
             <div className="home-reveal mt-14 grid gap-10 border-t border-ivory/15 pt-10 lg:grid-cols-[1.1fr_1fr] lg:gap-20">
               <p className="max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
-                Acorn Care organizes the documents, decisions, and professional conversations your family cannot afford
-                to miss - from accounts and insurance to estate readiness, benefits, and care-related planning.
+                Acorn Care organizes what your family has, finds what&apos;s missing, and makes sure the right professionals have what they need — so nothing falls through the cracks when it matters most.
               </p>
               <div className="flex flex-col items-start gap-5 lg:items-end">
                 <div className="flex flex-wrap items-center gap-4">
                   <PrimaryButton>Schedule a Consultation</PrimaryButton>
-                  <Link
-                    href="/intake"
-                    className="inline-flex items-center justify-center rounded-full border border-ivory/35 px-8 py-3.5 text-sm font-medium tracking-wide text-ivory transition hover:bg-ivory/10"
-                  >
-                    Start Secure Intake
-                  </Link>
                 </div>
-                <QuietLink href="#process">See how Acorn works</QuietLink>
               </div>
             </div>
 
@@ -204,11 +210,11 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SECTION 2 — PAIN POINTS */}
         <section className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-24">
               <div>
-                <Eyebrow>When the unexpected becomes daily</Eyebrow>
                 <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-charcoal sm:text-[2.6rem] lg:text-[3.25rem]">
                   When life gets complicated,
                   <br />
@@ -216,9 +222,7 @@ export default function Home() {
                 </h2>
               </div>
               <p className="text-base leading-relaxed text-charcoal/65 sm:text-lg lg:pt-3">
-                Families are often left managing scattered documents, confusing forms, and disconnected professionals at
-                the exact moment they need clarity most. The work that follows is real, and it almost always falls to
-                one person.
+                At the exact moment families need clarity most, they&apos;re handed a pile of paperwork and a list of people to call. The work is real. The coordination is exhausting. And it almost always falls to one person.
               </p>
             </div>
 
@@ -234,19 +238,17 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SECTION 3 — WHAT WE ORGANIZE */}
         <section id="organize" className="bg-ivory text-charcoal">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-24">
               <div>
-                <Eyebrow tone="sage">What we organize</Eyebrow>
                 <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.6rem] lg:text-[3.25rem]">
-                  One clear picture of the details your family is juggling.
+                  Nothing important should fall through the cracks between people, professionals, or seasons of life.
                 </h2>
               </div>
               <p className="text-base leading-relaxed text-charcoal/65 sm:text-lg lg:pt-3">
-                We assemble a single, calm source of truth - so nothing important falls through the cracks between
-                people, professionals, or seasons of life. Acorn coordinates and organizes; legal, tax, medical,
-                insurance, and investment decisions remain with the appropriate licensed professionals.
+                Acorn assembles a single, clear record of everything your family has — and everything it&apos;s missing. The decisions stay with your professionals. The organization, the gaps, and the follow-through stay with us.
               </p>
             </div>
 
@@ -264,12 +266,12 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SECTION 4 — PROCESS */}
         <section id="process" className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="home-reveal max-w-3xl">
-              <Eyebrow>The Acorn process</Eyebrow>
               <h2 className="mt-8 font-serif text-3xl leading-[1.08] sm:text-[2.6rem] lg:text-[3.25rem]">
-                A simple process for complex family decisions.
+                From scattered to sorted.
               </h2>
             </div>
 
@@ -288,21 +290,20 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SECTION 5 — ACORN BINDER */}
         <section id="binder" className="bg-cream text-charcoal">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
               <div className="lg:pt-6">
-                <Eyebrow tone="acorn">The Acorn Binder</Eyebrow>
                 <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.6rem] lg:text-[3.25rem]">
                   Your family&apos;s financial life, organized in one place.
                 </h2>
                 <p className="mt-8 max-w-md text-base leading-relaxed text-charcoal/70 sm:text-lg">
-                  Every Acorn engagement produces a living family record: what exists, what is missing, who is
-                  responsible, and what needs attention next. Quiet, considered, and entirely your family&apos;s.
+                  Every Acorn engagement produces a living family record — what exists, what&apos;s missing, who&apos;s responsible, and what needs attention next. It&apos;s what every family should have, and almost no one does.
                 </p>
                 <div className="mt-10">
                   <QuietLink href="#consultation" tone="espresso">
-                    See it in your consultation
+                    See what your family&apos;s Binder could look like
                   </QuietLink>
                 </div>
               </div>
@@ -352,13 +353,13 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SECTION 6 — INTAKE MOCKUP */}
         <section className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="grid gap-16 lg:grid-cols-[1fr_1.1fr] lg:gap-24">
               <div className="home-reveal">
-                <Eyebrow>Guided intake</Eyebrow>
                 <h2 className="mt-8 font-serif text-3xl leading-[1.08] sm:text-[2.4rem] lg:text-[3rem]">
-                  A calmer way to share what your family has.
+                  A guided way to finally get it all in one place.
                 </h2>
                 <p className="mt-8 max-w-lg text-base leading-relaxed text-charcoal/70 sm:text-lg">
                   Instead of overwhelming forms, Acorn guides families one question at a time - with the option to
@@ -369,7 +370,7 @@ export default function Home() {
                   {[
                     "Step-by-step prompts, never a wall of fields",
                     "Upload-anything support when answers are unclear",
-                    "A human reviews every step before signature",
+                    "A real person reviews every submission before anything moves forward.",
                   ].map((item) => (
                     <li key={item} className="flex items-baseline gap-4">
                       <span className="h-px w-6 flex-none translate-y-2 bg-gold" />
@@ -427,12 +428,12 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SECTION 7 — WHO WE HELP */}
         <section id="who" className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="grid gap-16 lg:grid-cols-[1.1fr_1fr] lg:gap-20">
               <div className="home-reveal min-h-[34rem] overflow-hidden border border-charcoal/10 bg-[radial-gradient(circle_at_35%_30%,rgba(201,164,106,0.32),transparent_28%),linear-gradient(145deg,rgba(220,226,214,0.88),rgba(250,247,241,0.88)),linear-gradient(135deg,rgba(45,73,53,0.18)_0_25%,transparent_25%_50%,rgba(45,73,53,0.12)_50%_75%,transparent_75%)]" />
               <div className="home-reveal lg:pt-6">
-                <Eyebrow>Who we help</Eyebrow>
                 <h2 className="mt-8 font-serif text-3xl leading-[1.08] sm:text-[2.4rem] lg:text-[3rem]">
                   Support for families at the moments clarity matters most.
                 </h2>
@@ -449,24 +450,26 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
+                <p className="mt-6 text-sm leading-relaxed text-charcoal/55">
+                  If your situation doesn&apos;t fit neatly into any of these, start with a consultation. Acorn works across a wide range of financial situations — from ongoing coordination to one-time questions.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
+        {/* SECTION 8 — OUR STORY */}
         <section className="bg-cream text-charcoal">
           <div className="mx-auto grid max-w-[78rem] items-center gap-16 px-6 py-28 lg:grid-cols-[1fr_1.3fr] lg:gap-24 lg:px-10 lg:py-36">
             <div className="home-reveal order-2 lg:order-1">
               <div className="min-h-[32rem] overflow-hidden border border-charcoal/10 bg-[radial-gradient(circle_at_50%_18%,rgba(250,247,241,0.8),transparent_22%),linear-gradient(160deg,rgba(170,178,150,0.5),rgba(45,73,53,0.2)),linear-gradient(90deg,rgba(40,30,20,0.08)_1px,transparent_1px),linear-gradient(rgba(40,30,20,0.08)_1px,transparent_1px)] bg-[length:auto,auto,40px_40px,40px_40px]" />
             </div>
             <div className="home-reveal order-1 lg:order-2">
-              <Eyebrow tone="sage">Our story</Eyebrow>
               <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.4rem] lg:text-[3rem]">
                 Built by someone who has lived the caregiving maze.
               </h2>
               <p className="mt-8 max-w-xl text-base leading-relaxed text-charcoal/70 sm:text-lg">
-                Karli Vazquez-Mendez brings over two decades of expertise across global financial institutions -
-                blending technical excellence with a personalized, human approach to wealth management.
+                Karli Vazquez-Mendez spent over twenty years inside the financial system — at Merrill Lynch, Citi Private Bank, Morgan Stanley, and Flagstar Bank — watching families get lost in the gaps between professionals, paperwork, and plans that didn&apos;t talk to each other. She built Acorn Care because she knew what was missing: not another advisor, but someone whose only job is to see the whole picture and make sure nothing falls through the cracks.
               </p>
               <div className="mt-10 flex items-center gap-4">
                 <div className="h-px w-12 bg-acorn/50" />
@@ -478,11 +481,11 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SECTION 9 — FAQ */}
         <section className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-24">
               <div>
-                <Eyebrow>Questions families ask</Eyebrow>
                 <h2 className="mt-8 font-serif text-3xl leading-[1.08] sm:text-[2.4rem] lg:text-[3rem]">
                   What families want to know before we begin.
                 </h2>
@@ -512,18 +515,17 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SECTION 10 — PACKAGES */}
         <section id="packages" className="bg-ivory text-charcoal">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-24">
               <div>
-                <Eyebrow tone="sage">Engagements</Eyebrow>
                 <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.4rem] lg:text-[3rem]">
                   Choose the level of support your family needs.
                 </h2>
               </div>
               <p className="text-base leading-relaxed text-charcoal/65 sm:text-lg lg:pt-3">
-                Every engagement begins with a private consultation. Pricing is shared after we understand your
-                family&apos;s situation - there are no public price lists, and no obligation to continue.
+                Every engagement begins with a private consultation. Pricing is shared after we understand your situation — most families are surprised by how accessible this is. No obligation to continue.
               </p>
             </div>
 
@@ -538,6 +540,7 @@ export default function Home() {
                   </div>
                   <h3 className="mt-6 font-serif text-3xl text-espresso-deep sm:text-4xl">{pkg.name}</h3>
                   <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-charcoal/70">{pkg.body}</p>
+                  <p className="mt-4 text-[13px] leading-relaxed text-charcoal/50 italic">{pkg.outcome}</p>
                   <div className="mt-8 pt-2">
                     <a href="#consultation" className="group inline-flex items-center gap-2 text-sm tracking-wide text-espresso-deep">
                       Discuss this engagement
@@ -547,13 +550,33 @@ export default function Home() {
                 </div>
               ))}
             </div>
+
+            {/* Clarity Session — one-time card */}
+            <div className="home-reveal mt-6 border border-charcoal/15">
+              <div className="flex flex-col px-2 py-10 lg:flex-row lg:items-start lg:gap-16 lg:px-10 lg:py-12">
+                <div className="lg:w-56 lg:shrink-0">
+                  <span className="text-[11px] uppercase tracking-[0.22em] text-acorn">{CLARITY_SESSION.tagline}</span>
+                  <h3 className="mt-6 font-serif text-3xl text-espresso-deep sm:text-4xl">{CLARITY_SESSION.name}</h3>
+                </div>
+                <div className="mt-6 flex-1 lg:mt-0">
+                  <p className="max-w-xl text-[15px] leading-relaxed text-charcoal/70">{CLARITY_SESSION.body}</p>
+                  <p className="mt-4 text-[13px] leading-relaxed text-charcoal/50 italic">{CLARITY_SESSION.outcome}</p>
+                  <div className="mt-8">
+                    <a href="#consultation" className="group inline-flex items-center gap-2 text-sm tracking-wide text-espresso-deep">
+                      Discuss this engagement
+                      <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
+        {/* SECTION 11 — FINAL CTA */}
         <section id="consultation" className="relative overflow-hidden border-t border-ivory/10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(201,164,106,0.35),transparent_24%),linear-gradient(145deg,rgba(45,73,53,0.94),rgba(26,49,34,0.92))]" />
           <div className="relative mx-auto max-w-4xl px-6 py-32 text-center lg:py-40">
-            <Eyebrow>Begin quietly</Eyebrow>
             <h2 className="mx-auto mt-8 font-serif text-4xl leading-[1.02] text-ivory sm:text-6xl lg:text-7xl">
               Start with clarity.
             </h2>
