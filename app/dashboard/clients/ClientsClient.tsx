@@ -3,33 +3,55 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Sidebar from "../../../components/Sidebar";
 import TopBar from "../../../components/TopBar";
-import { fmtUSD } from "../../../lib/data";
 import InviteClientButton from "../../../components/InviteClientButton";
 import SendReminderButton from "../../../components/SendReminderButton";
-import { intakeProgress, intakeProgressPillClass } from "../../../lib/intake-progress";
+import { intakeProgress } from "../../../lib/intake-progress";
 import { deriveClientStatus, STATUS_LEGEND } from "../../../lib/client-status";
 
-function netWorth(c: any) {
-  const a = c.assets?.reduce((s: number, x: any) => s + Number(x.value), 0) || 0;
-  const l = c.liabilities?.reduce((s: number, x: any) => s + Number(x.balance), 0) || 0;
-  return { assets: a, liabilities: l, net: a - l };
-}
+type SortKey = 'name' | 'plan' | 'status' | 'last_contact' | 'open_actions'
+type SortDir = 'asc' | 'desc'
+
+const PLAN_ORDER: Record<string, number> = { Mahogany: 0, Sycamore: 1, 'Royal Oak': 2, Intake: 3 }
+const STATUS_ORDER: Record<string, number> = { 'Follow-Up': 0, Review: 1, Active: 2, Onboarding: 3 }
 
 export default function ClientsClient({ initialClients }: { initialClients: any[] }) {
   const [q, setQ] = useState("");
   const [plan, setPlan] = useState<string>("All");
   const [status, setStatus] = useState<string>("All");
+  const [sortKey, setSortKey] = useState<SortKey>('name');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir((d) => d === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir('asc'); }
+  };
 
   const rows = useMemo(() => {
-    return initialClients.filter((c) => {
+    const filtered = initialClients.filter((c) => {
       if (plan !== "All" && c.plan !== plan) return false;
       if (status !== "All" && c.status !== status) return false;
       if (q && !c.name.toLowerCase().includes(q.toLowerCase()) && !(c.family ?? "").toLowerCase().includes(q.toLowerCase())) return false;
       return true;
     });
-  }, [q, plan, status]);
-
-  const totalNW = rows.reduce((s, c) => s + netWorth(c).net, 0);
+    return filtered.sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === 'name') cmp = (a.name ?? '').localeCompare(b.name ?? '');
+      else if (sortKey === 'plan') cmp = (PLAN_ORDER[a.plan] ?? 9) - (PLAN_ORDER[b.plan] ?? 9);
+      else if (sortKey === 'status') {
+        const sa = deriveClientStatus(a).label; const sb = deriveClientStatus(b).label;
+        cmp = (STATUS_ORDER[sa] ?? 9) - (STATUS_ORDER[sb] ?? 9);
+      }
+      else if (sortKey === 'last_contact') {
+        cmp = (a.last_contact ? +new Date(a.last_contact) : 0) - (b.last_contact ? +new Date(b.last_contact) : 0);
+      }
+      else if (sortKey === 'open_actions') {
+        const oa = (a.action_items || []).filter((x: any) => x.status !== 'done').length;
+        const ob = (b.action_items || []).filter((x: any) => x.status !== 'done').length;
+        cmp = oa - ob;
+      }
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  }, [q, plan, status, sortKey, sortDir]);
 
   return (
     <div className="flex min-h-screen">
@@ -49,7 +71,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
               <FilterGroup label="Status" value={status} setValue={setStatus} options={["All", "Active", "Onboarding", "Review", "Follow-Up"]} />
               <StatusLegend />
               <div className="text-xs ml-auto" style={{ color: "var(--ink-soft)" }}>
-                Showing <span className="font-semibold text-[var(--ink)]">{rows.length}</span> of {initialClients.length} · {fmtUSD(totalNW)} net worth
+                Showing <span className="font-semibold text-[var(--ink)]">{rows.length}</span> of {initialClients.length}
               </div>
             </div>
 
@@ -61,20 +83,19 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left" style={{ color: "var(--ink-soft)" }}>
-                    <Th>Client</Th>
-                    <Th>Plan</Th>
-                    <Th>Status</Th>
-                    <Th>Net Worth</Th>
+                    <SortTh label="Client"       col="name"         active={sortKey} dir={sortDir} onSort={toggleSort} />
+                    <SortTh label="Plan"         col="plan"         active={sortKey} dir={sortDir} onSort={toggleSort} />
+                    <SortTh label="Status"       col="status"       active={sortKey} dir={sortDir} onSort={toggleSort} />
                     <Th>Intake</Th>
-                    <Th>Last Contact</Th>
+                    <SortTh label="Last Contact" col="last_contact" active={sortKey} dir={sortDir} onSort={toggleSort} />
                     <Th>Next Meeting</Th>
-                    <Th>Open Actions</Th>
+                    <SortTh label="Open Actions" col="open_actions" active={sortKey} dir={sortDir} onSort={toggleSort} />
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((c) => {
-                    const nw = netWorth(c);
                     const open = (c.action_items || []).filter((a: any) => a.status !== "done").length;
+                    const s = deriveClientStatus(c);
                     return (
                       <tr key={c.id} className="row-hover border-t" style={{ borderColor: "var(--line)" }}>
                         <td className="px-5 py-3">
@@ -82,8 +103,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                           <div className="text-xs truncate max-w-[260px]" style={{ color: "var(--ink-soft)" }}>{c.family}</div>
                         </td>
                         <td className="px-5 py-3"><PlanPill plan={c.plan} /></td>
-                        <td className="px-5 py-3"><StatusPill status={c.status} client={c} /></td>
-                        <td className="px-5 py-3 font-medium tabular-nums">{fmtUSD(nw.net)}<div className="text-[10px] font-normal" style={{ color: "var(--ink-soft)" }}>via Plaid</div></td>
+                        <td className="px-5 py-3"><span className={`pill ${s.pillClass}`} title={s.tooltip}>{s.label}</span></td>
                         <td className="px-5 py-3"><IntakeCell client={c} /></td>
                         <td className="px-5 py-3" style={{ color: "var(--ink-soft)" }}>
                           <div className="text-xs">{c.last_contact ? new Date(c.last_contact).toLocaleDateString() : '—'}</div>
@@ -108,7 +128,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                     );
                   })}
                   {rows.length === 0 && (
-                    <tr><td colSpan={8} className="px-5 py-10 text-center text-sm" style={{ color: "var(--ink-soft)" }}>No clients match these filters.</td></tr>
+                    <tr><td colSpan={7} className="px-5 py-10 text-center text-sm" style={{ color: "var(--ink-soft)" }}>No clients match these filters.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -122,6 +142,25 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
 
 function Th({ children }: { children: React.ReactNode }) {
   return <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">{children}</th>;
+}
+
+function SortTh({ label, col, active, dir, onSort }: {
+  label: string; col: SortKey; active: SortKey; dir: SortDir; onSort: (k: SortKey) => void
+}) {
+  const isActive = active === col;
+  return (
+    <th
+      className="px-5 py-3 font-medium text-xs uppercase tracking-wider cursor-pointer select-none hover:text-[var(--ink)] transition-colors"
+      onClick={() => onSort(col)}
+    >
+      <span className="flex items-center gap-1">
+        {label}
+        <span style={{ opacity: isActive ? 1 : 0.3, color: isActive ? 'var(--brand)' : undefined }}>
+          {isActive ? (dir === 'asc' ? '↑' : '↓') : '↕'}
+        </span>
+      </span>
+    </th>
+  );
 }
 
 function StatusLegend() {
@@ -222,18 +261,6 @@ function PlanPill({ plan }: { plan: string }) {
   return <span className={`pill ${cls}`}>{plan}</span>;
 }
 
-function StatusPill({ status, client }: { status: string; client?: any }) {
-  if (client) {
-    const s = deriveClientStatus(client);
-    return <span className={`pill ${s.pillClass}`} title={s.tooltip}>{s.label}</span>;
-  }
-  const cls =
-    status === "Follow-Up" ? "pill-red"
-    : status === "Review" ? "pill-amber"
-    : status === "Onboarding" ? "pill-gray"
-    : "pill-green";
-  return <span className={`pill ${cls}`}>{status}</span>;
-}
 
 function SourceBadge({ source }: { source: string }) {
   const palette: Record<string, { bg: string; fg: string }> = {

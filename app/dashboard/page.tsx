@@ -2,10 +2,10 @@ import Sidebar from "../../components/Sidebar";
 import TopBar from "../../components/TopBar";
 import Link from "next/link";
 import { getClients, intakeProgress } from "../../utils/supabase/queries";
-import { deriveClientStatus } from "../../lib/client-status";
 import InviteClientButton from "../../components/InviteClientButton";
 import SendReminderButton from "../../components/SendReminderButton";
 import QuickActionItems from "../../components/QuickActionItems";
+import CockpitClientTable from "../../components/CockpitClientTable";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -55,38 +55,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                 <span>Clients</span>
                 <InviteClientButton />
               </div>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left" style={{ color: "var(--ink-soft)" }}>
-                    <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">Client</th>
-                    <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">Plan</th>
-                    <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">Status</th>
-                    <th className="px-5 py-3 font-medium text-xs uppercase tracking-wider">Last Contact</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients.map((c) => {
-                    return (
-                      <tr key={c.id} className="row-hover border-t" style={{ borderColor: "var(--line)" }}>
-                        <td className="px-5 py-3">
-                          <Link href={`/dashboard/clients/${c.id}`} className="font-medium hover:underline">{c.name}</Link>
-                          <div className="text-xs" style={{ color: "var(--ink-soft)" }}>{c.family}</div>
-                        </td>
-                        <td className="px-5 py-3"><PlanPill plan={c.plan} /></td>
-                        <td className="px-5 py-3"><StatusPill status={c.status} client={c} /></td>
-                        <td className="px-5 py-3" style={{ color: "var(--ink-soft)" }}>
-                          <div>{c.last_contact ? new Date(c.last_contact).toLocaleDateString() : '—'}</div>
-                          {c.last_contact_signal && (
-                            <div className="text-[10px] mt-0.5 flex items-center gap-1">
-                              <SourceBadge source={c.last_contact_signal.source} /> <span className="truncate">{c.last_contact_signal.label}</span>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              <CockpitClientTable clients={clients} />
             </div>
 
             <QuickActionItems
@@ -212,38 +181,3 @@ function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?
   );
 }
 
-function PlanPill({ plan }: { plan: string }) {
-  const cls =
-    plan === "Mahogany" ? "pill-amber"
-    : plan === "Sycamore" ? "pill-green"
-    : plan === "Royal Oak" ? "pill-gray"
-    : "pill-gray";
-  return <span className={`pill ${cls}`}>{plan}</span>;
-}
-
-function StatusPill({ status, client }: { status: string; client?: any }) {
-  if (client) {
-    const s = deriveClientStatus(client);
-    return <span className={`pill ${s.pillClass}`} title={s.tooltip}>{s.label}</span>;
-  }
-  const cls =
-    status === "Follow-Up" ? "pill-red"
-    : status === "Review" ? "pill-amber"
-    : status === "Onboarding" ? "pill-gray"
-    : "pill-green";
-  return <span className={`pill ${cls}`}>{status}</span>;
-}
-
-function SourceBadge({ source }: { source: string }) {
-  const palette: Record<string, { bg: string; fg: string }> = {
-    "Google Cal": { bg: "#e8f0fe", fg: "#1a73e8" },
-    "Gmail": { bg: "#fce8e6", fg: "#c5221f" },
-    "Calendly": { bg: "#e7f0ff", fg: "#0069ff" },
-    "Plaid": { bg: "#eef4f8", fg: "#155e8a" },
-    "Fathom": { bg: "#f1ecfe", fg: "#5b3dbe" },
-  };
-  const p = palette[source] ?? { bg: "#eef0ee", fg: "#4a544f" };
-  return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wide" style={{ background: p.bg, color: p.fg }}>{source}</span>
-  );
-}
