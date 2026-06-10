@@ -5,6 +5,7 @@ import { getClients, intakeProgress } from "../../utils/supabase/queries";
 import { deriveClientStatus } from "../../lib/client-status";
 import InviteClientButton from "../../components/InviteClientButton";
 import SendReminderButton from "../../components/SendReminderButton";
+import QuickActionItems from "../../components/QuickActionItems";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -49,7 +50,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <Kpi label="Follow-ups due" value={String(followups)} hint="this week" tone={followups ? "down" : undefined} />
             <Kpi label="Open action items" value={String(openActions.length)} hint={`${openActions.filter(a => a.owner === "Karli").length} owned by you`} />
 
-            <div className="col-span-12 lg:col-span-8 card">
+            <div className="col-span-12 lg:col-span-8 card" style={{ alignSelf: 'start' }}>
               <div className="card-head">
                 <span>Clients</span>
                 <InviteClientButton />
@@ -87,6 +88,20 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                 </tbody>
               </table>
             </div>
+
+            <QuickActionItems
+              clients={clients.map((c: any) => ({
+                id: c.id,
+                name: c.name,
+                tasks: (c.action_items || []).map((a: any) => ({
+                  id: a.id,
+                  title: a.title,
+                  due_date: a.due_date ?? null,
+                  status: a.status,
+                  owner: a.owner,
+                })),
+              }))}
+            />
 
             {pendingIntakes.length > 0 && (
               <div className="col-span-12 card">
@@ -180,57 +195,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
               </ul>
             </div>
 
-            <div className="col-span-12 lg:col-span-7 card">
-              <div className="card-head">
-                <div className="flex flex-col gap-0.5">
-                  <span>Action items — from last meeting notes</span>
-                  <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>Auto-extracted from your Fathom transcripts · across all clients</span>
-                </div>
-              </div>
-              <ul>
-                {clients.flatMap((c: any) => (c.action_items || []).filter((a: any) => a.status !== "done" && a.owner === "Karli").map((a: any) => ({ ...a, client: c }))).map((a: any) => (
-                  <li key={a.id} className="px-5 py-3 border-t flex items-center justify-between gap-4" style={{ borderColor: "var(--line)" }}>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{a.title}</div>
-                      <div className="text-xs" style={{ color: "var(--ink-soft)" }}>
-                        <Link href={`/dashboard/clients/${a.client.id}`} className="hover:underline">{a.client.name}</Link>
-                        {a.due_date && <> · due {a.due_date}</>}
-                      </div>
-                    </div>
-                    <span className={`pill ${a.status === "in_progress" ? "pill-amber" : "pill-gray"}`}>
-                      {a.status === "in_progress" ? "In progress" : "Open"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="col-span-12 lg:col-span-5 card">
-              <div className="card-head">
-                <div className="flex flex-col gap-0.5">
-                  <span>This week</span>
-                  <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>Auto-fired by cadence engine · 30-day, 6-month, renewals, RMDs</span>
-                </div>
-              </div>
-              <div className="card-pad">
-                <div className="flex items-start gap-3 mb-3">
-                  <span className="pill pill-green">In 2 days</span>
-                  <div className="text-sm">Send Roth conversion analysis to <Link href="/dashboard/clients/11111111-1111-1111-1111-111111111111" className="font-medium hover:underline">Anita</Link>.</div>
-                </div>
-                <div className="flex items-start gap-3 mb-3">
-                  <span className="pill pill-amber">In 4 days</span>
-                  <div className="text-sm">Refer <Link href="/dashboard/clients/11111111-1111-1111-1111-111111111111" className="font-medium hover:underline">Anita</Link> to estate attorney.</div>
-                </div>
-                <div className="flex items-start gap-3 mb-3">
-                  <span className="pill pill-amber">Next week</span>
-                  <div className="text-sm">Schedule Q1 check-in with <Link href="/dashboard/clients/33333333-3333-3333-3333-333333333333" className="font-medium hover:underline">Dr. Ryan & Chere</Link>.</div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="pill pill-gray">Cadence</span>
-                  <div className="text-sm" style={{ color: "var(--ink-soft)" }}>3 clients due for 6-month review in Mar.</div>
-                </div>
-              </div>
-            </div>
           </div>
         </main>
       </div>
