@@ -7,6 +7,8 @@ import CopyIntakeLinkButton from "../../../../components/CopyIntakeLinkButton";
 import ApproveIntakeButton from "../../../../components/ApproveIntakeButton";
 import ClientTasks from "../../../../components/ClientTasks";
 import EditableGoals from "../../../../components/EditableGoals";
+import MeetingNotes from "../../../../components/MeetingNotes";
+import ClientReminders from "../../../../components/ClientReminders";
 import { getClientById } from "../../../../utils/supabase/queries";
 import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
 import { deriveClientStatus } from "../../../../lib/client-status";
@@ -286,60 +288,30 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
               </div>
             )}
 
-            {/* ── Cadence & timeline ── */}
+            {/* ── Meeting notes ── */}
             <div className="col-span-12 card">
               <div className="card-head">
                 <div className="flex flex-col gap-0.5">
-                  <span>Cadence & timeline</span>
+                  <span>Meeting notes</span>
                   <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>
-                    Auto-fired reminders based on engagement type, intake answers, and policy dates
+                    Private notes — add dates, summaries, and follow-ups as you go
                   </span>
                 </div>
-                <button className="btn-ghost btn text-xs normal-case">+ Custom reminder</button>
               </div>
-              <ul>
-                {buildCadence(client).map((c: any, i: number) => (
-                  <li key={i} className="px-5 py-3 border-t flex items-center gap-4" style={{ borderColor: "var(--line)" }}>
-                    <div className="w-32 shrink-0">
-                      <div className="text-xs font-semibold">{c.date}</div>
-                      <div className="text-[10px]" style={{ color: "var(--ink-soft)" }}>{c.relative}</div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium">{c.title}</div>
-                      <div className="text-xs" style={{ color: "var(--ink-soft)" }}>{c.basis}</div>
-                    </div>
-                    <span className={`pill ${c.status === "fired" ? "pill-green" : c.status === "imminent" ? "pill-amber" : "pill-gray"}`}>
-                      {c.status === "fired" ? "Sent" : c.status === "imminent" ? "Upcoming" : "Scheduled"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <MeetingNotes clientId={client.id} initialNotes={client.meeting_notes || ""} />
             </div>
 
-            {/* ── Meeting log ── */}
+            {/* ── Reminders ── */}
             <div className="col-span-12 card">
               <div className="card-head">
                 <div className="flex flex-col gap-0.5">
-                  <span>Meeting log</span>
+                  <span>Reminders</span>
                   <span className="text-[10px] normal-case font-normal tracking-normal" style={{ color: "var(--ink-soft)" }}>
-                    Auto-synced from Google Calendar · transcripts via Fathom
+                    Add a reminder for yourself or the client — policy renewals, annual reviews, deadlines
                   </span>
                 </div>
               </div>
-              <ul>
-                {(client.meetings || []).map((m: any, i: number) => (
-                  <li key={i} className="px-5 py-3 border-t flex gap-4" style={{ borderColor: "var(--line)" }}>
-                    <div className="w-28 text-xs font-medium shrink-0">{m.meeting_date || m.date}</div>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium flex items-center gap-2">{m.title} <SourceBadge source="Google Cal" /></div>
-                      <div className="text-sm mt-1" style={{ color: "var(--ink-soft)" }}>{m.summary}</div>
-                    </div>
-                  </li>
-                ))}
-                {(!client.meetings || client.meetings.length === 0) && (
-                  <li className="px-5 py-3 text-sm" style={{ color: "var(--ink-soft)" }}>No meetings logged yet.</li>
-                )}
-              </ul>
+              <ClientReminders clientId={client.id} initialReminders={client.reminders || []} />
             </div>
 
           </div>
@@ -379,39 +351,4 @@ function SourceBadge({ source }: { source: string }) {
       {source}
     </span>
   );
-}
-
-function buildCadence(c: any) {
-  const today = new Date("2025-02-08");
-  const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  const rel = (d: Date) => {
-    const days = Math.round((+d - +today) / 86400000);
-    if (days < 0) return `${-days}d ago`;
-    if (days === 0) return "today";
-    if (days < 31) return `in ${days}d`;
-    return `in ${Math.round(days / 30)}mo`;
-  };
-  const lastMeeting = c.last_contact ? new Date(c.last_contact) : new Date();
-  const add = (base: Date, days: number) => { const x = new Date(base); x.setDate(x.getDate() + days); return x; };
-  const d30 = add(lastMeeting, 30); const d180 = add(lastMeeting, 180); const dAnnual = add(lastMeeting, 365);
-  const status = (d: Date): "fired" | "imminent" | "scheduled" =>
-    d < today ? "fired" : (+d - +today) < 14 * 86400000 ? "imminent" : "scheduled";
-  const items: any[] = [
-    { date: fmt(d30), relative: rel(d30), title: "30-day post-plan follow-up", basis: "Royal Oak / Sycamore / Mahogany default", status: status(d30) },
-    { date: fmt(d180), relative: rel(d180), title: "6-month review reminder", basis: "Brochure cadence", status: status(d180) },
-    { date: fmt(dAnnual), relative: rel(dAnnual), title: "Annual estate & beneficiary review", basis: "Triggered by 'has will/trust' = yes", status: status(dAnnual) },
-  ];
-  if (c.id === "anita") {
-    const rmd = new Date("2025-12-31");
-    items.push({ date: fmt(rmd), relative: rel(rmd), title: "Required Minimum Distribution deadline", basis: "Triggered by IRA + age from intake", status: status(rmd) });
-  }
-  if (c.id === "dayanara") {
-    items.push({ date: fmt(new Date("2025-04-15")), relative: rel(new Date("2025-04-15")), title: "Term life policy: convertibility check", basis: "Triggered by intake answer", status: status(new Date("2025-04-15")) });
-    items.push({ date: fmt(new Date("2025-04-15")), relative: rel(new Date("2025-04-15")), title: "2024 tax filing deadline check-in", basis: "Triggered by 'taxes incomplete' action item", status: status(new Date("2025-04-15")) });
-  }
-  if (c.plan === "Mahogany") {
-    const events = new Date("2025-05-15");
-    items.push({ date: fmt(events), relative: rel(events), title: "Curated client event invite", basis: "Mahogany tier benefit", status: status(events) });
-  }
-  return items.sort((a: any, b: any) => +new Date(a.date) - +new Date(b.date));
 }

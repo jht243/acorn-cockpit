@@ -119,6 +119,8 @@ export default function Intake() {
   const [hydrated, setHydrated] = useState(false);
   const [adminReturnUrl, setAdminReturnUrl] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [showSaved, setShowSaved] = useState(false);
+  const [stepError, setStepError] = useState<string | null>(null);
 
   const [data, setData] = useState({
     completingAs: "",
@@ -214,6 +216,7 @@ export default function Intake() {
   }, []);
 
   const goToStep = async (next: number, currentData = data) => {
+    setStepError(null);
     setStep(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (token && hydrated) {
@@ -222,7 +225,8 @@ export default function Intake() {
         const { saveIntakeProgress } = await import("./actions");
         await saveIntakeProgress(token, currentData);
         setSaveStatus("saved");
-        setTimeout(() => setSaveStatus("idle"), 2500);
+        setShowSaved(true);
+        setTimeout(() => { setSaveStatus("idle"); setShowSaved(false); }, 2500);
       } catch {
         setSaveStatus("idle");
       }
@@ -262,10 +266,16 @@ export default function Intake() {
 
       <div className="flex-1 max-w-3xl w-full mx-auto p-6">
         {step > 0 && (
-          <div className="flex items-center gap-1 mb-6">
+          <div className="flex items-center gap-1 mb-3">
             {STEPS.slice(1).map((_, i) => (
               <div key={i} className={`h-1.5 flex-1 rounded-full ${i < step ? "bg-[var(--brand)]" : "bg-[var(--line)]"}`} />
             ))}
+          </div>
+        )}
+        {showSaved && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-md mb-4 text-sm" style={{ background: "#f0faf4", color: "#166534" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12l5 5L20 6"/></svg>
+            Progress saved
           </div>
         )}
 
@@ -326,9 +336,9 @@ export default function Intake() {
             {step === 2 && (
               <Section title="About you" subtitle="The basics — kept completely confidential.">
                 <Grid>
-                  <Field label="Full name"><input className="input" value={data.clientName} onChange={(e) => update("clientName", e.target.value)} placeholder="Jane Doe" /></Field>
+                  <Field label="Full name *"><input className={`input ${stepError && !data.clientName.trim() ? "border-red-400" : ""}`} value={data.clientName} onChange={(e) => update("clientName", e.target.value)} placeholder="Jane Doe" /></Field>
                   <Field label="Date of birth"><input type="date" className="input" value={data.dob} onChange={(e) => update("dob", e.target.value)} /></Field>
-                  <Field label="Email"><input className="input" value={data.email} onChange={(e) => update("email", e.target.value)} placeholder="jane@example.com" /></Field>
+                  <Field label="Email *"><input className={`input ${stepError && !data.email.trim() ? "border-red-400" : ""}`} value={data.email} onChange={(e) => update("email", e.target.value)} placeholder="jane@example.com" /></Field>
                   <Field label="Phone"><input className="input" value={data.phone} onChange={(e) => update("phone", e.target.value)} placeholder="305-555-1234" /></Field>
                   <Field label="Mailing address" full><input className="input" value={data.address} onChange={(e) => update("address", e.target.value)} placeholder="Street, City, State, ZIP" /></Field>
                   <Field label="Spouse / partner name (optional)"><input className="input" value={data.spouseName} onChange={(e) => update("spouseName", e.target.value)} /></Field>
@@ -739,9 +749,18 @@ export default function Intake() {
             <div className="card-pad border-t flex items-center justify-between" style={{ borderColor: "var(--line)" }}>
               <button className="btn-ghost btn" onClick={() => goToStep(Math.max(0, step - 1))}>← Back</button>
               <div className="flex items-center gap-3">
+                {stepError && <span className="text-xs text-red-600">{stepError}</span>}
                 <span className="text-xs" style={{ color: "var(--ink-soft)" }}>Step {step} of {STEPS.length - 1}</span>
                 {step < STEPS.length - 1 ? (
-                  <button className="btn" onClick={() => goToStep(step + 1)}>Continue →</button>
+                  <button className="btn" onClick={() => {
+                    if (step === 2) {
+                      if (!data.clientName.trim() || !data.email.trim()) {
+                        setStepError("Name and email are required.");
+                        return;
+                      }
+                    }
+                    goToStep(step + 1);
+                  }}>Continue →</button>
                 ) : (
                   <button
                     className="btn"

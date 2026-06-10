@@ -28,6 +28,7 @@ export default function ClientTasks({
   const router = useRouter()
   const [tasks, setTasks] = useState<Task[]>(items || [])
   const [adding, setAdding] = useState(false)
+  const [showCompleted, setShowCompleted] = useState(false)
   const [title, setTitle] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [owner, setOwner] = useState<'Client' | 'Karli'>('Client')
@@ -127,37 +128,80 @@ export default function ClientTasks({
         </div>
       )}
 
-      <ul>
-        {tasks.length === 0 && (
-          <li className="px-5 py-4 text-sm border-t" style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}>
-            No tasks yet. Create one to get started.
-          </li>
-        )}
-        {tasks.map((a) => (
-          <li key={a.id} className="px-5 py-3 border-t flex items-center justify-between gap-3" style={{ borderColor: 'var(--line)' }}>
-            <label className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer">
-              <input type="checkbox" checked={a.status === 'done'} className="mt-1"
-                onChange={(e) => onToggle(a, e.target.checked)} />
-              <div className="min-w-0">
-                <div className={`text-sm ${a.status === 'done' ? 'line-through opacity-60' : ''}`}>{a.title}</div>
-                <div className="text-xs flex flex-wrap items-center gap-x-2" style={{ color: 'var(--ink-soft)' }}>
-                  <span>{a.owner === 'Karli' ? 'Owner: Karli' : 'Owner: Client'}</span>
-                  {a.due_date && <span>· due {a.due_date}</span>}
-                  {a.source_meeting && <span className="inline-flex items-center gap-1">· <span className="pill pill-gray" style={{ fontSize: 10, padding: '1px 6px' }}>Fathom</span> {a.source_meeting}</span>}
-                </div>
-              </div>
-            </label>
-            <div className="flex items-center gap-2 shrink-0">
-              {a.status !== 'done' && a.owner === 'Client' && (
-                <button className="btn-ghost btn text-xs normal-case" onClick={() => openReminder(a)}>Send reminder</button>
+      {(() => {
+        const active = tasks.filter((t) => t.status !== 'done')
+        const done = tasks.filter((t) => t.status === 'done')
+        return (
+          <>
+            <ul>
+              {active.length === 0 && (
+                <li className="px-5 py-4 text-sm border-t" style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}>
+                  No open tasks. Create one to get started.
+                </li>
               )}
-              <span className={`pill ${a.status === 'done' ? 'pill-green' : a.status === 'in_progress' ? 'pill-amber' : 'pill-gray'}`}>
-                {a.status === 'done' ? 'Done' : a.status === 'in_progress' ? 'In progress' : 'Open'}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
+              {active.map((a) => (
+                <li key={a.id} className="px-5 py-3 border-t flex items-center justify-between gap-3" style={{ borderColor: 'var(--line)' }}>
+                  <label className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer">
+                    <input type="checkbox" checked={false} className="mt-1"
+                      onChange={(e) => onToggle(a, e.target.checked)} />
+                    <div className="min-w-0">
+                      <div className="text-sm">{a.title}</div>
+                      <div className="text-xs flex flex-wrap items-center gap-x-2" style={{ color: 'var(--ink-soft)' }}>
+                        <span>{a.owner === 'Karli' ? 'Owner: Karli' : 'Owner: Client'}</span>
+                        {a.due_date && <span>· due {a.due_date}</span>}
+                        {a.source_meeting && <span className="inline-flex items-center gap-1">· <span className="pill pill-gray" style={{ fontSize: 10, padding: '1px 6px' }}>Fathom</span> {a.source_meeting}</span>}
+                      </div>
+                    </div>
+                  </label>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {a.owner === 'Client' && (
+                      <button className="btn-ghost btn text-xs normal-case" onClick={() => openReminder(a)}>Send reminder</button>
+                    )}
+                    <span className={`pill ${a.status === 'in_progress' ? 'pill-amber' : 'pill-gray'}`}>
+                      {a.status === 'in_progress' ? 'In progress' : 'Open'}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {done.length > 0 && (
+              <>
+                <button
+                  className="w-full px-5 py-2.5 border-t flex items-center gap-2 text-xs font-medium"
+                  style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)', background: '#f9fbfa' }}
+                  onClick={() => setShowCompleted((v) => !v)}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                    style={{ transform: showCompleted ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                  Completed ({done.length})
+                </button>
+                {showCompleted && (
+                  <ul>
+                    {done.map((a) => (
+                      <li key={a.id} className="px-5 py-3 border-t flex items-center justify-between gap-3" style={{ borderColor: 'var(--line)', background: '#f9fbfa' }}>
+                        <label className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer">
+                          <input type="checkbox" checked={true} className="mt-1"
+                            onChange={(e) => onToggle(a, e.target.checked)} />
+                          <div className="min-w-0">
+                            <div className="text-sm line-through opacity-50">{a.title}</div>
+                            <div className="text-xs flex flex-wrap items-center gap-x-2" style={{ color: 'var(--ink-soft)' }}>
+                              <span>{a.owner === 'Karli' ? 'Owner: Karli' : 'Owner: Client'}</span>
+                              {a.due_date && <span>· due {a.due_date}</span>}
+                            </div>
+                          </div>
+                        </label>
+                        <span className="pill pill-green shrink-0">Done</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
+          </>
+        )
+      })()}
 
       {/* Reminder email preview modal */}
       {reminderTask && (
