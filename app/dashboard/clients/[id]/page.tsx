@@ -10,6 +10,7 @@ import EditableGoals from "../../../../components/EditableGoals";
 import MeetingNotes from "../../../../components/MeetingNotes";
 import ClientReminders from "../../../../components/ClientReminders";
 import DocumentUploadButton from "../../../../components/DocumentUploadButton";
+import ViewDocumentButton from "../../../../components/ViewDocumentButton";
 import { getClientById } from "../../../../utils/supabase/queries";
 import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
 import { deriveClientStatus } from "../../../../lib/client-status";
@@ -258,7 +259,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                         </div>
                       </div>
                     </div>
-                    <button className="text-xs shrink-0" style={{ color: "var(--brand)" }}>view</button>
+                    <ViewDocumentButton storagePath={d.storage_path} />
                   </li>
                 ))}
                 {(!client.documents || client.documents.length === 0) && (
