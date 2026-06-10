@@ -11,6 +11,7 @@ import MeetingNotes from "../../../../components/MeetingNotes";
 import ClientReminders from "../../../../components/ClientReminders";
 import DocumentUploadButton from "../../../../components/DocumentUploadButton";
 import ViewDocumentButton from "../../../../components/ViewDocumentButton";
+import RequestDocumentsButton from "../../../../components/RequestDocumentsButton";
 import { getClientById } from "../../../../utils/supabase/queries";
 import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
 import { deriveClientStatus } from "../../../../lib/client-status";
@@ -241,6 +242,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     Uploaded via intake form or by Karli
                   </span>
                 </div>
+                <RequestDocumentsButton clientId={client.id} clientName={client.name} clientEmail={client.email} />
                 <DocumentUploadButton clientId={client.id} />
               </div>
               <ul>

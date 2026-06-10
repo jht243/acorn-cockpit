@@ -146,6 +146,37 @@ export async function sendIntakeReminder(clientName: string, clientEmail: string
   }
 }
 
+// Sent to the CLIENT with a secure link to upload documents.
+export async function sendDocumentUploadRequestEmail(
+  clientName: string,
+  clientEmail: string,
+  uploadLink: string,
+  note?: string,
+) {
+  const bodyHtml = `
+    <p style="font-size: 15px; line-height: 1.6;">
+      ${note
+        ? note.replace(/\n/g, '<br/>')
+        : `I'd like to collect a few documents from you. Please use the secure link below to upload them at your convenience.`
+      }
+    </p>
+    <p style="font-size: 15px; line-height: 1.6;">The link is secure and will expire in 30 days.</p>
+    <p style="font-size: 13px; color: #6b7670; line-height: 1.5;">Please do not upload medical records.</p>
+  `;
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM,
+      to: [clientEmail],
+      subject: `Documents requested — Acorn Care`,
+      html: messageEmailHtml(clientName, bodyHtml, { label: 'Upload documents →', link: uploadLink }),
+    });
+    if (error) return { success: false, error };
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error };
+  }
+}
+
 export async function sendIntakeCompletionEmail(clientName: string, clientEmail: string, clientId?: string) {
   const clientLink = clientId ? `${SITE}/dashboard/clients/${clientId}` : `${SITE}/dashboard/clients`;
   try {
