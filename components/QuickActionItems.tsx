@@ -13,7 +13,7 @@ export default function QuickActionItems({ clients }: { clients: ClientSummary[]
   const open = (selected?.tasks ?? []).filter((t) => t.status !== 'done')
 
   return (
-    <div className="col-span-12 lg:col-span-4 card flex flex-col">
+    <div className="col-span-12 lg:col-span-4 card flex flex-col" style={{ background: 'var(--brand-soft)', borderColor: 'var(--brand-soft)' }}>
       <div className="card-head">
         <span>Action items</span>
         {selected && (
