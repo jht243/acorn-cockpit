@@ -10,7 +10,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://acorn-cockpit.onrender
 const BOOKING_URL =
   process.env.NEXT_PUBLIC_CALENDLY_URL ||
   process.env.CALENDLY_URL ||
-  'https://calendly.com/acorn-care/intro-call';
+  'https://calendly.com/karli-acorn-care/30min';
 
 function intakeLinkEmailHtml(clientName: string, link: string, isReminder = false) {
   const greeting = isReminder

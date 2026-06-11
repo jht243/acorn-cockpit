@@ -180,7 +180,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     Flagged the <strong>{client.help_request_section || "intake"}</strong> section.
                   </div>
                 </div>
-                <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-md border" style={{ borderColor: "#c0392b", color: "#842029" }}>
+                <a href="https://calendly.com/karli-acorn-care/30min" target="_blank" rel="noopener noreferrer" className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-md border" style={{ borderColor: "#c0392b", color: "#842029" }}>
                   Schedule call →
                 </a>
               </div>

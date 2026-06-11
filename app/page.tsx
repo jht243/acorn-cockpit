@@ -142,7 +142,7 @@ const CLARITY_SESSION = {
   outcome: "You'll leave with clear next steps and a better understanding of your options.",
 };
 
-const CONSULTATION_HREF = "https://calendly.com/placeholder";
+const CONSULTATION_HREF = "https://calendly.com/karli-acorn-care/30min";
 
 export default function Home() {
   return (

@@ -6,7 +6,7 @@
 // both server-side (sending) and client-side (preview). Keep in sync with the
 // fallback in lib/resend.ts.
 export const BOOKING_URL =
-  process.env.NEXT_PUBLIC_CALENDLY_URL || 'https://calendly.com/acorn-care/intro-call';
+  process.env.NEXT_PUBLIC_CALENDLY_URL || 'https://calendly.com/karli-acorn-care/30min';
 
 export function taskReminderSubject(taskTitle: string) {
   return `Reminder: ${taskTitle}`;
