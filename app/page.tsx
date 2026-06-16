@@ -496,7 +496,58 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SECTION 9 — FAQ */}
+        {/* SECTION 9 — TESTIMONIALS */}
+        <section className="border-t border-ivory/10 bg-espresso-deep text-ivory">
+          <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
+
+            <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-24">
+              <div>
+                <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-ivory sm:text-[2.4rem] lg:text-[3rem]">
+                  What families are saying.
+                </h2>
+              </div>
+              <p className="text-base leading-relaxed text-ivory/55 sm:text-lg lg:pt-3">
+                Every family's situation is different. These are a few of the moments we've been trusted to help navigate.
+              </p>
+            </div>
+
+            <div className="home-reveal mt-20 grid gap-px border border-ivory/10 bg-ivory/10 sm:grid-cols-3">
+              {[
+                {
+                  quote: "[Placeholder for Quote 1. This will be a short 2-3 sentence review highlighting the relief and organization Acorn Care provided during a complex transition.]",
+                  name: "— [Client Name]",
+                  role: "Daughter coordinating care",
+                },
+                {
+                  quote: "[Placeholder for Quote 2. This will be a short 2-3 sentence review highlighting the relief and organization Acorn Care provided during a complex transition.]",
+                  name: "— [Client Name]",
+                  role: "Small Business Owner",
+                },
+                {
+                  quote: "[Placeholder for Quote 3. This will be a short 2-3 sentence review highlighting the relief and organization Acorn Care provided during a complex transition.]",
+                  name: "— [Client Name]",
+                  role: "Managing an inherited estate",
+                },
+              ].map((t, i) => (
+                <div key={i} className="flex flex-col justify-between gap-10 bg-espresso-deep px-8 py-10 lg:px-10 lg:py-12">
+                  <p
+                    className="font-serif text-[1.05rem] leading-relaxed text-ivory/80"
+                    style={{ fontStyle: "italic" }}
+                  >
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <div className="border-t border-ivory/10 pt-6">
+                    <p className="font-serif text-base text-ivory">{t.name}</p>
+                    <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-gold/70">{t.role}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </section>
+
+        {/* SECTION 10 — FAQ */}
         <section className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-24">
@@ -530,7 +581,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SECTION 10 — PACKAGES */}
+        {/* SECTION 11 — PACKAGES */}
         <section id="packages" className="bg-ivory text-charcoal">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
             <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-24">
@@ -588,7 +639,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SECTION 11 — FINAL CTA */}
+        {/* SECTION 12 — FINAL CTA */}
         <section id="consultation" className="relative overflow-hidden border-t border-ivory/10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(201,164,106,0.35),transparent_24%),linear-gradient(145deg,rgba(45,73,53,0.94),rgba(26,49,34,0.92))]" />
           <div className="relative mx-auto max-w-[78rem] px-6 py-24 lg:px-10 lg:py-36">
