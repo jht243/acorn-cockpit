@@ -242,7 +242,6 @@ export default function Intake() {
           <Logo />
           <div>
             <div className="text-sm font-semibold">Acorn Care</div>
-            <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Coordination</div>
           </div>
         </div>
         <div className="flex items-center gap-3">
