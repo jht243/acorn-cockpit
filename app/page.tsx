@@ -665,7 +665,6 @@ export default function Home() {
 
               {/* Right: contact form */}
               <div className="lg:pt-8">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-ivory/50 mb-6">Send a message</p>
                 <ContactForm />
               </div>
             </div>
