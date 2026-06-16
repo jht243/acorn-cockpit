@@ -671,16 +671,24 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-ivory/10 bg-espresso-deep">
-        <div className="mx-auto flex max-w-[78rem] flex-col gap-6 px-6 py-12 sm:flex-row sm:items-start sm:justify-between lg:px-10">
-          <div className="flex items-center gap-2.5 text-ivory">
-            <AcornMark className="h-6 w-6 text-gold" />
-            <span className="font-serif text-lg">Acorn Care</span>
+        <div className="mx-auto max-w-[78rem] px-6 py-12 lg:px-10">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-center gap-2.5 text-ivory">
+              <AcornMark className="h-6 w-6 text-gold" />
+              <span className="font-serif text-lg">Acorn Care</span>
+            </div>
+            <p className="max-w-xl text-xs leading-relaxed text-ivory/45">
+              Acorn Care LLC provides organization, coordination, and preparation support. We do not provide legal, tax,
+              medical, insurance, or investment advice. Those decisions remain with the appropriate licensed professionals.
+            </p>
+            <div className="flex flex-col items-start gap-2 sm:items-end">
+              <p className="text-xs text-ivory/45">© {new Date().getFullYear()} Acorn Care LLC. All rights reserved.</p>
+              <div className="flex items-center gap-4">
+                <a href="#" className="text-[11px] text-ivory/35 transition hover:text-ivory/70">Terms of Service</a>
+                <a href="#" className="text-[11px] text-ivory/35 transition hover:text-ivory/70">Privacy Policy</a>
+              </div>
+            </div>
           </div>
-          <p className="max-w-xl text-xs leading-relaxed text-ivory/45">
-            Acorn Care provides organization, coordination, and preparation support. We do not provide legal, tax,
-            medical, insurance, or investment advice. Those decisions remain with the appropriate licensed professionals.
-          </p>
-          <p className="text-xs text-ivory/45">© {new Date().getFullYear()} Acorn Care</p>
         </div>
       </footer>
     </div>

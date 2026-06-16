@@ -30,9 +30,9 @@ const WHAT_BRINGS_OPTIONS = [
   "A life event (marriage, divorce, new baby, death in family)",
   "I'm trying to buy a home",
   "Business planning or ownership",
-  "Retirement planning",
-  "Estate planning or protecting my family",
-  "I don't have a financial plan and want one",
+  "Organizing retirement accounts",
+  "Estate organization or protecting my family",
+  "I need help organizing my financial life",
   "A friend or advisor referred me",
   "Something else",
 ];
@@ -242,7 +242,7 @@ export default function Intake() {
           <Logo />
           <div>
             <div className="text-sm font-semibold">Acorn Care</div>
-            <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Planning</div>
+            <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Coordination</div>
           </div>
         </div>
         <div className="flex items-center gap-3">

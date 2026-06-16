@@ -90,7 +90,7 @@ export default function DocumentsUploadClient({
             Karli will review what you've uploaded and follow up if anything else is needed.
           </p>
           <div className="text-xs pt-2" style={{ color: 'var(--ink-soft)' }}>
-            Acorn Care, LLC — Concierge Financial Planning
+            Acorn Care, LLC — Concierge Financial Coordination
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function DocumentsUploadClient({
           <Logo />
           <div>
             <div className="text-sm font-semibold">Acorn Care</div>
-            <div className="text-xs" style={{ color: 'var(--ink-soft)' }}>Concierge Financial Planning</div>
+            <div className="text-xs" style={{ color: 'var(--ink-soft)' }}>Concierge Financial Coordination</div>
           </div>
         </div>
         <div className="text-xs flex items-center gap-1.5" style={{ color: 'var(--ink-soft)' }}>

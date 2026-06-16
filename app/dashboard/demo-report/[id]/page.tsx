@@ -86,7 +86,7 @@ export default async function DemoReport({
                 </svg>
                 <div>
                   <div className="text-lg font-semibold tracking-tight">Acorn Care, LLC</div>
-                  <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Planning</div>
+                  <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Coordination</div>
                 </div>
               </div>
               <div className="text-right">
@@ -112,7 +112,7 @@ export default async function DemoReport({
             )}
 
             <div className="mt-12 pt-6 border-t text-[10px] text-center" style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}>
-              Acorn Care, LLC · Concierge Financial Planning · This document is illustrative and does not constitute investment advice.
+              Acorn Care, LLC · Concierge Financial Coordination · This document is illustrative and does not constitute investment advice.
             </div>
           </div>
         </div>

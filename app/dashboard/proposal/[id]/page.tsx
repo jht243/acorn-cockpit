@@ -28,7 +28,7 @@ export default async function Proposal({ params }: { params: Promise<{ id: strin
               </svg>
               <div>
                 <div className="text-base font-semibold">Acorn Care, LLC</div>
-                <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Planning · Karli Vazquez-Mendez</div>
+                <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Coordination · Karli Vazquez-Mendez</div>
               </div>
               <div className="ml-auto text-xs text-right" style={{ color: "var(--ink-soft)" }}>
                 Prepared for<br />
@@ -89,7 +89,7 @@ export default async function Proposal({ params }: { params: Promise<{ id: strin
             </Section>
 
             <div className="mt-10 pt-6 border-t text-xs" style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}>
-              Acorn Care, LLC is an independent concierge financial planning firm and is not affiliated with any banking institution.
+              Acorn Care, LLC is an independent concierge financial coordination firm and is not affiliated with any banking institution.
               The contents of this document are for informational purposes only and do not constitute investment, tax, or legal advice.
               Projections are based on assumptions provided by the client and are not guaranteed. Consult your tax and/or legal advisor
               before implementing any tax or legal strategies.
