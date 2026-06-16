@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PainPointsSlider from "../components/PainPointsSlider";
+import ContactForm from "../components/ContactForm";
 
 export const metadata: Metadata = {
   title: "Acorn Care - Financial Life Coordination for Families",
@@ -159,7 +160,7 @@ export default function Home() {
               ["Who We Help", "#who"],
               ["What We Organize", "#organize"],
               ["How It Works", "#process"],
-              ["Acorn Binder", "#binder"],
+              ["Our Story", "/our-story"],
               ["Packages", "#packages"],
             ].map(([label, href]) => (
               <a key={href} href={href} className="text-[13px] text-ivory/65 transition hover:text-ivory">
@@ -480,6 +481,17 @@ export default function Home() {
                   Founder &amp; Lead Coordinator, Acorn Care
                 </span>
               </div>
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex items-center gap-2.5 text-[13px] text-charcoal/55 transition hover:text-espresso-deep"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-current" aria-hidden="true">
+                  <path d="M20.447 20.452H17.01v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.589V9h3.318v1.561h.046c.462-.872 1.588-1.791 3.268-1.791 3.494 0 4.139 2.301 4.139 5.293v6.389zM5.337 7.433a1.931 1.931 0 1 1 0-3.862 1.931 1.931 0 0 1 0 3.862zM6.97 20.452H3.697V9H6.97v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+                Connect with Karli on LinkedIn
+              </a>
             </div>
           </div>
         </section>
@@ -579,16 +591,29 @@ export default function Home() {
         {/* SECTION 11 — FINAL CTA */}
         <section id="consultation" className="relative overflow-hidden border-t border-ivory/10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(201,164,106,0.35),transparent_24%),linear-gradient(145deg,rgba(45,73,53,0.94),rgba(26,49,34,0.92))]" />
-          <div className="relative mx-auto max-w-4xl px-6 py-32 text-center lg:py-40">
-            <h2 className="mx-auto mt-8 font-serif text-4xl leading-[1.02] text-ivory sm:text-6xl lg:text-7xl">
-              Start with clarity.
-            </h2>
-            <p className="mx-auto mt-8 max-w-xl text-base leading-relaxed text-ivory/70 sm:text-lg">
-              Schedule a consultation to understand what your family has, what is missing, and what needs attention
-              next.
-            </p>
-            <div className="mt-12 flex justify-center">
-              <PrimaryButton>Schedule a Consultation</PrimaryButton>
+          <div className="relative mx-auto max-w-[78rem] px-6 py-24 lg:px-10 lg:py-36">
+            <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
+              {/* Left: heading + description + CTA */}
+              <div className="flex flex-col justify-center">
+                <h2 className="mt-8 font-serif text-4xl leading-[1.02] text-ivory sm:text-5xl lg:text-6xl">
+                  Start with clarity.
+                </h2>
+                <p className="mt-8 max-w-md text-base leading-relaxed text-ivory/70 sm:text-lg">
+                  Schedule a consultation to understand what your family has, what is missing, and what needs attention next.
+                </p>
+                <div className="mt-10">
+                  <PrimaryButton>Schedule a Consultation</PrimaryButton>
+                </div>
+                <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-ivory/35">
+                  Or send us a message below &rarr;
+                </p>
+              </div>
+
+              {/* Right: contact form */}
+              <div className="lg:pt-8">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-ivory/50 mb-6">Send a message</p>
+                <ContactForm />
+              </div>
             </div>
           </div>
         </section>
