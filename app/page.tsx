@@ -203,9 +203,6 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="home-reveal mt-24 text-[11px] uppercase tracking-[0.22em] text-ivory/70">
-              Coordination, not advice · Confidential by design · Family-first
-            </div>
           </div>
         </section>
 
