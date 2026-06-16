@@ -435,41 +435,19 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SECTION 7 — WHO WE HELP */}
-        <section id="who" className="border-t border-charcoal/10">
-          <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
-            <div className="grid gap-16 lg:grid-cols-[1.1fr_1fr] lg:gap-20">
-              <div className="home-reveal min-h-[34rem] overflow-hidden border border-charcoal/10 bg-[radial-gradient(circle_at_35%_30%,rgba(201,164,106,0.32),transparent_28%),linear-gradient(145deg,rgba(220,226,214,0.88),rgba(250,247,241,0.88)),linear-gradient(135deg,rgba(45,73,53,0.18)_0_25%,transparent_25%_50%,rgba(45,73,53,0.12)_50%_75%,transparent_75%)]" />
-              <div className="home-reveal lg:pt-6">
-                <h2 className="mt-8 font-serif text-3xl leading-[1.08] sm:text-[2.4rem] lg:text-[3rem]">
-                  Support for families at the moments clarity matters most.
-                </h2>
-                <p className="mt-8 max-w-md text-base leading-relaxed text-charcoal/65 sm:text-lg">
-                  Acorn works alongside families when decisions are layered, time is short, and no one should be
-                  navigating it alone.
-                </p>
-
-                <ul className="mt-12 divide-y divide-charcoal/10 border-y border-charcoal/10">
-                  {WHO.map((label, i) => (
-                    <li key={label} className="flex items-baseline gap-6 py-5 text-[17px] text-charcoal/85">
-                      <span className="font-serif text-xs text-gold">{String(i + 1).padStart(2, "0")}</span>
-                      <span className="font-serif text-lg sm:text-xl">{label}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-6 text-sm leading-relaxed text-charcoal/55">
-                  If your situation doesn&apos;t fit neatly into any of these, start with a consultation. Acorn works across a wide range of financial situations — from ongoing coordination to one-time questions.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* SECTION 8 — OUR STORY */}
         <section className="bg-cream text-charcoal">
           <div className="mx-auto grid max-w-[78rem] items-center gap-16 px-6 py-28 lg:grid-cols-[1fr_1.3fr] lg:gap-24 lg:px-10 lg:py-36">
             <div className="home-reveal order-2 lg:order-1">
-              <div className="min-h-[32rem] overflow-hidden border border-charcoal/10 bg-[radial-gradient(circle_at_50%_18%,rgba(250,247,241,0.8),transparent_22%),linear-gradient(160deg,rgba(170,178,150,0.5),rgba(45,73,53,0.2)),linear-gradient(90deg,rgba(40,30,20,0.08)_1px,transparent_1px),linear-gradient(rgba(40,30,20,0.08)_1px,transparent_1px)] bg-[length:auto,auto,40px_40px,40px_40px]" />
+              <div className="min-h-[32rem] overflow-hidden border border-charcoal/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://imgur.com/kksKtdX.jpg"
+                  alt="Karli Vazquez-Mendez, Founder & Lead Coordinator of Acorn Care"
+                  className="h-full w-full object-cover object-top"
+                  style={{ minHeight: '32rem' }}
+                />
+              </div>
             </div>
             <div className="home-reveal order-1 lg:order-2">
               <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.4rem] lg:text-[3rem]">
