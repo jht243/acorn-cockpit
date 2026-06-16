@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import MobileNav from "../../components/MobileNav";
 
 export const metadata: Metadata = {
   title: "Our Story — Acorn Care",
@@ -83,7 +84,7 @@ export default function OurStory() {
 
       {/* ── NAV ── */}
       <header className="sticky top-0 z-40 border-b border-ivory/10 bg-espresso-deep shadow-lg shadow-charcoal/10 backdrop-blur-md">
-        <nav className="mx-auto flex max-w-[78rem] items-center justify-between px-6 py-5 lg:px-10">
+        <nav className="relative mx-auto flex max-w-[78rem] items-center justify-between px-6 py-5 lg:px-10">
           <Link href="/" className="flex items-center gap-2.5 text-ivory">
             <AcornMark className="h-6 w-6 text-gold" />
             <span className="font-serif text-lg tracking-tight">Acorn Care</span>
@@ -105,13 +106,11 @@ export default function OurStory() {
               </Link>
             ))}
           </div>
-          <div className="flex items-center gap-6">
-            <Link href="/admin-login" className="hidden text-[13px] text-ivory/60 transition hover:text-gold md:inline">
-              Advisor login
-            </Link>
-            <a href={CONSULTATION_HREF} className="text-[13px] tracking-wide text-gold transition hover:text-ivory">
+          <div className="flex items-center gap-4">
+            <a href={CONSULTATION_HREF} className="hidden text-[13px] tracking-wide text-gold transition hover:text-ivory sm:inline">
               Schedule a consultation &rarr;
             </a>
+            <MobileNav />
           </div>
         </nav>
       </header>
@@ -143,13 +142,13 @@ export default function OurStory() {
             <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-24">
 
               {/* Left: placeholder image */}
-              <div className="min-h-[28rem] overflow-hidden border border-charcoal/10 lg:min-h-[auto]">
+              <div className="min-h-[20rem] overflow-hidden border border-charcoal/10 sm:min-h-[28rem] lg:min-h-[auto]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://imgur.com/LYkz2jo.jpg"
                   alt="Karli Vazquez-Mendez, Founder of Acorn Care"
                   className="h-full w-full object-cover object-top"
-                  style={{ minHeight: '28rem' }}
+                  style={{ minHeight: 'inherit' }}
                 />
               </div>
 
@@ -227,7 +226,7 @@ export default function OurStory() {
                   The work is serious. The person behind it doesn't have to be.
                 </p>
               </div>
-              <div className="grid gap-8 sm:grid-cols-2">
+              <div className="grid gap-8 md:grid-cols-2">
                 {OUTSIDE.map((item) => (
                   <div key={item.label} className="border-t border-charcoal/15 pt-6">
                     <div className="flex items-center gap-3 text-acorn">

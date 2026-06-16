@@ -55,7 +55,7 @@ export default function CookieBanner() {
           Privacy Policy
         </a>
       </p>
-      <div className="mt-4 flex items-center gap-3">
+      <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           onClick={accept}
           className="inline-flex items-center justify-center rounded-full bg-gold px-5 py-2 text-xs font-medium tracking-wide text-espresso-deep transition hover:brightness-95"

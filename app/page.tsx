@@ -3,6 +3,7 @@ import Link from "next/link";
 import PainPointsSlider from "../components/PainPointsSlider";
 import ContactForm from "../components/ContactForm";
 import HeroAnimation from "../components/HeroAnimation";
+import MobileNav from "../components/MobileNav";
 
 export const metadata: Metadata = {
   title: "Acorn Care - Financial Life Coordination for Families",
@@ -151,7 +152,7 @@ export default function Home() {
   return (
     <div className="home-page min-h-screen bg-ivory text-charcoal antialiased">
       <header className="sticky top-0 z-40 border-b border-ivory/10 bg-espresso-deep shadow-lg shadow-charcoal/10 backdrop-blur-md">
-        <nav className="mx-auto flex max-w-[78rem] items-center justify-between px-6 py-5 lg:px-10">
+        <nav className="relative mx-auto flex max-w-[78rem] items-center justify-between px-6 py-5 lg:px-10">
           <a href="#" className="flex items-center gap-2.5 text-ivory">
             <AcornMark className="h-6 w-6 text-gold" />
             <span className="font-serif text-lg tracking-tight">Acorn Care</span>
@@ -169,10 +170,11 @@ export default function Home() {
               </a>
             ))}
           </div>
-          <div className="flex items-center gap-6">
-            <a href={CONSULTATION_HREF} className="text-[13px] tracking-wide text-gold transition hover:text-ivory">
+          <div className="flex items-center gap-4">
+            <a href={CONSULTATION_HREF} className="hidden text-[13px] tracking-wide text-gold transition hover:text-ivory sm:inline">
               Schedule a consultation &rarr;
             </a>
+            <MobileNav />
           </div>
         </nav>
       </header>
@@ -439,13 +441,13 @@ export default function Home() {
         <section className="bg-cream text-charcoal">
           <div className="mx-auto grid max-w-[78rem] items-center gap-16 px-6 py-28 lg:grid-cols-[1fr_1.3fr] lg:gap-24 lg:px-10 lg:py-36">
             <div className="home-reveal order-2 lg:order-1">
-              <div className="min-h-[32rem] overflow-hidden border border-charcoal/10">
+              <div className="min-h-[20rem] overflow-hidden border border-charcoal/10 sm:min-h-[28rem] lg:min-h-[32rem]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://imgur.com/kksKtdX.jpg"
                   alt="Karli Vazquez-Mendez, Founder & Lead Coordinator of Acorn Care"
                   className="h-full w-full object-cover object-top"
-                  style={{ minHeight: '32rem' }}
+                  style={{ minHeight: 'inherit' }}
                 />
               </div>
             </div>
@@ -492,7 +494,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="home-reveal mt-20 grid gap-px border border-ivory/10 bg-ivory/10 sm:grid-cols-3">
+            <div className="home-reveal mt-20 grid gap-px border border-ivory/10 bg-ivory/10 md:grid-cols-3">
               {[
                 {
                   quote: "Karli combines expertise with genuine care. She made us feel like more than just clients — she made us feel understood. Her guidance has been invaluable, and we trust her completely with our financial future.",
@@ -578,7 +580,7 @@ export default function Home() {
 
             <div className="home-reveal mt-20 grid divide-y divide-charcoal/15 border-y border-charcoal/15 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
               {PACKAGES.map((pkg) => (
-                <div key={pkg.name} className="flex flex-col px-2 py-10 lg:px-10 lg:py-12">
+                <div key={pkg.name} className="flex flex-col px-6 py-10 lg:px-10 lg:py-12">
                   <div className="flex items-baseline justify-between">
                     <span className="text-[11px] uppercase tracking-[0.22em] text-acorn">{pkg.tagline}</span>
                     {pkg.featured ? (
