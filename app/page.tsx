@@ -169,9 +169,6 @@ export default function Home() {
             ))}
           </div>
           <div className="flex items-center gap-6">
-<Link href="/admin-login" className="hidden text-[13px] text-ivory/60 transition hover:text-gold md:inline">
-              Advisor login
-            </Link>
             <a href={CONSULTATION_HREF} className="text-[13px] tracking-wide text-gold transition hover:text-ivory">
               Schedule a consultation &rarr;
             </a>
