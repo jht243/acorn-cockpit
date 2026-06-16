@@ -482,7 +482,7 @@ export default function Home() {
                 </span>
               </div>
               <a
-                href="#"
+                href="https://www.linkedin.com/in/karli-vazquez-mendez/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-5 inline-flex items-center gap-2.5 text-[13px] text-charcoal/55 transition hover:text-espresso-deep"
@@ -514,19 +514,19 @@ export default function Home() {
             <div className="home-reveal mt-20 grid gap-px border border-ivory/10 bg-ivory/10 sm:grid-cols-3">
               {[
                 {
-                  quote: "[Placeholder for Quote 1. This will be a short 2-3 sentence review highlighting the relief and organization Acorn Care provided during a complex transition.]",
-                  name: "— [Client Name]",
-                  role: "Daughter coordinating care",
+                  quote: "Karli combines expertise with genuine care. She made us feel like more than just clients — she made us feel understood. Her guidance has been invaluable, and we trust her completely with our financial future.",
+                  name: "— Dr. Ryan and Chere Smith",
+                  role: "Family Financial Coordination",
                 },
                 {
-                  quote: "[Placeholder for Quote 2. This will be a short 2-3 sentence review highlighting the relief and organization Acorn Care provided during a complex transition.]",
-                  name: "— [Client Name]",
-                  role: "Small Business Owner",
+                  quote: "Karli is the rare advisor who truly listens. She helped me clarify my long-term goals and created a financial plan that felt both strategic and deeply personal. Her attention to detail and ability to simplify complex concepts made the entire process empowering.",
+                  name: "— Rachel Stevens",
+                  role: "Long-Term Wealth Organization",
                 },
                 {
-                  quote: "[Placeholder for Quote 3. This will be a short 2-3 sentence review highlighting the relief and organization Acorn Care provided during a complex transition.]",
-                  name: "— [Client Name]",
-                  role: "Managing an inherited estate",
+                  quote: "Karli delivers a level of service that's truly exceptional. Her ability to tailor solutions based on my specific, and complex, personal and business needs, was impressive, and her follow-through was flawless. She's the kind of advisor you want in your corner.",
+                  name: "— Dayanara Diaz",
+                  role: "Personal Asset Coordination",
                 },
               ].map((t, i) => (
                 <div key={i} className="flex flex-col justify-between gap-10 bg-espresso-deep px-8 py-10 lg:px-10 lg:py-12">
