@@ -38,17 +38,17 @@ const WHAT_BRINGS_OPTIONS = [
 ];
 
 const GOAL_OPTIONS = [
-  "Build a retirement income plan",
-  "Reduce my tax burden",
-  "Pay off debt faster",
-  "Save for my children's education",
-  "Protect my family with the right insurance",
-  "Create or update my estate plan (will, trust, POA)",
-  "Grow and invest my savings",
-  "Buy a home or investment property",
-  "Plan for a business exit or succession",
-  "Set up or restructure a business entity",
-  "Organize my finances so I know where I stand",
+  "Organize my retirement accounts and understand what I have",
+  "Understand and reduce my tax burden (coordinate with my CPA)",
+  "Get a clearer picture of my debts and cash flow",
+  "Organize savings and accounts for my children's education",
+  "Review my insurance coverage for gaps or overlaps",
+  "Organize estate documents (will, trust, POA) and identify what's missing",
+  "Understand my investments and coordinate with my advisor",
+  "Prepare for a home purchase or real estate transaction",
+  "Organize documents for a business exit or succession",
+  "Set up or restructure a business entity (coordinate with attorney/CPA)",
+  "Get everything in one place so I know where I stand",
 ];
 
 const URGENCY_OPTIONS = [
@@ -349,7 +349,7 @@ export default function Intake() {
 
             {/* Step 3 — Goals */}
             {step === 3 && (
-              <Section title="Your goals" subtitle="What specific outcomes do you want from a financial plan? Select all that apply.">
+              <Section title="Your goals" subtitle="What would you most like help organizing or getting clarity on? Select all that apply.">
                 <div className="grid grid-cols-1 gap-2">
                   {GOAL_OPTIONS.map((g) => {
                     const active = data.goalsSelected.includes(g);
@@ -735,8 +735,8 @@ export default function Intake() {
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input type="checkbox" className="mt-0.5" checked={data.termsAgreed} onChange={(e) => update("termsAgreed", e.target.checked)} />
                     <span className="text-sm" style={{ color: "var(--ink-soft)" }}>
-                      I agree that Acorn Care, LLC may use this information to prepare a financial plan proposal.
-                      Acorn Care is not affiliated with any banking institution and this is not investment advice.
+                      I agree that Acorn Care, LLC may use this information to prepare a coordination summary and follow up with me about next steps.
+                      Acorn Care, LLC provides organization and coordination support only — we do not provide legal, tax, investment, or insurance advice.
                       My information is encrypted and never shared without my consent.
                     </span>
                   </label>

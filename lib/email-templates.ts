@@ -32,7 +32,7 @@ export function taskReminderHtml(clientName: string, taskTitle: string, bookingU
       </div>
       <p style="font-size: 13px; color: #6b7670; line-height: 1.5;">If the button doesn't work, copy and paste this link into your browser:<br/><span style="color: #2f7d4f;">${bookingUrl}</span></p>
       <p style="font-size: 14px; margin-top: 32px;">Thank you,<br/><strong>Karli Vazquez-Mendez</strong><br/>Acorn Care, LLC</p>
-      <p style="font-size: 11px; color: #9ca39e; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eaecea;">Acorn Care, LLC is not affiliated with any banking institution. This is not investment advice.</p>
+      <p style="font-size: 11px; color: #9ca39e; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eaecea;">Acorn Care, LLC provides organization and coordination support only. We do not provide legal, tax, investment, or insurance advice.</p>
     </div>
   `;
 }

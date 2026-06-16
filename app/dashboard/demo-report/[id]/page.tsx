@@ -112,7 +112,7 @@ export default async function DemoReport({
             )}
 
             <div className="mt-12 pt-6 border-t text-[10px] text-center" style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}>
-              Acorn Care, LLC · Concierge Financial Coordination · This document is illustrative and does not constitute investment advice.
+              Acorn Care, LLC · Concierge Financial Coordination · This document is illustrative. Acorn Care provides organization and coordination support only — not legal, tax, investment, or insurance advice.
             </div>
           </div>
         </div>
@@ -170,11 +170,11 @@ function SnapshotBody({ c, netWorth, totalAssets, totalLiab, annualIncome, month
 
       <Section title="Engagement scope">
         <ul className="text-sm leading-relaxed space-y-1.5" style={{ color: "var(--ink)" }}>
-          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Comprehensive financial plan + annual updates</span></li>
-          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Two two-hour review meetings per year</span></li>
-          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Tax-loss harvesting + Roth conversion analysis</span></li>
-          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Estate document review and attorney referrals</span></li>
-          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Insurance coverage audit (life, disability, P&C)</span></li>
+          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Comprehensive coordination summary + annual review</span></li>
+          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Two two-hour coordination meetings per year</span></li>
+          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Tax document organization + CPA coordination</span></li>
+          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Estate document review and attorney coordination</span></li>
+          <li className="flex gap-2"><span style={{ color: "var(--brand)" }}>✓</span><span>Insurance coverage audit and gap identification</span></li>
         </ul>
       </Section>
     </>

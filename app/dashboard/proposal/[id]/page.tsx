@@ -36,7 +36,7 @@ export default async function Proposal({ params }: { params: Promise<{ id: strin
               </div>
             </div>
 
-            <h1 className="text-2xl font-semibold tracking-tight mb-1">Financial Plan Proposal</h1>
+            <h1 className="text-2xl font-semibold tracking-tight mb-1">Coordination Summary</h1>
             <div className="text-sm mb-6" style={{ color: "var(--ink-soft)" }}>{c.plan} Plan · {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</div>
 
             <Section title="Current Goals">
@@ -89,7 +89,7 @@ export default async function Proposal({ params }: { params: Promise<{ id: strin
             </Section>
 
             <div className="mt-10 pt-6 border-t text-xs" style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}>
-              Acorn Care, LLC is an independent concierge financial coordination firm and is not affiliated with any banking institution.
+              Acorn Care, LLC provides organization and coordination support only. We do not provide legal, tax, investment, or insurance advice. Those decisions remain with your licensed professionals.
               The contents of this document are for informational purposes only and do not constitute investment, tax, or legal advice.
               Projections are based on assumptions provided by the client and are not guaranteed. Consult your tax and/or legal advisor
               before implementing any tax or legal strategies.
