@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PainPointsSlider from "../components/PainPointsSlider";
 
 export const metadata: Metadata = {
   title: "Acorn Care - Financial Life Coordination for Families",
@@ -209,6 +210,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <PainPointsSlider />
 
         {/* SECTION 2 — PAIN POINTS */}
         <section className="border-t border-charcoal/10">
