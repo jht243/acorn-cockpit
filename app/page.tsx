@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PainPointsSlider from "../components/PainPointsSlider";
 import ContactForm from "../components/ContactForm";
+import HeroAnimation from "../components/HeroAnimation";
 
 export const metadata: Metadata = {
   title: "Acorn Care - Financial Life Coordination for Families",
@@ -182,27 +183,35 @@ export default function Home() {
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(201,164,106,0.28),transparent_32%),linear-gradient(135deg,rgba(45,73,53,0.96),rgba(26,49,34,0.92)),linear-gradient(90deg,rgba(250,247,241,0.08)_1px,transparent_1px),linear-gradient(rgba(250,247,241,0.08)_1px,transparent_1px)] bg-[length:auto,auto,64px_64px,64px_64px]" />
           <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-espresso-deep/50 to-transparent" />
 
-          <div className="mx-auto max-w-[78rem] px-6 pb-32 pt-28 lg:px-10 lg:pb-44 lg:pt-40">
-            <div className="home-reveal max-w-5xl">
-              <div className="h-px w-20 bg-gradient-to-r from-gold/90 via-gold to-gold/50" />
-              <h1 className="mt-10 font-serif text-[2.6rem] leading-[1.04] text-ivory sm:text-[3.6rem] lg:text-[5rem]">
-                Your family&apos;s full financial picture.
-                <br className="hidden sm:block" />
-                <span className="text-ivory/70"> Organized and ready before you need it.</span>
-              </h1>
-            </div>
+          <div className="mx-auto max-w-[78rem] px-6 pb-20 pt-28 lg:px-10 lg:pb-28 lg:pt-40">
 
-            <div className="home-reveal mt-14 grid gap-10 border-t border-ivory/15 pt-10 lg:grid-cols-[1.1fr_1fr] lg:gap-20">
-              <p className="max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
-                Acorn Care organizes what your family has, finds what&apos;s missing, and makes sure the right professionals have what they need — so nothing falls through the cracks when it matters most.
-              </p>
-              <div className="flex flex-col items-start gap-5 lg:items-end">
-                <div className="flex flex-wrap items-center gap-4">
-                  <PrimaryButton>Schedule a Consultation</PrimaryButton>
+            {/* Two-column split: text left, animation right */}
+            <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+
+              {/* Left — heading + description + CTA */}
+              <div className="home-reveal">
+                <div className="h-px w-20 bg-gradient-to-r from-gold/90 via-gold to-gold/50" />
+                <h1 className="mt-10 font-serif text-[2.6rem] leading-[1.04] text-ivory sm:text-[3.6rem] lg:text-[4.5rem]">
+                  Your family&apos;s full financial picture.
+                  <br className="hidden sm:block" />
+                  <span className="text-ivory/70"> Organized and ready before you need it.</span>
+                </h1>
+                <div className="mt-10 border-t border-ivory/15 pt-10">
+                  <p className="max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
+                    Acorn Care organizes what your family has, finds what&apos;s missing, and makes sure the right professionals have what they need — so nothing falls through the cracks when it matters most.
+                  </p>
+                  <div className="mt-8">
+                    <PrimaryButton>Schedule a Consultation</PrimaryButton>
+                  </div>
                 </div>
               </div>
-            </div>
 
+              {/* Right — Lottie animation */}
+              <div className="home-reveal flex items-center justify-center py-4 lg:py-8">
+                <HeroAnimation />
+              </div>
+
+            </div>
           </div>
         </section>
 
