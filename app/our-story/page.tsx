@@ -143,7 +143,15 @@ export default function OurStory() {
             <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-24">
 
               {/* Left: placeholder image */}
-              <div className="min-h-[28rem] overflow-hidden border border-charcoal/10 bg-[radial-gradient(circle_at_40%_25%,rgba(201,164,106,0.3),transparent_30%),linear-gradient(145deg,rgba(220,226,214,0.85),rgba(250,247,241,0.9)),linear-gradient(135deg,rgba(45,73,53,0.14)_0_25%,transparent_25%_50%,rgba(45,73,53,0.1)_50%_75%,transparent_75%)] lg:min-h-[auto]" />
+              <div className="min-h-[28rem] overflow-hidden border border-charcoal/10 lg:min-h-[auto]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://imgur.com/LYkz2jo.jpg"
+                  alt="Karli Vazquez-Mendez, Founder of Acorn Care"
+                  className="h-full w-full object-cover object-top"
+                  style={{ minHeight: '28rem' }}
+                />
+              </div>
 
               {/* Right: text */}
               <div className="flex flex-col justify-center">
