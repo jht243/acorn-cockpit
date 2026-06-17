@@ -146,7 +146,7 @@ export default function OurStory() {
               <div className="min-h-[20rem] overflow-hidden border border-charcoal/10 sm:min-h-[28rem] lg:min-h-[auto]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="https://imgur.com/LYkz2jo.jpg"
+                  src="/images/karli-story.jpeg"
                   alt="Karli Vazquez-Mendez, Founder of Acorn Care"
                   className="h-full w-full object-cover object-top"
                   style={{ minHeight: 'inherit' }}

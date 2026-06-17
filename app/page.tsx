@@ -445,7 +445,7 @@ export default function Home() {
               <div className="min-h-[20rem] overflow-hidden border border-charcoal/10 sm:min-h-[28rem] lg:min-h-[32rem]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="https://imgur.com/kksKtdX.jpg"
+                  src="/images/karli-bio.jpeg"
                   alt="Karli Vazquez-Mendez, Founder & Lead Coordinator of Acorn Care"
                   className="h-full w-full object-cover object-top"
                   style={{ minHeight: 'inherit' }}
