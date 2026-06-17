@@ -3,7 +3,7 @@ import { taskReminderHtml, taskReminderSubject } from '@/lib/email-templates';
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = 'Acorn Care <intake@intake.layer3labs.io>'; // TODO: switch to karli@acorn-care.com once her domain is verified in Resend
+const FROM = 'Acorn Care <karli@intake.acorn-care.com>';
 const KARLI = process.env.KARLI_EMAIL || 'karli@acorn-care.com';
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://acorn-cockpit.onrender.com';
 // Calendly booking link used in the post-approval "book a call" email.
