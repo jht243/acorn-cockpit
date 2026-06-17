@@ -86,7 +86,8 @@ export default function OurStory() {
       <header className="sticky top-0 z-40 border-b border-ivory/10 bg-espresso-deep shadow-lg shadow-charcoal/10 backdrop-blur-md">
         <nav className="relative mx-auto flex max-w-[78rem] items-center justify-between px-6 py-5 lg:px-10">
           <Link href="/" className="flex items-center gap-2.5 text-ivory">
-            <AcornMark className="h-6 w-6 text-gold" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://imgur.com/hkTt23u.png" alt="Acorn Care" className="h-8 w-8 object-contain" />
             <span className="font-serif text-lg tracking-tight">Acorn Care</span>
           </Link>
           <div className="hidden items-center gap-10 lg:flex">
@@ -275,7 +276,8 @@ export default function OurStory() {
         <div className="mx-auto max-w-[78rem] px-6 py-12 lg:px-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-center gap-2.5 text-ivory">
-              <AcornMark className="h-6 w-6 text-gold" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://imgur.com/hkTt23u.png" alt="Acorn Care" className="h-8 w-8 object-contain" />
               <span className="font-serif text-lg">Acorn Care</span>
             </div>
             <p className="max-w-xl text-xs leading-relaxed text-ivory/45">
