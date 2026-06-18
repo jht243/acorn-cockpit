@@ -257,7 +257,7 @@ export default function HeroAnimation() {
             fontWeight="500"
             fill="rgba(201,164,106,0.65)"
           >
-            ORGANISED
+            Organized
           </text>
         </g>
 

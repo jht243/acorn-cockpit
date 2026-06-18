@@ -4,11 +4,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 
 const NAV_LINKS = [
-  ["Who We Help", "/#who"],
   ["What We Organize", "/#organize"],
   ["How It Works", "/#process"],
   ["Our Story", "/our-story"],
   ["Packages", "/#packages"],
+  ["Start Intake", "/intake"],
 ] as const
 
 const CONSULTATION_HREF = "https://calendly.com/karli-acorn-care/30min"
@@ -56,10 +56,12 @@ export default function MobileNav() {
             ))}
             <a
               href={CONSULTATION_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setOpen(false)}
               className="mt-4 inline-flex items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-medium tracking-wide text-espresso-deep transition hover:brightness-95"
             >
-              Schedule a Consultation
+              Let's Chat
             </a>
           </nav>
         </div>

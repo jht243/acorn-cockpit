@@ -160,11 +160,11 @@ export default function Home() {
           </a>
           <div className="hidden items-center gap-10 lg:flex">
             {[
-              ["Who We Help", "#who"],
               ["What We Organize", "#organize"],
               ["How It Works", "#process"],
               ["Our Story", "/our-story"],
               ["Packages", "#packages"],
+              ["Start Intake", "/intake"],
             ].map(([label, href]) => (
               <a key={href} href={href} className="text-[13px] text-ivory/65 transition hover:text-ivory">
                 {label}
@@ -172,8 +172,8 @@ export default function Home() {
             ))}
           </div>
           <div className="flex items-center gap-4">
-            <a href={CONSULTATION_HREF} className="hidden text-[13px] tracking-wide text-gold transition hover:text-ivory sm:inline">
-              Schedule a consultation &rarr;
+            <a href={CONSULTATION_HREF} target="_blank" rel="noopener noreferrer" className="hidden text-[13px] tracking-wide text-gold transition hover:text-ivory sm:inline">
+              Let&apos;s Chat &rarr;
             </a>
             <MobileNav />
           </div>
@@ -719,6 +719,8 @@ function PrimaryButton({ children, href = CONSULTATION_HREF }: { children: React
   return (
     <a
       href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       className="inline-flex items-center justify-center rounded-full bg-gold px-8 py-3.5 text-sm font-medium tracking-wide text-espresso-deep transition hover:brightness-95"
     >
       {children}
