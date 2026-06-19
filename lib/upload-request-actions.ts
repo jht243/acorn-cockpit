@@ -4,7 +4,7 @@ import { createServiceRoleClient } from '@/utils/supabase/service'
 import { sendDocumentUploadRequestEmail } from '@/lib/resend'
 import { revalidatePath } from 'next/cache'
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://acorn-cockpit.onrender.com'
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acorn-care.com'
 
 // Generate a token, persist it, and email the client their upload link.
 export async function createUploadRequest(
