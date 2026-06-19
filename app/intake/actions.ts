@@ -1,13 +1,13 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createServiceRoleClient } from '@/utils/supabase/service'
 import { sendIntakeCompletionEmail, sendIntakeConfirmationEmail } from '@/lib/resend'
 import { computeIntakeCompletionPct } from '@/lib/intake-progress'
 import { revalidatePath } from 'next/cache'
 
 export async function getIntakeFormData(token: string) {
   if (!token) return null
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { data } = await supabase
     .from('clients')
     .select('name, email, intake_form_data, intake_submitted_at')
@@ -17,7 +17,7 @@ export async function getIntakeFormData(token: string) {
 }
 
 export async function markIntakeStarted(token: string) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { data: existing } = await supabase
     .from('clients')
     .select('id, intake_started_at')
@@ -35,7 +35,7 @@ export async function markIntakeStarted(token: string) {
 
 export async function saveIntakeProgress(token: string, formData: any) {
   if (!token) return { success: false }
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const pct = computeIntakeCompletionPct(formData)
   const { data: existing } = await supabase
     .from('clients')
@@ -73,7 +73,7 @@ export async function saveIntakeProgress(token: string, formData: any) {
  */
 export async function saveHelpRequest(token: string, section: string) {
   if (!token) return { success: false }
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { data: existing } = await supabase
     .from('clients')
     .select('id, intake_form_data')
@@ -107,7 +107,7 @@ export async function saveHelpRequest(token: string, section: string) {
  */
 export async function saveReviewFlag(token: string, section: string) {
   if (!token) return { success: false }
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { data: existing } = await supabase
     .from('clients')
     .select('id, intake_form_data')
@@ -149,7 +149,7 @@ function roleLabel(key: string): string {
 }
 
 export async function submitIntake(data: any) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const token = data.token as string | undefined
 
   let clientId: string | null = null

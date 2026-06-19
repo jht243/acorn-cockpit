@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createServiceRoleClient } from '@/utils/supabase/service'
 import { sendIntakeInvite, sendIntakeReminder, sendBookingInviteEmail } from '@/lib/resend'
 import { revalidatePath } from 'next/cache'
 
@@ -18,7 +18,7 @@ export async function inviteClient(formData: FormData) {
     return { success: false, error: 'Name and email are required' }
   }
 
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   // Check for existing client by email
   const { data: existing } = await supabase
@@ -148,7 +148,7 @@ export async function inviteClient(formData: FormData) {
 }
 
 export async function sendReminder(clientId: string) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { data: client, error } = await supabase
     .from('clients')
     .select('id, name, email, intake_token, intake_reminders_sent')
@@ -179,7 +179,7 @@ export async function sendReminder(clientId: string) {
 
 // Admin (Karli) approves a submitted intake → emails the client a Calendly booking link.
 export async function approveIntake(clientId: string) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { data: client, error } = await supabase
     .from('clients')
     .select('id, name, email, intake_submitted_at')
