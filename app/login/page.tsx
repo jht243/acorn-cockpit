@@ -11,8 +11,15 @@ export default async function LoginPage({
   const signIn = async (formData: FormData) => {
     'use server'
     const email = (formData.get('email') as string).trim().toLowerCase()
-    const supabase = await createClient()
+    const password = formData.get('password') as string
 
+    // Check dashboard password before sending magic link
+    const dashboardPassword = process.env.DASHBOARD_PASSWORD
+    if (!dashboardPassword || password !== dashboardPassword) {
+      return redirect('/login?message=Incorrect password')
+    }
+
+    const supabase = await createClient()
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -22,16 +29,15 @@ export default async function LoginPage({
     })
 
     if (error) {
-      return redirect(`/login?message=Something went wrong — please try again`)
+      return redirect('/login?message=Something went wrong — please try again')
     }
 
-    return redirect(`/login?message=Check your email for a login link`)
+    return redirect('/login?message=Check your email for a login link')
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
       <div className="card card-pad w-full max-w-sm space-y-6">
-        {/* Logo + title */}
         <div className="text-center space-y-2">
           <svg width="36" height="36" viewBox="0 0 32 32" fill="none" className="mx-auto">
             <path d="M16 6c-2 0-3 1-3 2v2h6V8c0-1-1-2-3-2z" fill="#c08a3e"/>
@@ -43,12 +49,17 @@ export default async function LoginPage({
 
         {message ? (
           <div className="text-center space-y-4">
-            <div className="px-4 py-3 rounded-md text-sm font-medium"
-              style={{ background: 'var(--brand-soft)', color: 'var(--brand-dark)' }}>
+            <div
+              className="px-4 py-3 rounded-md text-sm font-medium"
+              style={{
+                background: message.includes('Incorrect') ? '#fff5f5' : 'var(--brand-soft)',
+                color: message.includes('Incorrect') ? '#842029' : 'var(--brand-dark)',
+              }}
+            >
               {message}
             </div>
             <a href="/login" className="text-sm" style={{ color: 'var(--ink-soft)' }}>
-              ← Try a different email
+              ← Try again
             </a>
           </div>
         ) : (
@@ -65,11 +76,22 @@ export default async function LoginPage({
                 className="input mt-1"
               />
             </div>
+            <div>
+              <label className="label" htmlFor="password">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                placeholder="••••••••"
+                className="input mt-1"
+              />
+            </div>
             <button type="submit" className="btn w-full justify-center">
               Send login link →
             </button>
             <p className="text-xs text-center" style={{ color: 'var(--ink-soft)' }}>
-              We'll email you a secure one-time link. No password needed.
+              We'll email you a secure one-time link to complete sign in.
             </p>
           </form>
         )}
