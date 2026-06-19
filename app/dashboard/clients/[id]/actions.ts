@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createServiceRoleClient } from '@/utils/supabase/service'
 import { revalidatePath } from 'next/cache'
 
 export async function updateClientGoals(clientId: string, goals: string[]) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { error } = await supabase
     .from('clients')
     .update({ goals })
@@ -16,7 +16,7 @@ export async function updateClientGoals(clientId: string, goals: string[]) {
 }
 
 export async function updateClientNotes(clientId: string, notes: string) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { error } = await supabase
     .from('clients')
     .update({ notes })
@@ -27,7 +27,7 @@ export async function updateClientNotes(clientId: string, notes: string) {
 }
 
 export async function updateMeetingNotes(clientId: string, notes: string) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { error } = await supabase
     .from('clients')
     .update({ meeting_notes: notes })
@@ -38,7 +38,7 @@ export async function updateMeetingNotes(clientId: string, notes: string) {
 }
 
 export async function updateReminders(clientId: string, reminders: { id: string; date: string; label: string }[]) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { error } = await supabase
     .from('clients')
     .update({ reminders })

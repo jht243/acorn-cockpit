@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createServiceRoleClient } from '@/utils/supabase/service'
 import { revalidatePath } from 'next/cache'
 
 export async function createClientProfile(formData: FormData) {
@@ -15,7 +15,7 @@ export async function createClientProfile(formData: FormData) {
 
   if (!name || !email) return { success: false, error: 'Name and email are required' }
 
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   const { data, error } = await supabase
     .from('clients')

@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createServiceRoleClient } from '@/utils/supabase/service'
 import { sendTaskReminderEmail } from '@/lib/resend'
 import { revalidatePath } from 'next/cache'
 
