@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 type Asset = { label: string; value: string; category: string };
@@ -116,6 +116,7 @@ const STEPS = [
 export default function Intake() {
   const [step, setStep] = useState(0);
   const [token, setToken] = useState("");
+  const [clientId, setClientId] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [adminReturnUrl, setAdminReturnUrl] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
@@ -206,6 +207,7 @@ export default function Intake() {
     import("./actions").then(async ({ markIntakeStarted, getIntakeFormData }) => {
       markIntakeStarted(t);
       const existing = await getIntakeFormData(t);
+      if (existing?.id) setClientId(existing.id);
       if (existing?.intake_form_data) {
         setData((d) => ({ ...d, ...existing.intake_form_data }));
       } else if (existing?.name || existing?.email) {
@@ -663,7 +665,7 @@ export default function Intake() {
                 </div>
                 {data.docUploadPreference === "I'll upload documents now" && (
                   <>
-                    <Drop />
+                    <Drop clientId={clientId} />
                     <div className="mt-3 px-3 py-2 rounded-md border text-sm font-medium flex items-center gap-2" style={{ borderColor: "#f5c2c7", background: "#fff5f5", color: "#842029" }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                       Please do not upload medical records.
@@ -920,14 +922,60 @@ function ItemList<T>({ items, onChange, renderRow, blank, addLabel }:
   );
 }
 
-function Drop() {
+function Drop({ clientId }: { clientId: string }) {
+  const [files, setFiles] = useState<{ name: string; status: 'pending' | 'uploading' | 'done' | 'error'; error?: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFiles = async (selected: FileList | null) => {
+    if (!selected || selected.length === 0 || !clientId) return;
+    const arr = Array.from(selected);
+    const newEntries = arr.map(f => ({ name: f.name, status: 'pending' as const }));
+    setFiles(prev => [...prev, ...newEntries]);
+    setUploading(true);
+    const { uploadDocument } = await import('@/lib/document-actions');
+    const startIdx = files.length;
+    for (let i = 0; i < arr.length; i++) {
+      setFiles(prev => prev.map((f, j) => j === startIdx + i ? { ...f, status: 'uploading' } : f));
+      const fd = new FormData();
+      fd.append('file', arr[i]);
+      fd.append('tag', 'Other');
+      fd.append('uploadedBy', 'client');
+      const res = await uploadDocument(clientId, fd);
+      setFiles(prev => prev.map((f, j) => j === startIdx + i ? { ...f, status: res.success ? 'done' : 'error', error: res.error } : f));
+    }
+    setUploading(false);
+  };
+
   return (
-    <label className="block border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-white transition" style={{ borderColor: "var(--line)" }}>
-      <input type="file" multiple className="hidden" />
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="1.5" className="mx-auto mb-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
-      <div className="text-sm font-medium">Click to upload, or drag & drop</div>
-      <div className="text-xs mt-1" style={{ color: "var(--ink-soft)" }}>PDF, DOCX, JPG, PNG · up to 25 MB each</div>
-    </label>
+    <div className="space-y-2">
+      <label
+        className="block border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-white transition"
+        style={{ borderColor: "var(--line)" }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
+      >
+        <input ref={inputRef} type="file" multiple className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.webp" onChange={(e) => handleFiles(e.target.files)} />
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="1.5" className="mx-auto mb-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        <div className="text-sm font-medium">Click to upload, or drag & drop</div>
+        <div className="text-xs mt-1" style={{ color: "var(--ink-soft)" }}>PDF, DOCX, JPG, PNG · up to 50 MB each</div>
+      </label>
+      {files.length > 0 && (
+        <ul className="space-y-1.5">
+          {files.map((f, i) => (
+            <li key={i} className="flex items-center gap-2 text-sm px-3 py-2 rounded-md border" style={{ borderColor: "var(--line)", background: "#f9fbfa" }}>
+              <span className="flex-1 truncate">{f.name}</span>
+              {f.status === 'uploading' && <svg className="animate-spin shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>}
+              {f.status === 'done' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><path d="M5 12l5 5L20 6"/></svg>}
+              {f.status === 'error' && <span className="text-xs text-red-600 shrink-0">{f.error || 'Failed'}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+      {!clientId && (
+        <p className="text-xs" style={{ color: "var(--ink-soft)" }}>Documents can be uploaded once your form is linked to your account.</p>
+      )}
+    </div>
   );
 }
 

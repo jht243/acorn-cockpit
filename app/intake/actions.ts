@@ -10,7 +10,7 @@ export async function getIntakeFormData(token: string) {
   const supabase = createServiceRoleClient()
   const { data } = await supabase
     .from('clients')
-    .select('name, email, intake_form_data, intake_submitted_at')
+    .select('id, name, email, intake_form_data, intake_submitted_at')
     .eq('intake_token', token)
     .maybeSingle()
   return data
