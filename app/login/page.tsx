@@ -1,58 +1,79 @@
-import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import { createClient } from '@/utils/supabase/server'
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { message: string }
+  searchParams: Promise<{ message?: string; next?: string }>
 }) {
+  const { message, next } = await searchParams
+
   const signIn = async (formData: FormData) => {
     'use server'
-
-    const email = formData.get('email') as string
+    const email = (formData.get('email') as string).trim().toLowerCase()
     const supabase = await createClient()
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        // set this to false if you do not want the user to be automatically signed up
         shouldCreateUser: false,
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acorn-care.com'}/auth/callback${next ? `?next=${next}` : ''}`,
       },
     })
 
     if (error) {
-      return redirect('/login?message=Could not authenticate user')
+      return redirect(`/login?message=Something went wrong — please try again`)
     }
 
-    return redirect('/login?message=Check email to continue sign in process')
+    return redirect(`/login?message=Check your email for a login link`)
   }
 
   return (
-    <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 mx-auto pt-24">
-      <form
-        className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
-        action={signIn}
-      >
-        <h1 className="text-2xl font-semibold text-center mb-6">Acorn Care</h1>
-        <label className="text-md" htmlFor="email">
-          Email
-        </label>
-        <input
-          className="rounded-md px-4 py-2 bg-inherit border mb-6"
-          name="email"
-          placeholder="you@example.com"
-          required
-        />
-        <button className="bg-green-700 text-white rounded-md px-4 py-2 text-foreground mb-2">
-          Send Magic Link
-        </button>
-        {searchParams?.message && (
-          <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
-            {searchParams.message}
-          </p>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
+      <div className="card card-pad w-full max-w-sm space-y-6">
+        {/* Logo + title */}
+        <div className="text-center space-y-2">
+          <svg width="36" height="36" viewBox="0 0 32 32" fill="none" className="mx-auto">
+            <path d="M16 6c-2 0-3 1-3 2v2h6V8c0-1-1-2-3-2z" fill="#c08a3e"/>
+            <path d="M9 12h14c0 6-3 12-7 12s-7-6-7-12z" fill="#2f7d4f"/>
+          </svg>
+          <h1 className="text-xl font-semibold tracking-tight">Acorn Care</h1>
+          <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>Sign in to your dashboard</p>
+        </div>
+
+        {message ? (
+          <div className="text-center space-y-4">
+            <div className="px-4 py-3 rounded-md text-sm font-medium"
+              style={{ background: 'var(--brand-soft)', color: 'var(--brand-dark)' }}>
+              {message}
+            </div>
+            <a href="/login" className="text-sm" style={{ color: 'var(--ink-soft)' }}>
+              ← Try a different email
+            </a>
+          </div>
+        ) : (
+          <form action={signIn} className="space-y-4">
+            <div>
+              <label className="label" htmlFor="email">Email address</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                autoFocus
+                placeholder="karli@acorn-care.com"
+                className="input mt-1"
+              />
+            </div>
+            <button type="submit" className="btn w-full justify-center">
+              Send login link →
+            </button>
+            <p className="text-xs text-center" style={{ color: 'var(--ink-soft)' }}>
+              We'll email you a secure one-time link. No password needed.
+            </p>
+          </form>
         )}
-      </form>
+      </div>
     </div>
   )
 }
