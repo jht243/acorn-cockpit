@@ -656,7 +656,7 @@ export default function Intake() {
             {step === 10 && (
               <Section title="Documents" subtitle="Upload what you have — nothing needs to be perfect right now.">
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {["I'll upload documents now", "Karli's team will request what we need"].map((o) => (
+                  {(clientId ? ["I'll upload documents now", "Karli's team will request what we need"] : ["Karli's team will request what we need"]).map((o) => (
                     <button key={o} type="button" onClick={() => update("docUploadPreference", o)}
                       className={`py-2 px-3 rounded-md border text-sm ${data.docUploadPreference === o ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-dark)] font-medium" : "border-[var(--line)] bg-white"}`}>
                       {o}
