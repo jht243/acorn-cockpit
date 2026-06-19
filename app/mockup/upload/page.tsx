@@ -32,7 +32,7 @@ export default function UploadMockup() {
           <p className="text-sm" style={{ color: "var(--ink-soft)" }}>
             Karli will review what you've uploaded and follow up if anything else is needed.
           </p>
-          <div className="text-xs mt-6" style={{ color: "var(--ink-soft)" }}>Acorn Care, LLC — Concierge Financial Coordination</div>
+          <div className="text-xs mt-6" style={{ color: "var(--ink-soft)" }}>Acorn Care, LLC</div>
         </div>
       </div>
     );
@@ -46,7 +46,6 @@ export default function UploadMockup() {
           <Logo />
           <div>
             <div className="text-sm font-semibold">Acorn Care</div>
-            <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Coordination</div>
           </div>
         </div>
         <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Secure upload · encrypted in transit</div>

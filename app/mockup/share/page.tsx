@@ -39,7 +39,6 @@ export default function ShareMockup() {
           <Logo />
           <div>
             <div className="text-sm font-semibold">Acorn Care</div>
-            <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Coordination</div>
           </div>
         </div>
         <div className="text-xs flex items-center gap-1.5" style={{ color: "var(--ink-soft)" }}>

@@ -15,7 +15,7 @@ export default function Thanks() {
           If you requested a help call, Karli will include scheduling options in her reply. No Calendly link will be sent automatically.
         </p>
         <div className="text-xs mt-4" style={{ color: "var(--ink-soft)" }}>
-          Acorn Care, LLC — Concierge Financial Coordination
+          Acorn Care, LLC
         </div>
       </div>
     </div>

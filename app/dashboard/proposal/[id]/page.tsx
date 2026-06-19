@@ -28,7 +28,7 @@ export default async function Proposal({ params }: { params: Promise<{ id: strin
               </svg>
               <div>
                 <div className="text-base font-semibold">Acorn Care, LLC</div>
-                <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Concierge Financial Coordination · Karli Vazquez-Mendez</div>
+                <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Karli Vazquez-Mendez</div>
               </div>
               <div className="ml-auto text-xs text-right" style={{ color: "var(--ink-soft)" }}>
                 Prepared for<br />

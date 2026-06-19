@@ -5,7 +5,7 @@ import CookieBanner from "../components/CookieBanner";
 
 export const metadata: Metadata = {
   title: "Acorn Care — Cockpit",
-  description: "Concierge financial coordination workspace",
+  description: "Acorn Care client workspace",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
