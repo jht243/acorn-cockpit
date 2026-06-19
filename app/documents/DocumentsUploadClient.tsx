@@ -251,7 +251,7 @@ export default function DocumentsUploadClient({
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><path d="M5 12l5 5L20 6"/></svg>
                       )}
                       {item.status === 'error' && (
-                        <span className="text-xs text-red-600" title={item.error}>Failed</span>
+                        <span className="text-xs text-red-600">{item.error || 'Upload failed'}</span>
                       )}
                     </div>
                   </li>
