@@ -15,7 +15,7 @@ export async function createTask(
     return { success: false, error: 'Title is required' }
   }
 
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { data, error } = await supabase
     .from('action_items')
     .insert({
@@ -40,7 +40,7 @@ export async function createTask(
 
 // Toggle a task between open and done (wires up the existing checkbox).
 export async function setTaskStatus(clientId: string, taskId: string, done: boolean) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { error } = await supabase
     .from('action_items')
     .update({ status: done ? 'done' : 'open', updated_at: new Date().toISOString() })
@@ -56,7 +56,7 @@ export async function setTaskStatus(clientId: string, taskId: string, done: bool
 
 // Email the client a reminder for a specific task.
 export async function sendTaskReminder(clientId: string, taskId: string) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { data: client, error: clientErr } = await supabase
     .from('clients')
     .select('id, name, email')
