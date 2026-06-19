@@ -52,6 +52,8 @@ export default function DocumentsUploadClient({
     if (queue.length === 0 || submitting) return
     setSubmitting(true)
 
+    let anySucceeded = false
+
     for (let i = 0; i < queue.length; i++) {
       setQueue((q) => q.map((f, j) => j === i ? { ...f, status: 'uploading' } : f))
 
@@ -62,6 +64,8 @@ export default function DocumentsUploadClient({
 
       const res = await uploadDocument(clientId, fd)
 
+      if (res.success) anySucceeded = true
+
       setQueue((q) => q.map((f, j) =>
         j === i
           ? { ...f, status: res.success ? 'done' : 'error', error: res.error }
@@ -69,9 +73,12 @@ export default function DocumentsUploadClient({
       ))
     }
 
-    await markUploadRequestUsed(token)
     setSubmitting(false)
-    setSubmitted(true)
+
+    if (anySucceeded) {
+      await markUploadRequestUsed(token)
+      setSubmitted(true)
+    }
   }
 
   const firstName = clientName.split(' ')[0]
