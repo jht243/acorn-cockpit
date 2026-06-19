@@ -100,7 +100,6 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                       <tr key={c.id} className="row-hover border-t" style={{ borderColor: "var(--line)" }}>
                         <td className="px-5 py-3">
                           <Link href={`/dashboard/clients/${c.id}`} className="font-medium hover:underline">{c.name}</Link>
-                          <div className="text-xs truncate max-w-[260px]" style={{ color: "var(--ink-soft)" }}>{c.family}</div>
                         </td>
                         <td className="px-5 py-3"><PlanPill plan={c.plan} /></td>
                         <td className="px-5 py-3"><span className={`pill ${s.pillClass}`} title={s.tooltip}>{s.label}</span></td>
