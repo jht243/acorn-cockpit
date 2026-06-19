@@ -61,7 +61,7 @@ export default async function LoginPage({
                 type="email"
                 required
                 autoFocus
-                placeholder="karli@acorn-care.com"
+                placeholder="your@email.com"
                 className="input mt-1"
               />
             </div>
