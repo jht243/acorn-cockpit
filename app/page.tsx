@@ -671,6 +671,10 @@ export default function Home() {
                 <a href="#" className="text-[11px] text-ivory/35 transition hover:text-ivory/70">Terms of Service</a>
                 <a href="#" className="text-[11px] text-ivory/35 transition hover:text-ivory/70">Privacy Policy</a>
               </div>
+              <p className="text-[11px] text-ivory/30">
+                Website powered by{' '}
+                <a href="https://www.layer3labs.io/" target="_blank" rel="noopener noreferrer" className="transition hover:text-ivory/60">Layer3</a>
+              </p>
             </div>
           </div>
         </div>
