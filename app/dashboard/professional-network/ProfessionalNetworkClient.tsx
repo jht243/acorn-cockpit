@@ -5,7 +5,15 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Sidebar from '@/components/Sidebar'
 import TopBar from '@/components/TopBar'
-import type { ProfessionalContact, AcceptingStatus, RelationshipStrength } from '@/types/professional-network'
+import type { ProfessionalContact, AcceptingStatus, RelationshipStrength, TagCategory } from '@/types/professional-network'
+
+const CATEGORY_PILL: Record<TagCategory, string> = {
+  profession:       'pill-blue',
+  specialty:        'pill-purple',
+  client_situation: 'pill-amber',
+  language:         'pill-teal',
+  working_style:    'pill-green',
+}
 
 const ACCEPTING_LABEL: Record<AcceptingStatus, string> = {
   unknown: 'Unknown',
@@ -294,7 +302,12 @@ function TagList({ contact }: { contact: ProfessionalContact }) {
   return (
     <div className="flex flex-wrap gap-1">
       {tags.slice(0, 3).map((ct) => (
-        <span key={ct.tag.id} className="pill pill-gray text-[10px]">{ct.tag.label}</span>
+        <span
+          key={ct.tag.id}
+          className={`pill text-[10px] ${CATEGORY_PILL[ct.tag.category as TagCategory] ?? 'pill-gray'}`}
+        >
+          {ct.tag.label}
+        </span>
       ))}
       {tags.length > 3 && (
         <span className="pill pill-gray text-[10px]">+{tags.length - 3}</span>

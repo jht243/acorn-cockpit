@@ -98,10 +98,13 @@ html, body {
   font-weight: 600;
   letter-spacing: 0.02em;
 }
-.pill-green { background: var(--brand-soft); color: var(--brand-dark); }
-.pill-amber { background: #fbeed4; color: #8a5a14; }
-.pill-red { background: #fce4df; color: #8c2818; }
-.pill-gray { background: #eef0ee; color: #4a544f; }
+.pill-green  { background: var(--brand-soft); color: var(--brand-dark); }
+.pill-amber  { background: #fbeed4; color: #8a5a14; }
+.pill-red    { background: #fce4df; color: #8c2818; }
+.pill-gray   { background: #eef0ee; color: #4a544f; }
+.pill-blue   { background: #deeeff; color: #1a4f8a; }
+.pill-purple { background: #ede8fb; color: #4b2d9e; }
+.pill-teal   { background: #d8f3ef; color: #1a6b60; }
 
 .input, .select, .textarea {
   width: 100%;

@@ -34,6 +34,18 @@ const CATEGORY_LABEL: Record<TagCategory, string> = {
   working_style: 'Working Style',
 }
 
+// Color per tag category — active (applied) state
+const CATEGORY_PILL_ACTIVE: Record<TagCategory, string> = {
+  profession:       'pill-blue',
+  specialty:        'pill-purple',
+  client_situation: 'pill-amber',
+  language:         'pill-teal',
+  working_style:    'pill-green',
+}
+
+// Inactive (available but not applied) — always soft gray so active ones pop
+const CATEGORY_PILL_INACTIVE = 'pill-gray'
+
 const CATEGORY_ORDER: TagCategory[] = ['profession', 'specialty', 'client_situation', 'language', 'working_style']
 
 export default function ContactDetailClient({
@@ -386,10 +398,10 @@ export default function ContactDetailClient({
                               disabled={loading}
                               className={`pill cursor-pointer transition-all border ${
                                 active
-                                  ? 'pill-green border-transparent'
+                                  ? `${CATEGORY_PILL_ACTIVE[cat]} border-transparent`
                                   : highlighted
                                   ? 'pill-amber border-transparent'
-                                  : 'pill-gray border-transparent hover:border-[var(--brand)] hover:text-[var(--brand)]'
+                                  : `${CATEGORY_PILL_INACTIVE} border-transparent hover:border-[var(--brand)] hover:text-[var(--brand)]`
                               } ${loading ? 'opacity-50' : ''}`}
                             >
                               {active && <span className="mr-1">✓</span>}
