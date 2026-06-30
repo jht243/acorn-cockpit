@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Sidebar from '@/components/Sidebar'
 import TopBar from '@/components/TopBar'
-import type { ProfessionalContact, AcceptingStatus, RelationshipStrength, TagCategory } from '@/types/professional-network'
+import type { ProfessionalContact, AcceptingStatus, RelationshipStrength, TagCategory, ProfessionalTag } from '@/types/professional-network'
 
 const CATEGORY_PILL: Record<TagCategory, string> = {
   profession:       'pill-blue',
@@ -43,12 +43,19 @@ const STRENGTH_PILL: Record<RelationshipStrength, string> = {
   strong: 'pill-green',
 }
 
-export default function ProfessionalNetworkClient({ initialContacts }: { initialContacts: ProfessionalContact[] }) {
+export default function ProfessionalNetworkClient({
+  initialContacts,
+  professionTags,
+}: {
+  initialContacts: ProfessionalContact[]
+  professionTags: ProfessionalTag[]
+}) {
   const router = useRouter()
   const [contacts, setContacts] = useState(initialContacts)
   const [q, setQ] = useState('')
   const [filterAccepting, setFilterAccepting] = useState('All')
   const [filterStrength, setFilterStrength] = useState('All')
+  const [filterProfession, setFilterProfession] = useState('All')
   const [showAddForm, setShowAddForm] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -81,9 +88,14 @@ export default function ProfessionalNetworkClient({ initialContacts }: { initial
     return baseList.filter((c) => {
       if (filterAccepting !== 'All' && c.accepting_status !== filterAccepting) return false
       if (filterStrength !== 'All' && c.relationship_strength !== filterStrength) return false
+      if (filterProfession !== 'All') {
+        const tags = c.professional_contact_tags ?? []
+        const hasProfession = tags.some((ct) => ct.tag.slug === filterProfession)
+        if (!hasProfession) return false
+      }
       return true
     })
-  }, [baseList, filterAccepting, filterStrength])
+  }, [baseList, filterAccepting, filterStrength, filterProfession])
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -142,6 +154,16 @@ export default function ProfessionalNetworkClient({ initialContacts }: { initial
                   </span>
                 )}
               </div>
+              <p className="w-full text-xs -mt-1" style={{ color: 'var(--ink-soft)' }}>
+                Tip: search for what the professional does, not the client situation — e.g. "medicaid miami" or "cpa broward accepting"
+              </p>
+              <FilterGroup
+                label="Profession"
+                value={filterProfession}
+                setValue={setFilterProfession}
+                options={['All', ...professionTags.map((t) => t.slug)]}
+                labelMap={Object.fromEntries(professionTags.map((t) => [t.slug, t.label]))}
+              />
               <FilterGroup
                 label="Accepting"
                 value={filterAccepting}

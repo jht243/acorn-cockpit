@@ -1,5 +1,11 @@
 import { createServiceRoleClient } from '@/utils/supabase/service'
 
+// Full state names so "florida" matches contacts stored as "FL"
+const STATE_NAMES: Record<string, string> = {
+  FL: 'Florida', GA: 'Georgia', NY: 'New York', CA: 'California',
+  TX: 'Texas', NC: 'North Carolina', SC: 'South Carolina', VA: 'Virginia',
+}
+
 // Rebuilds the search document for a contact after any write to the contact,
 // its notes, its tags, or its sub-contacts.
 // Client-specific facts (client_intro_log) are never included here.
@@ -28,6 +34,7 @@ export async function refreshSearchDoc(contactId: string): Promise<void> {
     contact.city,
     contact.region,
     contact.state_province,
+    STATE_NAMES[contact.state_province ?? ''] ?? null, // "FL" → also index "Florida"
     ...(contact.sub_contacts ?? []).map((sc: any) => sc.full_name),
     ...(contact.professional_contact_notes ?? [])
       .filter((n: any) => n.include_in_search && !n.deleted_at)
