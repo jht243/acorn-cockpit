@@ -1,5 +1,5 @@
 import { createServiceRoleClient } from './service'
-import type { ProfessionalContact } from '@/types/professional-network'
+import type { ProfessionalContact, ProfessionalTag } from '@/types/professional-network'
 
 export async function getProfessionalContacts(): Promise<ProfessionalContact[]> {
   const db = createServiceRoleClient()
@@ -12,6 +12,19 @@ export async function getProfessionalContacts(): Promise<ProfessionalContact[]> 
 
   if (error) { console.error('getProfessionalContacts:', error); return [] }
   return data as ProfessionalContact[]
+}
+
+export async function getAllTags(): Promise<ProfessionalTag[]> {
+  const db = createServiceRoleClient()
+  const { data, error } = await db
+    .from('professional_tags')
+    .select('*')
+    .is('archived_at', null)
+    .order('category')
+    .order('label')
+
+  if (error) { console.error('getAllTags:', error); return [] }
+  return data as ProfessionalTag[]
 }
 
 export async function getProfessionalContactById(id: string): Promise<ProfessionalContact | null> {

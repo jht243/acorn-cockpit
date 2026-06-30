@@ -22,7 +22,7 @@ const ACCEPTING_PILL: Record<AcceptingStatus, string> = {
 }
 
 const STRENGTH_LABEL: Record<RelationshipStrength, string> = {
-  unknown: '—',
+  unknown: 'Unknown',
   cold: 'Cold',
   warm: 'Warm',
   strong: 'Strong',
@@ -169,7 +169,7 @@ export default function ProfessionalNetworkClient({ initialContacts }: { initial
                         )}
                       </td>
                       <td className="px-5 py-3 text-sm" style={{ color: 'var(--ink-soft)' }}>
-                        {[c.city, c.region, c.state_province].filter(Boolean).join(', ') || '—'}
+                        {[c.city, c.region].filter(Boolean).join(', ') || '—'}
                       </td>
                       <td className="px-5 py-3">
                         <span className={`pill ${ACCEPTING_PILL[c.accepting_status]}`}>
