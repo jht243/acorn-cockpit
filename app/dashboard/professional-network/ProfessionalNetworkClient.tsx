@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Sidebar from '@/components/Sidebar'
@@ -44,23 +44,38 @@ export default function ProfessionalNetworkClient({ initialContacts }: { initial
   const [showAddForm, setShowAddForm] = useState(false)
   const [saving, setSaving] = useState(false)
 
+  // Server-side search state
+  const [searchResults, setSearchResults] = useState<ProfessionalContact[] | null>(null)
+  const [searching, setSearching] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (!q.trim()) { setSearchResults(null); return }
+
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const res = await fetch(`/api/professional-network/search?q=${encodeURIComponent(q.trim())}`)
+        if (res.ok) setSearchResults(await res.json())
+      } finally {
+        setSearching(false)
+      }
+    }, 300)
+
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [q])
+
+  // Base list: ranked search results when searching, full list otherwise
+  const baseList = searchResults ?? contacts
+
   const rows = useMemo(() => {
-    return contacts.filter((c) => {
+    return baseList.filter((c) => {
       if (filterAccepting !== 'All' && c.accepting_status !== filterAccepting) return false
       if (filterStrength !== 'All' && c.relationship_strength !== filterStrength) return false
-      if (q) {
-        const search = q.toLowerCase()
-        const hit =
-          c.full_name.toLowerCase().includes(search) ||
-          (c.firm_name ?? '').toLowerCase().includes(search) ||
-          (c.title ?? '').toLowerCase().includes(search) ||
-          (c.city ?? '').toLowerCase().includes(search) ||
-          (c.region ?? '').toLowerCase().includes(search)
-        if (!hit) return false
-      }
       return true
     })
-  }, [contacts, q, filterAccepting, filterStrength])
+  }, [baseList, filterAccepting, filterStrength])
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -106,12 +121,19 @@ export default function ProfessionalNetworkClient({ initialContacts }: { initial
 
             {/* Filters bar */}
             <div className="col-span-12 card card-pad flex flex-wrap items-center gap-3">
-              <input
-                className="input flex-1 min-w-[220px]"
-                placeholder="Search by name, firm, location…"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-              />
+              <div className="relative flex-1 min-w-[220px]">
+                <input
+                  className="input w-full"
+                  placeholder="Search by name, firm, specialty, location…"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                />
+                {searching && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--ink-soft)' }}>
+                    Searching…
+                  </span>
+                )}
+              </div>
               <FilterGroup
                 label="Accepting"
                 value={filterAccepting}
@@ -127,7 +149,10 @@ export default function ProfessionalNetworkClient({ initialContacts }: { initial
                 labelMap={STRENGTH_LABEL}
               />
               <div className="text-xs ml-auto" style={{ color: 'var(--ink-soft)' }}>
-                Showing <span className="font-semibold text-[var(--ink)]">{rows.length}</span> of {contacts.length}
+                {searchResults
+                  ? <><span className="font-semibold text-[var(--ink)]">{rows.length}</span> result{rows.length !== 1 ? 's' : ''} for "{q}"</>
+                  : <>Showing <span className="font-semibold text-[var(--ink)]">{rows.length}</span> of {contacts.length}</>
+                }
               </div>
               <button
                 className="btn-primary text-sm px-4 py-1.5"
@@ -191,6 +216,8 @@ export default function ProfessionalNetworkClient({ initialContacts }: { initial
                       <td colSpan={5} className="px-5 py-10 text-center text-sm" style={{ color: 'var(--ink-soft)' }}>
                         {contacts.length === 0
                           ? 'No contacts yet. Add your first contact to get started.'
+                          : searchResults
+                          ? `No contacts found for "${q}".`
                           : 'No contacts match these filters.'}
                       </td>
                     </tr>
