@@ -51,10 +51,15 @@ export default function ContactDetailClient({
   const [archiving, setArchiving] = useState(false)
 
   // Tags state
+  const [allTagsList, setAllTagsList] = useState<ProfessionalTag[]>(allTags)
   const [contactTagIds, setContactTagIds] = useState<Set<string>>(
     new Set((initial.professional_contact_tags ?? []).map((ct) => ct.tag.id))
   )
   const [tagSaving, setTagSaving] = useState<string | null>(null)
+  // Per-category new-tag inputs
+  const [newTagInput, setNewTagInput] = useState<Partial<Record<TagCategory, string>>>({})
+  const [newTagError, setNewTagError] = useState<Partial<Record<TagCategory, string>>>({})
+  const [newTagSaving, setNewTagSaving] = useState<TagCategory | null>(null)
 
   // Notes state
   const [notes, setNotes] = useState((initial.professional_contact_notes ?? []).filter((n) => !n.deleted_at))
@@ -195,9 +200,46 @@ export default function ContactDetailClient({
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
+  async function handleCreateTag(category: TagCategory) {
+    const label = (newTagInput[category] ?? '').trim()
+    if (!label) return
+    setNewTagSaving(category)
+    setNewTagError((prev) => ({ ...prev, [category]: undefined }))
+    try {
+      const res = await fetch('/api/professional-network/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label, category }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        // 409 = duplicate slug — highlight the existing tag instead
+        setNewTagError((prev) => ({ ...prev, [category]: data.error }))
+        return
+      }
+      // Add to the full tag list and immediately apply to this contact
+      setAllTagsList((prev) => [...prev, data])
+      setNewTagInput((prev) => ({ ...prev, [category]: '' }))
+      // Auto-apply the new tag to this contact
+      const applyRes = await fetch(`/api/professional-network/contacts/${contact.id}/tags`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tag_id: data.id }),
+      })
+      if (applyRes.ok) {
+        setContactTagIds((prev) => new Set([...prev, data.id]))
+      }
+    } catch (err) {
+      setNewTagError((prev) => ({ ...prev, [category]: 'Failed to create tag' }))
+      console.error(err)
+    } finally {
+      setNewTagSaving(null)
+    }
+  }
+
   // Group all tags by category for the picker
   const tagsByCategory = CATEGORY_ORDER.reduce((acc, cat) => {
-    acc[cat] = allTags.filter((t) => t.category === cat)
+    acc[cat] = allTagsList.filter((t) => t.category === cat)
     return acc
   }, {} as Record<TagCategory, ProfessionalTag[]>)
 
@@ -316,16 +358,27 @@ export default function ContactDetailClient({
               <div className="px-5 py-4 flex flex-col gap-4">
                 {CATEGORY_ORDER.map((cat) => {
                   const tags = tagsByCategory[cat]
-                  if (!tags.length) return null
+                  const input = newTagInput[cat] ?? ''
+                  const error = newTagError[cat]
+                  const saving = newTagSaving === cat
+
+                  // Tags matching what she's typing (for live duplicate hint)
+                  const matches = input.length >= 2
+                    ? tags.filter((t) => t.label.toLowerCase().includes(input.toLowerCase()))
+                    : []
+
                   return (
                     <div key={cat}>
                       <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--ink-soft)' }}>
                         {CATEGORY_LABEL[cat]}
                       </div>
-                      <div className="flex flex-wrap gap-2">
+
+                      {/* Existing tags */}
+                      <div className="flex flex-wrap gap-2 mb-3">
                         {tags.map((tag) => {
                           const active = contactTagIds.has(tag.id)
                           const loading = tagSaving === tag.id
+                          const highlighted = matches.some((m) => m.id === tag.id)
                           return (
                             <button
                               key={tag.id}
@@ -334,6 +387,8 @@ export default function ContactDetailClient({
                               className={`pill cursor-pointer transition-all border ${
                                 active
                                   ? 'pill-green border-transparent'
+                                  : highlighted
+                                  ? 'pill-amber border-transparent'
                                   : 'pill-gray border-transparent hover:border-[var(--brand)] hover:text-[var(--brand)]'
                               } ${loading ? 'opacity-50' : ''}`}
                             >
@@ -343,6 +398,40 @@ export default function ContactDetailClient({
                           )
                         })}
                       </div>
+
+                      {/* New tag input */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          className="input text-sm py-1 flex-1 max-w-[220px]"
+                          placeholder={`+ New ${CATEGORY_LABEL[cat].toLowerCase()} tag…`}
+                          value={input}
+                          onChange={(e) => {
+                            setNewTagInput((prev) => ({ ...prev, [cat]: e.target.value }))
+                            setNewTagError((prev) => ({ ...prev, [cat]: undefined }))
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') { e.preventDefault(); handleCreateTag(cat) }
+                          }}
+                          disabled={saving}
+                        />
+                        {input.trim() && (
+                          <button
+                            className="btn-primary text-xs px-3 py-1"
+                            onClick={() => handleCreateTag(cat)}
+                            disabled={saving}
+                          >
+                            {saving ? '…' : 'Add'}
+                          </button>
+                        )}
+                      </div>
+                      {matches.length > 0 && input.length >= 2 && (
+                        <p className="text-xs mt-1" style={{ color: 'var(--ink-soft)' }}>
+                          Similar tag{matches.length > 1 ? 's' : ''} already exist{matches.length === 1 ? 's' : ''} — highlighted above. Click to apply instead.
+                        </p>
+                      )}
+                      {error && (
+                        <p className="text-xs mt-1 text-red-600">{error}</p>
+                      )}
                     </div>
                   )
                 })}
