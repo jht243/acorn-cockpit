@@ -209,11 +209,14 @@ export default function ProfessionalNetworkClient({
                 </thead>
                 <tbody>
                   {rows.map((c) => (
-                    <tr key={c.id} className="row-hover border-t" style={{ borderColor: 'var(--line)' }}>
+                    <tr
+                      key={c.id}
+                      className="row-hover border-t cursor-pointer"
+                      style={{ borderColor: 'var(--line)' }}
+                      onClick={() => router.push(`/dashboard/professional-network/${c.id}`)}
+                    >
                       <td className="px-5 py-3">
-                        <Link href={`/dashboard/professional-network/${c.id}`} className="font-medium hover:underline">
-                          {c.full_name}
-                        </Link>
+                        <span className="font-medium">{c.full_name}</span>
                         {c.do_not_refer && (
                           <span className="ml-2 pill pill-red text-[10px]">Do Not Refer</span>
                         )}
