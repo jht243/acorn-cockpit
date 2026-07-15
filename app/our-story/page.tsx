@@ -181,17 +181,15 @@ export default function OurStory() {
         {/* ── SECTION 3: CREDIBILITY ── */}
         <section className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
-            <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-24">
-              <div>
-                <span className="inline-flex items-center gap-3 text-[10.5px] font-medium uppercase tracking-[0.28em] text-gold">
-                  <span className="h-px w-6 bg-current opacity-60" />
-                  The background
-                </span>
-                <h2 className="mt-6 font-serif text-3xl leading-[1.08] text-charcoal sm:text-[2.4rem] lg:text-[3rem]">
-                  20 years inside the financial system.
-                </h2>
-              </div>
-              <p className="text-base leading-relaxed text-charcoal/65 sm:text-lg lg:pt-3">
+            <div className="mb-16 text-center">
+              <span className="inline-flex items-center gap-3 text-[10.5px] font-medium uppercase tracking-[0.28em] text-gold">
+                <span className="h-px w-6 bg-current opacity-60" />
+                The background
+              </span>
+              <h2 className="mt-6 font-serif text-3xl leading-[1.08] text-charcoal sm:text-[2.4rem] lg:text-[3rem]">
+                20 years inside the financial system.
+              </h2>
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-charcoal/65 sm:text-lg">
                 Karli spent two decades navigating the complexities of wealth management, capital markets, and lending. Because she knows exactly how these systems work, she knows exactly how to coordinate them.
               </p>
             </div>
