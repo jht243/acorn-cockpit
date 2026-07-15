@@ -24,7 +24,7 @@ const CREDENTIALS = [
   {
     n: "03",
     title: "The Realization",
-    body: "She left traditional wealth management to build Acorn Care because she realized families didn't just need another advisor — they needed an organizer.",
+    body: "She left traditional wealth management to build Acorn Care because she realized families didn't just need another advocate — they needed an organizer.",
   },
 ];
 

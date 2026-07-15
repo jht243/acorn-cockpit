@@ -44,7 +44,7 @@ export default async function LoginPage({
             <path d="M9 12h14c0 6-3 12-7 12s-7-6-7-12z" fill="#2f7d4f"/>
           </svg>
           <h1 className="text-xl font-semibold tracking-tight">Acorn Care</h1>
-          <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>Sign in to your dashboard</p>
+          <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>Sign in to your Life Command Center</p>
         </div>
 
         {message ? (

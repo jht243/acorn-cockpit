@@ -194,10 +194,12 @@ export default function Home() {
               {/* Left — heading + description + CTA */}
               <div className="home-reveal">
                 <div className="h-px w-20 bg-gradient-to-r from-gold/90 via-gold to-gold/50" />
-                <h1 className="mt-10 font-serif text-[2.6rem] leading-[1.04] text-ivory sm:text-[3.6rem] lg:text-[4.5rem]">
-                  Your family&apos;s full financial picture.
-                  <br className="hidden sm:block" />
-                  <span className="text-ivory/70"> Organized and ready before you need it.</span>
+                <p className="mt-6 inline-flex items-center gap-3 text-[10.5px] font-medium uppercase tracking-[0.28em] text-gold">
+                  Aggregate, organize, and implement
+                </p>
+                <h1 className="mt-6 font-serif text-[2.6rem] leading-[1.04] text-ivory sm:text-[3.6rem] lg:text-[4.5rem]">
+                  Your family&apos;s full financial picture.{" "}
+                  <span className="text-ivory/70">Organized and ready before you need it.</span>
                 </h1>
                 <div className="mt-10 border-t border-ivory/15 pt-10">
                   <p className="max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
@@ -223,41 +225,56 @@ export default function Home() {
         {/* SECTION 2 — PAIN POINTS */}
         <section className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
-            <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-24">
-              <div>
-                <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-charcoal sm:text-[2.6rem] lg:text-[3.25rem]">
-                  When life gets complicated,
-                  <br />
-                  the paperwork does too.
-                </h2>
-              </div>
-              <p className="text-base leading-relaxed text-charcoal/65 sm:text-lg lg:pt-3">
+            <div className="home-reveal mb-16 text-center">
+              <h2 className="font-serif text-3xl leading-[1.08] text-charcoal sm:text-[2.6rem] lg:text-[3.25rem]">
+                When life gets complicated, the paperwork does too.
+              </h2>
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-charcoal/65 sm:text-lg">
                 At the exact moment families need clarity most, they&apos;re handed a pile of paperwork and a list of people to call. The work is real. The coordination is exhausting. And it almost always falls to one person.
               </p>
             </div>
 
-            <div className="home-reveal mt-20 grid gap-x-16 gap-y-12 sm:grid-cols-2">
+            <ol className="home-reveal mt-20 divide-y divide-charcoal/10 border-y border-charcoal/10">
               {PROBLEMS.map(([lead, tail], i) => (
-                <div key={lead} className={i % 2 === 1 ? "sm:mt-12" : undefined}>
-                  <div className="font-serif text-xs text-gold">{String(i + 1).padStart(2, "0")}</div>
-                  <p className="mt-3 font-serif text-xl leading-snug text-charcoal sm:text-2xl">{lead}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-charcoal/55 sm:text-base">{tail}</p>
-                </div>
+                <li key={lead} className="grid gap-6 py-10 sm:grid-cols-[6rem_1fr_2fr] sm:gap-12 sm:py-12">
+                  <div className="font-serif text-3xl text-gold sm:text-4xl">{String(i + 1).padStart(2, "0")}</div>
+                  <p className="font-serif text-xl leading-snug text-charcoal sm:text-2xl">{lead}</p>
+                  <p className="text-base leading-relaxed text-charcoal/55">{tail}</p>
+                </li>
               ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* SECTION 2b — SEASONS OF LIFE */}
+        <section className="border-t border-charcoal/10 bg-cream text-charcoal">
+          <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
+            <div className="home-reveal mb-16 text-center">
+              <h2 className="font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.6rem] lg:text-[3.25rem]">
+                Seasons of life when families find us.
+              </h2>
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-charcoal/65 sm:text-lg">
+                There is rarely a perfect moment to get organized. Most families come to us during a transition — and that&apos;s exactly when we&apos;re built to help.
+              </p>
             </div>
+            <ul className="home-reveal mt-16 flex flex-wrap justify-center gap-3">
+              {WHO.map((item) => (
+                <li key={item} className="rounded-full border border-charcoal/20 bg-ivory px-5 py-2.5 text-sm leading-snug text-charcoal/75">
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
         {/* SECTION 3 — WHAT WE ORGANIZE */}
         <section id="organize" className="bg-ivory text-charcoal">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
-            <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-24">
-              <div>
-                <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.6rem] lg:text-[3.25rem]">
-                  Nothing important should fall through the cracks between people, professionals, or seasons of life.
-                </h2>
-              </div>
-              <p className="text-base leading-relaxed text-charcoal/65 sm:text-lg lg:pt-3">
+            <div className="home-reveal mb-16 text-center">
+              <h2 className="font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.6rem] lg:text-[3.25rem]">
+                Nothing important should fall through the cracks.
+              </h2>
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-charcoal/65 sm:text-lg">
                 Acorn assembles a single, clear record of everything your family has — and everything it&apos;s missing. The decisions stay with your professionals. The organization, the gaps, and the follow-through stay with us.
               </p>
             </div>
@@ -279,8 +296,8 @@ export default function Home() {
         {/* SECTION 4 — PROCESS */}
         <section id="process" className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
-            <div className="home-reveal max-w-3xl">
-              <h2 className="mt-8 font-serif text-3xl leading-[1.08] sm:text-[2.6rem] lg:text-[3.25rem]">
+            <div className="home-reveal mb-4 text-center">
+              <h2 className="font-serif text-3xl leading-[1.08] sm:text-[2.6rem] lg:text-[3.25rem]">
                 From scattered to sorted.
               </h2>
             </div>
@@ -457,7 +474,7 @@ export default function Home() {
                 Built by someone who has lived the caregiving maze.
               </h2>
               <p className="mt-8 max-w-xl text-base leading-relaxed text-charcoal/70 sm:text-lg">
-                Karli Vazquez-Mendez spent over twenty years inside the financial system — at Merrill Lynch, Citi Private Bank, Morgan Stanley, and Flagstar Bank — watching families get lost in the gaps between professionals, paperwork, and plans that didn&apos;t talk to each other. She built Acorn Care because she knew what was missing: not another advisor, but someone whose only job is to see the whole picture and make sure nothing falls through the cracks.
+                Karli Vazquez-Mendez spent over twenty years inside the financial system — at Merrill Lynch, Citi Private Bank, Morgan Stanley, and First Republic Bank — watching families get lost in the gaps between professionals, paperwork, and plans that didn&apos;t talk to each other. She built Acorn Care because she knew what was missing: not another advocate, but someone whose only job is to see the whole picture and make sure nothing falls through the cracks.
               </p>
               <div className="mt-10 flex items-center gap-4">
                 <div className="h-px w-12 bg-acorn/50" />
@@ -484,14 +501,12 @@ export default function Home() {
         <section className="border-t border-ivory/10 bg-espresso-deep text-ivory">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
 
-            <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-24">
-              <div>
-                <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-ivory sm:text-[2.4rem] lg:text-[3rem]">
-                  What families are saying.
-                </h2>
-              </div>
-              <p className="text-base leading-relaxed text-ivory/55 sm:text-lg lg:pt-3">
-                Every family's situation is different. These are a few of the moments we've been trusted to help navigate.
+            <div className="home-reveal mb-16 text-center">
+              <h2 className="font-serif text-3xl leading-[1.08] text-ivory sm:text-[2.4rem] lg:text-[3rem]">
+                What families are saying.
+              </h2>
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-ivory/55 sm:text-lg">
+                Every family&apos;s situation is different. These are a few of the moments we&apos;ve been trusted to help navigate.
               </p>
             </div>
 
@@ -503,7 +518,7 @@ export default function Home() {
                   role: "Family Financial Coordination",
                 },
                 {
-                  quote: "Karli is the rare advisor who truly listens. She helped me clarify my long-term goals and created a financial plan that felt both strategic and deeply personal. Her attention to detail and ability to simplify complex concepts made the entire process empowering.",
+                  quote: "Karli is the rare advisor who truly listens. She helped me clarify my long-term goals and created a plan that felt both strategic and deeply personal. Her attention to detail and ability to simplify complex concepts made the entire process empowering.",
                   name: "— Rachel Stevens",
                   role: "Long-Term Wealth Organization",
                 },
@@ -534,17 +549,16 @@ export default function Home() {
         {/* SECTION 10 — FAQ */}
         <section className="border-t border-charcoal/10">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
-            <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-24">
-              <div>
-                <h2 className="mt-8 font-serif text-3xl leading-[1.08] sm:text-[2.4rem] lg:text-[3rem]">
-                  What families want to know before we begin.
-                </h2>
-                <p className="mt-8 max-w-sm text-base leading-relaxed text-charcoal/60">
-                  A short, honest overview of how Acorn engages, what we do, and what remains with your licensed
-                  professionals.
-                </p>
-              </div>
+            <div className="home-reveal mb-16 text-center">
+              <h2 className="font-serif text-3xl leading-[1.08] sm:text-[2.4rem] lg:text-[3rem]">
+                What families want to know before we begin.
+              </h2>
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-charcoal/60">
+                A short, honest overview of how Acorn engages, what we do, and what remains with your licensed professionals.
+              </p>
+            </div>
 
+            <div className="home-reveal">
               <div className="divide-y divide-charcoal/10 border-y border-charcoal/10">
                 {FAQS.map((faq, i) => (
                   <details key={faq.q} className="group py-7" open={i === 0}>
@@ -568,13 +582,11 @@ export default function Home() {
         {/* SECTION 11 — PACKAGES */}
         <section id="packages" className="bg-ivory text-charcoal">
           <div className="mx-auto max-w-[78rem] px-6 py-28 lg:px-10 lg:py-36">
-            <div className="home-reveal grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-24">
-              <div>
-                <h2 className="mt-8 font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.4rem] lg:text-[3rem]">
-                  Choose the level of support your family needs.
-                </h2>
-              </div>
-              <p className="text-base leading-relaxed text-charcoal/65 sm:text-lg lg:pt-3">
+            <div className="home-reveal mb-16 text-center">
+              <h2 className="font-serif text-3xl leading-[1.08] text-espresso-deep sm:text-[2.4rem] lg:text-[3rem]">
+                Choose the level of support your family needs.
+              </h2>
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-charcoal/65 sm:text-lg">
                 Every engagement begins with a private consultation. Pricing is shared after we understand your situation — most families are surprised by how accessible this is. No obligation to continue.
               </p>
             </div>
