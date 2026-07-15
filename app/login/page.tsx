@@ -16,7 +16,7 @@ export default async function LoginPage({
     // Check dashboard password before sending magic link
     const dashboardPassword = process.env.DASHBOARD_PASSWORD
     if (!dashboardPassword || password !== dashboardPassword) {
-      return redirect('/login?message=Incorrect password')
+      return redirect('/login?message=' + encodeURIComponent('Incorrect password'))
     }
 
     const supabase = await createClient()
@@ -29,10 +29,10 @@ export default async function LoginPage({
     })
 
     if (error) {
-      return redirect('/login?message=Something went wrong — please try again')
+      return redirect('/login?message=' + encodeURIComponent('Something went wrong — please try again'))
     }
 
-    return redirect('/login?message=Check your email for a login link')
+    return redirect('/login?message=' + encodeURIComponent('Check your email for a login link'))
   }
 
   return (
