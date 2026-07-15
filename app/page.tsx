@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PainPointsSlider from "../components/PainPointsSlider";
 import ContactForm from "../components/ContactForm";
-import HeroAnimation from "../components/HeroAnimation";
+import HeroCards from "../components/HeroCards";
 import MobileNav from "../components/MobileNav";
 
 export const metadata: Metadata = {
@@ -194,16 +194,15 @@ export default function Home() {
               {/* Left — heading + description + CTA */}
               <div className="home-reveal">
                 <div className="h-px w-20 bg-gradient-to-r from-gold/90 via-gold to-gold/50" />
-                <p className="mt-6 inline-flex items-center gap-3 text-[10.5px] font-medium uppercase tracking-[0.28em] text-gold">
-                  Aggregate, organize, and implement
-                </p>
-                <h1 className="mt-6 font-serif text-[2.6rem] leading-[1.04] text-ivory sm:text-[3.6rem] lg:text-[4.5rem]">
-                  Your family&apos;s full financial picture.{" "}
-                  <span className="text-ivory/70">Organized and ready before you need it.</span>
+                <h1 className="mt-10 font-serif text-[2.6rem] leading-[1.04] text-ivory sm:text-[3.6rem] lg:text-[4.5rem]">
+                  Aggregate. Organize. Implement.
                 </h1>
+                <p className="mt-5 text-lg font-medium tracking-wide text-ivory/70 sm:text-xl">
+                  Your family&apos;s Life Operating System.
+                </p>
                 <div className="mt-10 border-t border-ivory/15 pt-10">
                   <p className="max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
-                    Acorn Care organizes what your family has, finds what&apos;s missing, and makes sure the right professionals have what they need — so nothing falls through the cracks when it matters most.
+                    Acorn Care organizes what your family has, finds what&apos;s missing, and makes sure the right professionals have what they need.
                   </p>
                   <div className="mt-8">
                     <PrimaryButton>Schedule a Consultation</PrimaryButton>
@@ -211,9 +210,9 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right — Lottie animation */}
-              <div className="home-reveal flex items-center justify-center py-4 lg:py-8">
-                <HeroAnimation />
+              {/* Right — Card stack */}
+              <div className="home-reveal">
+                <HeroCards />
               </div>
 
             </div>
