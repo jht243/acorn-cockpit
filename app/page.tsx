@@ -680,7 +680,7 @@ export default function Home() {
               <p className="text-xs text-ivory/45">© {new Date().getFullYear()} Acorn Care LLC. All rights reserved.</p>
               <div className="flex items-center gap-4">
                 <a href="#" className="text-[11px] text-ivory/35 transition hover:text-ivory/70">Terms of Service</a>
-                <a href="#" className="text-[11px] text-ivory/35 transition hover:text-ivory/70">Privacy Policy</a>
+                <Link href="/privacy" className="text-[11px] text-ivory/35 transition hover:text-ivory/70">Privacy Policy</Link>
               </div>
               <p className="text-[11px] text-ivory/30">
                 Website powered by{' '}
