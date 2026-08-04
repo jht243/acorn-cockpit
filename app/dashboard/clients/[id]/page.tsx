@@ -12,6 +12,8 @@ import ClientReminders from "../../../../components/ClientReminders";
 import DocumentUploadButton from "../../../../components/DocumentUploadButton";
 import ViewDocumentButton from "../../../../components/ViewDocumentButton";
 import RequestDocumentsButton from "../../../../components/RequestDocumentsButton";
+import NetWorthCard from "../../../../components/NetWorthCard";
+import MoreInfoCard from "../../../../components/MoreInfoCard";
 import { getClientById } from "../../../../utils/supabase/queries";
 import { intakeProgress, intakeProgressPillClass } from "../../../../lib/intake-progress";
 import { deriveClientStatus } from "../../../../lib/client-status";
@@ -101,6 +103,9 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                 </div>
               </div>
             </div>
+
+            {/* ── Net worth (assets + liabilities breakdown) ── */}
+            <NetWorthCard assets={client.assets || []} liabilities={client.liabilities || []} />
 
             {/* ── Goals (top, editable) ── */}
             <div className="col-span-12 lg:col-span-7 card">
@@ -317,6 +322,15 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
               </div>
               <ClientReminders clientId={client.id} initialReminders={client.reminders || []} />
             </div>
+
+            {/* ── More info (collapsed by default — additive, doesn't affect existing UX) ── */}
+            <MoreInfoCard
+              insurance={client.insurance_policies || []}
+              estate={client.estate_documents || []}
+              beneficiaries={client.beneficiaries || []}
+              household={client.household_members || []}
+              assets={client.assets || []}
+            />
 
           </div>
         </main>

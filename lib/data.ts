@@ -1,4 +1,5 @@
-export type Asset = { label: string; value: number; category: "Cash" | "Taxable" | "Qualified" | "Roth" | "Real Estate" | "Business"; source?: "Plaid" | "Manual" };
+export type AssetCategory = "Cash" | "Taxable" | "Qualified" | "Roth" | "Real Estate" | "Business" | "Education";
+export type Asset = { label: string; value: number; category: AssetCategory; source?: "Plaid" | "Manual" };
 export type Liability = { label: string; balance: number; rate?: number; source?: "Plaid" | "Manual" };
 export type ActionItem = { id: string; title: string; due?: string; status: "open" | "in_progress" | "done"; owner: "Karli" | "Client"; sourceMeeting?: string };
 export type ProTeam = { role: string; name: string; firm?: string; email?: string; phone?: string };
@@ -303,4 +304,44 @@ export function assetsByCategory(c: Client) {
     value,
     pct: total ? (value / total) * 100 : 0,
   }));
+}
+
+// Display metadata for asset categories — drives the net-worth breakdown ordering,
+// colors, and labels. Keep in sync with the AssetCategory union above.
+export const ASSET_CATEGORY_META: Record<AssetCategory, { label: string; color: string }> = {
+  "Cash": { label: "Cash", color: "#2f7d4f" },
+  "Taxable": { label: "Taxable", color: "#3b7dd8" },
+  "Qualified": { label: "Qualified", color: "#8257c9" },
+  "Roth": { label: "Roth", color: "#d1568f" },
+  "Real Estate": { label: "Real Estate", color: "#e0982f" },
+  "Business": { label: "Business", color: "#2fa39a" },
+  "Education": { label: "Education (529 / prepaid)", color: "#6366f1" },
+};
+
+export const ASSET_CATEGORY_ORDER: AssetCategory[] = [
+  "Cash", "Taxable", "Qualified", "Roth", "Real Estate", "Business", "Education",
+];
+
+// Group a raw list of asset rows ({ value, category }) into an ordered, colored
+// breakdown for the net-worth view. Unknown categories are tolerated (fall to the end).
+export function assetBreakdown(assets: { value: number | string; category: string }[]) {
+  const map = new Map<string, number>();
+  for (const a of assets) {
+    const v = typeof a.value === "string" ? parseFloat(a.value) || 0 : a.value;
+    map.set(a.category, (map.get(a.category) ?? 0) + v);
+  }
+  const total = Array.from(map.values()).reduce((s, x) => s + x, 0);
+  const rank = (cat: string) => {
+    const i = ASSET_CATEGORY_ORDER.indexOf(cat as AssetCategory);
+    return i === -1 ? ASSET_CATEGORY_ORDER.length : i;
+  };
+  return Array.from(map.entries())
+    .map(([category, value]) => ({
+      category,
+      label: ASSET_CATEGORY_META[category as AssetCategory]?.label ?? category,
+      color: ASSET_CATEGORY_META[category as AssetCategory]?.color ?? "#94a3b8",
+      value,
+      pct: total ? (value / total) * 100 : 0,
+    }))
+    .sort((a, b) => rank(a.category) - rank(b.category) || b.value - a.value);
 }
