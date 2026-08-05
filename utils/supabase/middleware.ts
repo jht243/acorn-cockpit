@@ -25,5 +25,14 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Enforce MFA: if the user has TOTP enrolled, require aal2
+  if (user) {
+    const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    if (aalData && aalData.nextLevel === 'aal2' && aalData.currentLevel !== 'aal2') {
+      // Session exists but MFA not completed — treat as unauthenticated
+      return { user: null, response: supabaseResponse }
+    }
+  }
+
   return { user, response: supabaseResponse }
 }

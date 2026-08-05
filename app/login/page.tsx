@@ -1,38 +1,130 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+'use client'
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ message?: string; next?: string }>
-}) {
-  const { message, next } = await searchParams
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 
-  const signIn = async (formData: FormData) => {
-    'use server'
-    const email = (formData.get('email') as string).trim().toLowerCase()
-    const password = formData.get('password') as string
+type Step = 'credentials' | 'mfa-verify' | 'mfa-enroll'
 
-    // Check dashboard password before sending magic link
-    const dashboardPassword = process.env.DASHBOARD_PASSWORD
-    if (!dashboardPassword || password !== dashboardPassword) {
-      return redirect('/login?message=' + encodeURIComponent('Incorrect password'))
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  )
+}
+
+function LoginForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next') ?? '/dashboard'
+
+  const [step, setStep] = useState<Step>('credentials')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  // Credentials
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  // MFA
+  const [totpCode, setTotpCode] = useState('')
+  const [factorId, setFactorId] = useState('')
+  const [qrCode, setQrCode] = useState('')
+
+  const supabase = createClient()
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    try {
+      // Sign in with email + password via Supabase
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      })
+
+      if (signInError) {
+        setError(signInError.message)
+        setLoading(false)
+        return
+      }
+
+      // Step 3: Check MFA status
+      const { data: aalData, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      if (aalError) {
+        setError(aalError.message)
+        setLoading(false)
+        return
+      }
+
+      if (aalData.nextLevel === 'aal2' && aalData.currentLevel === 'aal1') {
+        // User has MFA enrolled — prompt for code
+        const factors = aalData.currentAuthenticationMethods
+        const totpFactor = (await supabase.auth.mfa.listFactors()).data?.totp?.[0]
+        if (totpFactor) {
+          setFactorId(totpFactor.id)
+          setStep('mfa-verify')
+        } else {
+          // No factor enrolled yet — send to enrollment
+          await startEnrollment()
+        }
+      } else if (aalData.nextLevel === 'aal1' && aalData.currentLevel === 'aal1') {
+        // No MFA enrolled — send to enrollment
+        await startEnrollment()
+      } else {
+        // Already aal2 or no MFA needed
+        router.push(next)
+      }
+    } finally {
+      setLoading(false)
     }
+  }
 
-    const supabase = await createClient()
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: false,
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acorn-care.com'}/auth/callback${next ? `?next=${next}` : ''}`,
-      },
+  async function startEnrollment() {
+    const { data, error: enrollError } = await supabase.auth.mfa.enroll({
+      factorType: 'totp',
+      friendlyName: 'Authy',
     })
-
-    if (error) {
-      return redirect('/login?message=' + encodeURIComponent('Something went wrong — please try again'))
+    if (enrollError) {
+      setError(enrollError.message)
+      return
     }
+    setFactorId(data.id)
+    setQrCode(data.totp.qr_code)
+    setStep('mfa-enroll')
+  }
 
-    return redirect('/login?message=' + encodeURIComponent('Check your email for a login link'))
+  async function handleVerify(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    try {
+      const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId,
+      })
+      if (challengeError) {
+        setError(challengeError.message)
+        return
+      }
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challenge.id,
+        code: totpCode,
+      })
+      if (verifyError) {
+        setError('Invalid code — please try again')
+        return
+      }
+
+      router.push(next)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -47,23 +139,17 @@ export default async function LoginPage({
           <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>Sign in to your Life Command Center</p>
         </div>
 
-        {message ? (
-          <div className="text-center space-y-4">
-            <div
-              className="px-4 py-3 rounded-md text-sm font-medium"
-              style={{
-                background: message.includes('Incorrect') ? '#fff5f5' : 'var(--brand-soft)',
-                color: message.includes('Incorrect') ? '#842029' : 'var(--brand-dark)',
-              }}
-            >
-              {message}
-            </div>
-            <a href="/login" className="text-sm" style={{ color: 'var(--ink-soft)' }}>
-              ← Try again
-            </a>
+        {error && (
+          <div
+            className="px-4 py-3 rounded-md text-sm font-medium"
+            style={{ background: '#fff5f5', color: '#842029' }}
+          >
+            {error}
           </div>
-        ) : (
-          <form action={signIn} className="space-y-4">
+        )}
+
+        {step === 'credentials' && (
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="label" htmlFor="email">Email address</label>
               <input
@@ -74,6 +160,8 @@ export default async function LoginPage({
                 autoFocus
                 placeholder="your@email.com"
                 className="input mt-1"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -85,15 +173,84 @@ export default async function LoginPage({
                 required
                 placeholder="••••••••"
                 className="input mt-1"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <button type="submit" className="btn w-full justify-center">
-              Send login link →
+            <button type="submit" className="btn w-full justify-center" disabled={loading}>
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
-            <p className="text-xs text-center" style={{ color: 'var(--ink-soft)' }}>
-              We'll email you a secure one-time link to complete sign in.
-            </p>
           </form>
+        )}
+
+        {step === 'mfa-enroll' && (
+          <div className="space-y-4">
+            <div className="text-center space-y-2">
+              <p className="text-sm font-medium">Set up two-factor authentication</p>
+              <p className="text-xs" style={{ color: 'var(--ink-soft)' }}>
+                Scan this QR code with Authy (or any authenticator app), then enter the 6-digit code below.
+              </p>
+            </div>
+            <div
+              className="flex justify-center"
+              dangerouslySetInnerHTML={{ __html: qrCode }}
+            />
+            <form onSubmit={handleVerify} className="space-y-4">
+              <div>
+                <label className="label" htmlFor="totp">6-digit code</label>
+                <input
+                  id="totp"
+                  name="totp"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  required
+                  autoFocus
+                  placeholder="000000"
+                  className="input mt-1 text-center tracking-widest text-lg"
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
+              <button type="submit" className="btn w-full justify-center" disabled={loading}>
+                {loading ? 'Verifying…' : 'Verify & finish setup'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {step === 'mfa-verify' && (
+          <div className="space-y-4">
+            <div className="text-center space-y-2">
+              <p className="text-sm font-medium">Two-factor authentication</p>
+              <p className="text-xs" style={{ color: 'var(--ink-soft)' }}>
+                Enter the 6-digit code from your Authy app.
+              </p>
+            </div>
+            <form onSubmit={handleVerify} className="space-y-4">
+              <div>
+                <label className="label" htmlFor="totp">6-digit code</label>
+                <input
+                  id="totp"
+                  name="totp"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  required
+                  autoFocus
+                  placeholder="000000"
+                  className="input mt-1 text-center tracking-widest text-lg"
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
+              <button type="submit" className="btn w-full justify-center" disabled={loading}>
+                {loading ? 'Verifying…' : 'Verify'}
+              </button>
+            </form>
+          </div>
         )}
       </div>
     </div>
