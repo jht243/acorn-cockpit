@@ -191,10 +191,9 @@ function LoginForm() {
                 Scan this QR code with Authy (or any authenticator app), then enter the 6-digit code below.
               </p>
             </div>
-            <div
-              className="flex justify-center"
-              dangerouslySetInnerHTML={{ __html: qrCode }}
-            />
+            <div className="flex justify-center">
+              <img src={qrCode} alt="Scan with Authy" width={200} height={200} />
+            </div>
             <form onSubmit={handleVerify} className="space-y-4">
               <div>
                 <label className="label" htmlFor="totp">6-digit code</label>
