@@ -52,32 +52,8 @@ function LoginForm() {
         return
       }
 
-      // Step 3: Check MFA status
-      const { data: aalData, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
-      if (aalError) {
-        setError(aalError.message)
-        setLoading(false)
-        return
-      }
-
-      // Check for existing TOTP factor (verified or unverified)
-      const { data: factorsData } = await supabase.auth.mfa.listFactors()
-      const existingFactor = factorsData?.totp?.[0]
-
-      if (aalData.nextLevel === 'aal2' && aalData.currentLevel === 'aal1') {
-        // User has verified MFA — prompt for code
-        if (existingFactor) {
-          setFactorId(existingFactor.id)
-          setStep('mfa-verify')
-        }
-      } else if (existingFactor) {
-        // Factor exists but not yet verified — go to verify screen
-        setFactorId(existingFactor.id)
-        setStep('mfa-verify')
-      } else {
-        // No factor at all — enroll
-        await startEnrollment()
-      }
+      // TODO: Re-enable MFA/Authy after login testing is confirmed
+      router.push(next)
     } finally {
       setLoading(false)
     }
