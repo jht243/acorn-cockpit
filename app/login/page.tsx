@@ -60,23 +60,23 @@ function LoginForm() {
         return
       }
 
+      // Check for existing TOTP factor (verified or unverified)
+      const { data: factorsData } = await supabase.auth.mfa.listFactors()
+      const existingFactor = factorsData?.totp?.[0]
+
       if (aalData.nextLevel === 'aal2' && aalData.currentLevel === 'aal1') {
-        // User has MFA enrolled — prompt for code
-        const factors = aalData.currentAuthenticationMethods
-        const totpFactor = (await supabase.auth.mfa.listFactors()).data?.totp?.[0]
-        if (totpFactor) {
-          setFactorId(totpFactor.id)
+        // User has verified MFA — prompt for code
+        if (existingFactor) {
+          setFactorId(existingFactor.id)
           setStep('mfa-verify')
-        } else {
-          // No factor enrolled yet — send to enrollment
-          await startEnrollment()
         }
-      } else if (aalData.nextLevel === 'aal1' && aalData.currentLevel === 'aal1') {
-        // No MFA enrolled — send to enrollment
-        await startEnrollment()
+      } else if (existingFactor) {
+        // Factor exists but not yet verified — go to verify screen
+        setFactorId(existingFactor.id)
+        setStep('mfa-verify')
       } else {
-        // Already aal2 or no MFA needed
-        router.push(next)
+        // No factor at all — enroll
+        await startEnrollment()
       }
     } finally {
       setLoading(false)
