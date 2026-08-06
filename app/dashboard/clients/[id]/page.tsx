@@ -330,6 +330,11 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
               beneficiaries={client.beneficiaries || []}
               household={client.household_members || []}
               assets={client.assets || []}
+              liabilities={client.liabilities || []}
+              socialSecurity={client.social_security_projections || []}
+              advisors={client.client_advisors || []}
+              businessPartners={client.business_partners || []}
+              educationGoals={client.education_goals || []}
             />
 
           </div>

@@ -15,7 +15,7 @@ export async function getClientById(id: string) {
   const supabase = createServiceRoleClient()
   const { data, error } = await supabase
     .from('clients')
-    .select(`*, assets (*), liabilities (*), action_items (*), meetings (*), documents (*), insurance_policies (*), estate_documents (*), beneficiaries (*), household_members (*)`)
+    .select(`*, assets (*), liabilities (*), action_items (*), meetings (*), documents (*), insurance_policies (*), estate_documents (*), beneficiaries (*), household_members (*), social_security_projections (*), client_advisors (*), business_partners (*), education_goals (*)`)
     .eq('id', id)
     .single()
 
