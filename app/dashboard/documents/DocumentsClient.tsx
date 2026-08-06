@@ -81,7 +81,8 @@ export default function DocumentsClient({ rows }: { rows: Row[] }) {
           />
           <FilterGroup label="Source" value={source} setValue={setSource} options={sources} />
         </div>
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[680px] text-sm">
           <thead>
             <tr className="text-left" style={{ color: "var(--ink-soft)" }}>
               <Th>Document</Th>
@@ -125,6 +126,7 @@ export default function DocumentsClient({ rows }: { rows: Row[] }) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

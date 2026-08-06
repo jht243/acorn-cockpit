@@ -39,7 +39,7 @@ export default function NetWorthCard({
       ) : (
         <div className="card-pad space-y-5">
           {/* KPI row */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Kpi label="Net worth" value={fmtUSD(net)} accent />
             <Kpi label="Total assets" value={fmtUSD(totalAssets)} />
             <Kpi label="Total liabilities" value={totalLiab > 0 ? `−${fmtUSD(totalLiab)}` : fmtUSD(0)} />

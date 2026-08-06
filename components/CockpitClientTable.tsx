@@ -44,7 +44,8 @@ export default function CockpitClientTable({ clients }: { clients: any[] }) {
   }, [clients, sortKey, sortDir])
 
   return (
-    <table className="w-full text-sm">
+    <div className="overflow-x-auto">
+    <table className="w-full min-w-[520px] text-sm">
       <thead>
         <tr className="text-left" style={{ color: 'var(--ink-soft)' }}>
           <SortTh label="Client"       col="name"          active={sortKey} dir={sortDir} onSort={toggle} />
@@ -72,6 +73,7 @@ export default function CockpitClientTable({ clients }: { clients: any[] }) {
         })}
       </tbody>
     </table>
+    </div>
   )
 }
 

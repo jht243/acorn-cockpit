@@ -258,9 +258,9 @@ export default function ContactDetailClient({
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <TopBar title={contact.full_name} />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6">
           <div className="grid grid-cols-12 gap-5">
 
             {/* Back + actions */}
@@ -519,7 +519,7 @@ export default function ContactDetailClient({
               </div>
 
               {subs.length > 0 && (
-                <table className="w-full text-sm">
+                <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-sm">
                   <thead>
                     <tr className="text-left text-xs uppercase tracking-wider" style={{ color: 'var(--ink-soft)' }}>
                       <th className="px-5 py-3 font-medium">Name</th>
@@ -542,7 +542,7 @@ export default function ContactDetailClient({
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table></div>
               )}
 
               {subs.length === 0 && !showSubForm && (

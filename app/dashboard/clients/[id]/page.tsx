@@ -37,9 +37,9 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <TopBar title={client.name} breadcrumb={[{ label: "Clients", href: "/dashboard/clients" }, { label: client.name }]} />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6">
           <div className="grid grid-cols-12 gap-5">
 
             {/* ── Header card ── */}

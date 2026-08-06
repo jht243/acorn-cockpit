@@ -34,9 +34,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <TopBar title="Cockpit" />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6">
           {q && (
             <div className="mb-4 flex items-center gap-3 px-4 py-2.5 rounded-md border text-sm" style={{ borderColor: "var(--line)", background: "var(--brand-soft)" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>

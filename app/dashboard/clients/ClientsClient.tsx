@@ -56,9 +56,9 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <TopBar title="Clients" />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6">
           <div className="grid grid-cols-12 gap-5">
             <div className="col-span-12 card card-pad flex flex-wrap items-center gap-3">
               <input
@@ -80,7 +80,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                 <span>Roster</span>
                 <InviteClientButton />
               </div>
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-sm">
                 <thead>
                   <tr className="text-left" style={{ color: "var(--ink-soft)" }}>
                     <SortTh label="Client"       col="name"         active={sortKey} dir={sortDir} onSort={toggleSort} />
@@ -130,7 +130,7 @@ export default function ClientsClient({ initialClients }: { initialClients: any[
                     <tr><td colSpan={7} className="px-5 py-10 text-center text-sm" style={{ color: "var(--ink-soft)" }}>No clients match these filters.</td></tr>
                   )}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           </div>
         </main>

@@ -134,9 +134,9 @@ export default function ProfessionalNetworkClient({
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <TopBar title="Professional Network" />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6">
           <div className="grid grid-cols-12 gap-5">
 
             {/* Filters bar */}
@@ -197,7 +197,7 @@ export default function ProfessionalNetworkClient({
               <div className="card-head">
                 <span>Network</span>
               </div>
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-sm">
                 <thead>
                   <tr className="text-left text-xs uppercase tracking-wider" style={{ color: 'var(--ink-soft)' }}>
                     <th className="px-5 py-3 font-medium">Name / Firm</th>
@@ -256,7 +256,7 @@ export default function ProfessionalNetworkClient({
                     </tr>
                   )}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           </div>
         </main>
