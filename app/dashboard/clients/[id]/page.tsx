@@ -105,7 +105,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
             </div>
 
             {/* ── Net worth (assets + liabilities breakdown) ── */}
-            <NetWorthCard assets={client.assets || []} liabilities={client.liabilities || []} />
+            <NetWorthCard assets={client.assets || []} liabilities={client.liabilities || []} clientId={client.id} />
 
             {/* ── Goals (top, editable) ── */}
             <div className="col-span-12 lg:col-span-7 card">
