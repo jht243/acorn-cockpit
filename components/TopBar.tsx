@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AddClientButton from "./AddClientButton";
 import InviteClientButton from "./InviteClientButton";
+import { createClient } from "@/utils/supabase/client";
 
 export default function TopBar({ title, breadcrumb }: { title: string; breadcrumb?: { label: string; href?: string }[] }) {
   const [searching, setSearching] = useState(false);
@@ -79,6 +80,18 @@ export default function TopBar({ title, breadcrumb }: { title: string; breadcrum
             <div className="font-medium leading-tight">Karli Vazquez-Mendez</div>
             <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Acorn Care, LLC</div>
           </div>
+          <button
+            onClick={async () => {
+              const supabase = createClient();
+              await supabase.auth.signOut();
+              router.push("/login");
+            }}
+            className="ml-2 text-xs px-2 py-1 rounded hover:bg-gray-100"
+            style={{ color: "var(--ink-soft)" }}
+            title="Sign out"
+          >
+            Sign out
+          </button>
         </div>
       </div>
       )}
